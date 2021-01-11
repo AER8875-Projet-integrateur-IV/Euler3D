@@ -1,3 +1,16 @@
+#folders
+#clion build folders
+cmake-build-debug
+cmake-build-minsizerel
+cmake-build-release
+cmake-build-relwithdebinfo
+.idea
+#general build folders
+bin
+build
+# vscode folders
+.vs
+
 # Prerequisites
 *.d
 
