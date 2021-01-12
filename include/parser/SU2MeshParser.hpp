@@ -14,8 +14,8 @@ namespace E3D {
     class SU2MeshParser {
         //TODO Add private member variable "Elements = vector<Element>" to stock the mesh
 
-        std::string _filename;                 /** @brief SU2 mesh file path and name */
-        std::ifstream _ifilestream;            /** @brief Input file stream */
+        std::string _filename;                   /** @brief SU2 mesh file path and name */
+        std::ifstream _ifilestream;              /** @brief Input file stream */
         int _nDim=0;                             /** @brief Geometry's number of dimensions */
         int _nElem=0;                            /** @brief Total number of Elements */
         int _nSurfaceElem=0;                     /** @brief Number of surface elements */
@@ -59,6 +59,12 @@ namespace E3D {
          * @param filestream input file stream handle.
          */
         void parseBC(std::ifstream&);
+
+
+        // todo class MarkerContainer
+        // int nELEM
+        // string tag
+        // vector<vector<int>>
 
 
 
