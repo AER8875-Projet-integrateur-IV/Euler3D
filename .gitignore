@@ -10,6 +10,7 @@ bin
 build
 # vscode folders
 .vs
+.vscode
 
 # Prerequisites
 *.d
