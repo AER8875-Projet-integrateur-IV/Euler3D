@@ -1,4 +1,5 @@
 add_subdirectory(parser)
+add_subdirectory(Connectivity)
 # Setting flags
 set(debug_flags -W -Wall -pedantic -O0 -g3)
 set(release_flags -W -Wall -pedantic -O3 )
