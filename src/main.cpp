@@ -13,7 +13,7 @@ int main(int argc, char *argv[]) {
     std::cout << "Euler 3D software." << std::endl;
 
     if (argc != 2) {
-        std::cerr << "Incorrect number of input arguments! " << std::endl;
+        std::cerr << "Usage : EES2D_APP <meshFileName.su2> " << std::endl;
         exit(EXIT_FAILURE);
     }
 
