@@ -1,5 +1,5 @@
 #include <iostream>
-#include "SU2MeshParser.hpp"
+#include "parser/SU2MeshParser.hpp"
 
 /**
  * @brief Entry point for the Euler3D software
@@ -12,7 +12,14 @@ int main(int argc, char *argv[]) {
 
     std::cout << "Euler 3D software." << std::endl;
 
-    E3D::SU2MeshParser su2_parser;
+    if (argc != 2) {
+        std::cerr << "Incorrect number of input arguments! " << std::endl;
+        exit(EXIT_FAILURE);
+    }
+
+    std::string fileName = argv[1];
+
+    E3D::SU2MeshParser su2_parser(fileName);
 
     return 0;
 }
