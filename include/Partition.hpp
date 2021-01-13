@@ -21,6 +21,23 @@ class Marker
 {
 };
 
+struct Point
+{
+    double x;
+    double y;
+    double z;
+};
+
+struct SU2Mesh
+{
+    int NDIM;
+    int NELEM;
+    int NPOIN;
+    std::vector<int> elem2nodeStart;
+    std::vector<int> elem2node;
+    std::vector<Point> *coord;
+};
+
 class Partition
 {
 private:
@@ -44,11 +61,37 @@ private:
     std::vector<int> _m_localElem2Global;
     std::vector<int> _m_localElem2GlobalStart;
 
-    std::vector<Mesh> _m_part;
+    std::vector<SU2Mesh> _m_part;
     std::vector<Marker> _m_marker;
 
-    void SolveElem2Part(); // Appel de Metis, obtention de la connectivité Element vers Partition
-    void SolvePart2Elem(); // Calcul du nombre d'éléments par partition et de la connectivité Partition vers Element
+    /**
+     * Résolution de la connectivité Element vers Partition
+     *
+     * La fonction fait appel à METIS et récupère le vecteur de connectivité 
+     * Element vers Partition.
+     */
+    void SolveElem2Part(); //
+    /**
+     * Résolution de la connectivité Partition vers Element
+     *
+     * La fonction calcule d'abord le nombre d'éléments associés à chaque partition.
+     * Ensuite, la connectivité Partition vers Element est générée sous la forme de
+     * linked-list.
+     */
+    void SolvePart2Elem();
+    /**
+     * Conversion des noeuds locaux vers les noeuds globaux
+     *
+     * @param[in]   iPart   index d'une partition
+     * @param[in]   nodeGlobal  index global du noeud
+     * @return  index local du noeud dans la partition
+     */
+    int Global2Local(int &iPart, int &nodeGlobal);
+    /**
+     * Résout la connectivité element vers noeuds pour chaque partition
+     *
+     */
+    void SolveElem2Node();
 
 public:
     /** 
@@ -59,10 +102,12 @@ public:
      *
      */
     Partition(Mesh *meshGlobal, int &nPart);
+    /**
+     * Destructeur de la classe
+     *
+     */
     ~Partition();
 
     void Write();
-    void SolveElem2Node();
-    void Global2Local();
     void SolveBorder();
 };
