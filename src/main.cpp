@@ -19,7 +19,8 @@ int main(int argc, char *argv[]) {
 
     std::string fileName = argv[1];
 
-    E3D::SU2MeshParser su2_parser(fileName);
+    E3D::Parser::SU2MeshParser su2_parser(fileName);
+
 
     return 0;
 }

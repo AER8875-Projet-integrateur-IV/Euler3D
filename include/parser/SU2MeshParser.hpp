@@ -4,9 +4,10 @@
 #include <fstream>
 #include <vector>
 
+#include "parser/Element.hpp"
 #pragma once
 
-namespace E3D {
+namespace E3D::Parser {
     /**
      * @author Amin
      * @brief SU2MeshParser class Parses info from SU2 Mesh files.
@@ -21,47 +22,17 @@ namespace E3D {
         SU2MeshParser(const std::string &fileName);
 
         /**
-        * @brief A structure (Node) to hold coordinates of the nodes
-        */
-        struct Node {
-        private:
-            double _x,_y,_z;
-        public:
-            /**
-             * @brief default ctor for Node object
-             * @param x X coordinate (1st column in su2 file)
-             * @param y Y coordinate (2nd column in su2 file)
-             * @param z Z coordinate (3rd column in su2 file)
-             */
-            Node(double x,double y,double z): _x(x),_y(y),_z(z) {};
-
-            /**
-             * @brief Getter for node x coordinate
-             * @return x coordinate
-             */
-            inline double getX() const { return _x;}
-
-            /**
-             * @brief Getter for node y coordinate
-             * @return y coordinate
-             */
-            inline double getY() const { return _y;}
-
-            /**
-             * @brief Getter for node z coordinate
-             * @return z coordinate
-             */
-            inline double getZ() const { return _z;}
-        };
-
-        /**
          * @return getter for Mesh's number of dimensions.
          */
-        inline int GetMeshDim() const      {return this->_nDim;}
+        inline int GetMeshDim() const                           {return this->_nDim;}
 
-        inline int GetnElem() const        {return this->_nElem;}
+        inline int GetTotalElemCount() const                    {return this->_nElem;}
 
-        inline int GetnSurfaceElem() const {return this->_nSurfaceElem;}
+        inline int GetSurfaceElemCount() const                  {return this->_nSurfaceElem;}
+
+        inline std::vector<Element> GetElements() const         {return this->_Elements;}
+
+        inline std::vector<Node> GetPoints() const              {return this->_Points;}
 
 
     private:
@@ -74,6 +45,7 @@ namespace E3D {
         int _nVolumeElem=0;                      /** @brief Number of volume elements */
         int _nPoints=0;                          /** @brief Number of points */
         int _nMarkers=0;                         /** @brief Number of boundary conditions */
+        std::vector<Element> _Elements;          /** @brief vector holding elements */
         std::vector<Node> _Points;               /** @brief Vector to hold all nodes of the mesh */
         std::vector<std::string> _tags;          /** @brief Mesh boundaries tag */
 
