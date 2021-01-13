@@ -31,8 +31,11 @@ private:
     std::vector<Mesh> _m_part;
     std::vector<Marker> _m_marker;
 
+    void SolveElem2Part();
+
 public:
     Partition(Mesh *meshGlobal, int &nPart);
+    ~Partition();
 
     void Write();
     void SolveElem2Node();
