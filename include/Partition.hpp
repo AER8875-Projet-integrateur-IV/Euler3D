@@ -9,7 +9,7 @@
  * the METIS library into multiple smaller mesh and create a vector of
  * mesh objects with solved connectivity 
  */
-
+#pragma once
 #include <iostream>
 #include <string>
 #include <vector>
@@ -35,7 +35,10 @@ struct SU2Mesh
     int NPOIN;
     std::vector<int> elem2nodeStart;
     std::vector<int> elem2node;
-    std::vector<Point> *coord;
+    std::vector<int> interfaceStart;
+    std::vector<int> interface;
+
+    std::vector<Point> coord;
 };
 
 class Partition
@@ -57,9 +60,9 @@ private:
     std::vector<int> _m_localNode2Global;
     std::vector<int> _m_localNode2GlobalStart;
 
-    // same as _m_localNode2Global and _m_localNode2GlobalStart
-    std::vector<int> _m_localElem2Global;
-    std::vector<int> _m_localElem2GlobalStart;
+    // contain the local index in the partition for each global element index.
+    // This vector need to be linked with _m_elem2Part in order to obtain the index of the partition
+    std::vector<int> _m_globalElem2Local;
 
     std::vector<SU2Mesh> _m_part;
     std::vector<Marker> _m_marker;
@@ -92,6 +95,14 @@ private:
      *
      */
     void SolveElem2Node();
+    /**
+     * Résout la connectivité des interfaces entre les partitions.
+     * 
+     * La fonction établit,pour chaque partition, les interfaces entre les autres
+     * partitions du domaine. Elle permet aussi de faire le traitement des conditions
+     * limites initiales présentes dans le maillage global.
+     */
+    void SolveBorder();
 
 public:
     /** 
@@ -109,5 +120,4 @@ public:
     ~Partition();
 
     void Write();
-    void SolveBorder();
 };

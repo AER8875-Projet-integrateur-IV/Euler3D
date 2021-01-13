@@ -130,3 +130,61 @@ int Partition::Global2Local(int &iPart, int &nodeGlobal)
     _m_localNode2GlobalStart[iPart + 1]++;
     return nLocalNode;
 }
+
+void Partition::SolveBorder()
+{
+    int NELEM = _m_meshGlobal->getNELEM();
+    for (int iPart = 0; iPart < _m_nPart; iPart++)
+    {
+        // Initialisation
+        _m_part[iPart].interfaceStart.push_back(0);
+        // Parcours de chaque elements de la partition
+        int debutE = _m_Part2ElemStart[iPart];
+        int finE = _m_Part2ElemStart[iPart + 1];
+        for (int iElemLoc = 0; iElemLoc < finE - debutE; iElemLoc++)
+        {
+            int iElemGlob = _m_Part2Elem[debutE + iElemLoc];
+            // Parcours des voisins de iElemGlob
+            int debutV = _m_meshGlobal->getElem2ElemStart()->at(iElemGlob);
+            int finV = _m_meshGlobal->getElem2ElemStart()->at(iElemGlob + 1);
+            for (int elemGlobj = debutV; elemGlobj < finV; elemGlobj++)
+            {
+                // Récupération de l'élément voisin
+                int jElemGlob = _m_meshGlobal->getElem2Elem()->at(elemGlobj);
+                // Vérifier si l'élément est dans la partition
+                int jPart = _m_elem2Part[jElemGlob];
+                if (jPart != iPart)
+                {
+                    if (jElemGlob < NELEM) // Interface entre deux partitions
+                    {
+                        _m_part[iPart].interface.push_back(iElemGlob);
+                        _m_part[iPart].interface.push_back(_m_globalElem2Local[jElemGlob]);
+                        _m_part[iPart].interface.push_back(jPart);
+                        for (int nodeLoci = _m_part[iPart].elem2nodeStart[iElemLoc]; nodeLoci < _m_part[iPart].elem2nodeStart[iElemLoc + 1]; nodeLoci++)
+                        {
+                            int iNodeLoc = _m_part[iPart].elem2node[nodeLoci];
+                            int iNodeGlob = _m_localNode2Global[iNodeLoc + _m_localNode2GlobalStart[iPart]];
+                            for (int nodeGlobj = _m_meshGlobal->getElem2NodeStart()->at(jElemGlob); nodeGlobj < _m_meshGlobal->getElem2NodeStart()->at(jElemGlob + 1); nodeGlobj++)
+                            {
+                                // Récupération du noeud global de l'élément voisin
+                                int jNodeGlob = _m_meshGlobal->getElem2Node()->at(nodeGlobj);
+                                if (iNodeGlob == jNodeGlob)
+                                {
+                                    _m_part[iPart].interface.push_back(iNodeLoc);
+
+                                    break;
+                                }
+                            }
+                        }
+                        _m_part[iPart].interfaceStart.push_back(_m_part[iPart].interface.size());
+                    }
+                    else // Condition Limite du maillage global
+                    {
+                        continue;
+                    }
+                }
+            }
+        }
+    }
+    return;
+}
