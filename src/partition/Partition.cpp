@@ -29,3 +29,38 @@ void Partition::SolveElem2Part()
                                      (long int *)_m_elem2Part.data(), (long int *)node2Part.data());
     return;
 }
+
+void Partition::SolvePart2Elem()
+{
+    int NELEM = _m_meshGlobal->getNELEM();
+    // Calcul du nombre d'éléments par partition
+    _m_nElemPerPart.assign(_m_nPart, 0);
+    for (int iElem = 0; iElem < NELEM; iElem++)
+    {
+        _m_nElemPerPart[_m_elem2Part[iElem]]++;
+    }
+    // Construction de la connectivité partition vers éléments
+    // // Initialisation
+    _m_Part2ElemStart.reserve(_m_nPart + 1);
+    _m_Part2Elem.assign(NELEM, 0);
+    _m_Part2ElemStart.push_back(0);
+    // // Calcul du vecteur d'indexation
+    for (int iPart = 0; iPart < _m_nPart; iPart++)
+    {
+        _m_Part2ElemStart.push_back(_m_nElemPerPart[iPart] + _m_Part2ElemStart.back());
+    }
+    // // Calcul du vecteur de connectivité
+    for (int iElem = 0; iElem < NELEM; iElem++)
+    {
+        int part = _m_elem2Part[iElem];
+        _m_Part2Elem[_m_Part2ElemStart[part]] = iElem;
+        _m_Part2ElemStart[part]++;
+    }
+    // // Réorganisation du vecteur d'indexation
+    for (int iPart = _m_nPart + 1; iPart > 0; iPart--)
+    {
+        _m_Part2ElemStart[iPart] = _m_Part2ElemStart[iPart - 1];
+    }
+    _m_Part2ElemStart[0] = 0;
+    return;
+}
