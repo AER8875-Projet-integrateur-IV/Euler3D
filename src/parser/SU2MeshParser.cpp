@@ -75,7 +75,7 @@ void SU2MeshParser::parseVolumeElem(std::ifstream &) {
 
             ss.seekg(6) >> _nVolumeElem;
 
-            _Elements.reserve(_nVolumeElem + 1);
+            _VolumeElements.reserve(_nVolumeElem + 1);
 
             nelem_found = true;
 
@@ -95,7 +95,7 @@ void SU2MeshParser::parseVolumeElem(std::ifstream &) {
                             ss1 >> TempNodeID;
                             TempNodesSurrElem.push_back(TempNodeID);
                         }
-                        _Elements.emplace_back(Element(TempVtkID, TempNodesSurrElem));
+                        _VolumeElements.emplace_back(Element(TempVtkID, TempNodesSurrElem));
                         TempNodesSurrElem.clear();
                         break;
                     }
@@ -141,7 +141,7 @@ void SU2MeshParser::parsePoints(std::ifstream &) {
                 std::getline(_ifilestream, line);
                 std::stringstream ss1(line);
                 for (int j = 0; j < 3; j++) {
-                    ss1 >> std::setprecision(12) >> std::fixed  >> TempX >> TempY >> TempZ;
+                    ss1 >> std::setprecision(12) >> std::fixed >> TempX >> TempY >> TempZ;
                     TempCoords.push_back(TempX);
                     TempCoords.push_back(TempY);
                     TempCoords.push_back(TempZ);
@@ -164,4 +164,42 @@ void SU2MeshParser::parsePoints(std::ifstream &) {
               << std::setw(6)
               << _nPoints
               << "\n";
+}
+
+
+void SU2MeshParser::parseBC(std::ifstream &) {
+    std::string line;
+    bool nmark_found = false;
+
+    while (std::getline(_ifilestream, line)) {
+
+        if (line.find("NMARK=") != std::string::npos) {
+
+            std::stringstream ss(line);
+
+            ss.seekg(6) >> _nMarkers;
+
+            nmark_found = true;
+
+            // Temporary variables
+            std::pair<std::string,int> TempTags;
+            int markers_nElems;
+            for(int i=0; i < _nMarkers; i++){
+
+            }
+
+        }
+    }
+
+    if (!nmark_found) {
+        std::cerr << "Dimension keyword not found \"NMARK=\" ! " << std::endl;
+        exit(EXIT_FAILURE);
+    }
+
+    std::cout << "Number of markers : "
+              << std::setw(6)
+              << _nMarkers
+              << "\n";
+
+
 }

@@ -30,7 +30,7 @@ namespace E3D::Parser {
 
         inline int GetSurfaceElemCount() const                  {return this->_nSurfaceElem;}
 
-        inline std::vector<Element> GetElements() const         {return this->_Elements;}
+        inline std::vector<Element> GetElements() const         {return this->_VolumeElements;}
 
         inline std::vector<Node> GetPoints() const              {return this->_Points;}
 
@@ -45,9 +45,10 @@ namespace E3D::Parser {
         int _nVolumeElem=0;                      /** @brief Number of volume elements */
         int _nPoints=0;                          /** @brief Number of points */
         int _nMarkers=0;                         /** @brief Number of boundary conditions */
-        std::vector<Element> _Elements;          /** @brief vector holding elements */
-        std::vector<Node> _Points;               /** @brief Vector to hold all nodes of the mesh */
-        std::vector<std::string> _tags;          /** @brief Mesh boundaries tag */
+        std::vector<Element> _VolumeElements;              /** @brief vector holding Volume elements */
+        std::vector<Element> _SurfacceElements;            /** @brief vector holding Surface Elements */
+        std::vector<Node> _Points;                         /** @brief Vector to hold all nodes of the mesh */
+        std::vector<std::pair<std::string, int>> _tags;    /** @brief Mesh boundaries tags and number of element (example : ("farfield",64) */
 
 
         // Volume VTK codes
