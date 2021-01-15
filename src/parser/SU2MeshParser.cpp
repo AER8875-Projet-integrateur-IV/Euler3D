@@ -12,7 +12,8 @@ using E3D::Parser::SU2MeshParser;
 SU2MeshParser::SU2MeshParser(const std::string &filename)
         : _filename(filename), _ifilestream(filename) {
 
-    std::cout << "SU2MeshParser class initialized !" << std::endl;
+    //print SU2MeshParser class initialization
+    std::cout << std::string(24, '#') << "  SU2MeshParser  " << std::string(24, '#') << "\n\n" << std::endl;
 
     //File operation check
     if (!_ifilestream) {
@@ -20,7 +21,8 @@ SU2MeshParser::SU2MeshParser(const std::string &filename)
         exit(EXIT_FAILURE);
     }
 
-    std::cout << std::setw(40)
+    // print mesh file name
+    std::cout << std::setw(30)
               << "Mesh File Name : "
               << std::setw(6)
               << _filename
@@ -29,6 +31,20 @@ SU2MeshParser::SU2MeshParser(const std::string &filename)
     parseDim(_ifilestream);
     parseVolumeElem(_ifilestream);
     parsePoints(_ifilestream);
+    parseBC(_ifilestream);
+
+    _nElem = _nBoundaryElem + _nVolumeElem;
+
+    // print total count of elements
+    std::cout << "\n"
+              << std::setw(30)
+              << "Total Number of Elements : "
+              << std::setw(6)
+              << _nElem
+              << "\n\n";
+
+    std::cout << std::string(58, '#') << std::endl;
+
 }
 
 
@@ -110,7 +126,8 @@ void SU2MeshParser::parseVolumeElem(std::ifstream &) {
         exit(EXIT_FAILURE);
     }
 
-    std::cout << "Number of Volume Elements : "
+    std::cout << std::setw(30)
+              << "Number of Volume Elements : "
               << std::setw(6)
               << _nVolumeElem
               << "\n";
@@ -141,7 +158,7 @@ void SU2MeshParser::parsePoints(std::ifstream &) {
                 std::getline(_ifilestream, line);
                 std::stringstream ss1(line);
                 for (int j = 0; j < 3; j++) {
-                    ss1 >> std::setprecision(12) >> std::fixed >> TempX >> TempY >> TempZ;
+                    ss1 >> TempX >> TempY >> TempZ;
                     TempCoords.push_back(TempX);
                     TempCoords.push_back(TempY);
                     TempCoords.push_back(TempZ);
@@ -160,7 +177,8 @@ void SU2MeshParser::parsePoints(std::ifstream &) {
         exit(EXIT_FAILURE);
     }
 
-    std::cout << "Number of Nodes : "
+    std::cout << std::setw(30)
+              << "Number of Nodes : "
               << std::setw(6)
               << _nPoints
               << "\n";
@@ -181,25 +199,87 @@ void SU2MeshParser::parseBC(std::ifstream &) {
 
             nmark_found = true;
 
-            // Temporary variables
-            std::pair<std::string,int> TempTags;
-            int markers_nElems;
-            for(int i=0; i < _nMarkers; i++){
+            //Temporary variables
+            std::vector<int> TempNodesSurrElem;
+            int Temp_nTagElems;
+            std::string Temp_TagName;
+            std::pair<std::string, std::vector<Element>> TempBcPairWithAllElems;
+            std::pair<std::string, int> TempBcPairWithnElems;
+            std::vector<Element> TempTagElements;
+            int TempVtkID;
+            int TempNodeID;
 
+
+            for (int i = 0; i < _nMarkers; i++) {
+
+                // Parse MARKER_TAG
+                std::getline(_ifilestream, line);
+                std::stringstream ss1(line);
+                ss1.seekg(11) >> Temp_TagName;
+
+                //Parse MARKER_ELEMS
+                std::getline(_ifilestream, line);
+                std::stringstream ss2(line);
+                ss2.seekg(13) >> Temp_nTagElems;
+
+                // updating variables to parse current tag elements
+                _nBoundaryElem += Temp_nTagElems;
+                TempBcPairWithAllElems.first = Temp_TagName;
+                TempBcPairWithnElems.first = Temp_TagName;
+                TempBcPairWithnElems.second = Temp_nTagElems;
+                _tags.push_back(TempBcPairWithnElems);
+                TempTagElements.reserve(Temp_nTagElems);
+
+
+                for (int i = 0; i < Temp_nTagElems; i++) {
+                    std::getline(_ifilestream, line);
+                    std::stringstream ss3(line);
+                    ss3 >> TempVtkID;
+                    for (auto&[ID, nbNodes] : _vtkSurfaceElements) {
+                        if (TempVtkID == ID) {
+                            TempNodesSurrElem.reserve(nbNodes);
+                            for (int j = 0; j < nbNodes; j++) {
+                                ss1 >> TempNodeID;
+                                TempNodesSurrElem.push_back(TempNodeID);
+                            }
+                            TempTagElements.emplace_back(Element(TempVtkID, TempNodesSurrElem));
+                            TempNodesSurrElem.clear();
+                            break;
+
+                        }
+
+                    }
+
+                }
+                TempBcPairWithAllElems.second = TempTagElements;
+                TempTagElements.clear();
+                _BoundaryElements.push_back(TempBcPairWithAllElems);
             }
-
+            break;
         }
-    }
 
+    }
     if (!nmark_found) {
         std::cerr << "Dimension keyword not found \"NMARK=\" ! " << std::endl;
         exit(EXIT_FAILURE);
     }
 
-    std::cout << "Number of markers : "
+    std::cout << std::setw(30)
+              << "Number of BC Elements : "
+              << std::setw(6)
+              << _nBoundaryElem
+              << "\n";
+
+    std::cout << std::setw(30)
+              << "Number of BC Markers : "
               << std::setw(6)
               << _nMarkers
-              << "\n";
+              << "\n\n";
+
+    for (auto&[tag, count] : _tags) {
+        std::cout << std::setw(20) << "Tag: " << std::setw(10) << tag << " | Number of elements: " << count
+                  << std::endl;
+    }
 
 
 }

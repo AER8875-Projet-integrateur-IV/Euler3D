@@ -10,7 +10,7 @@
 
 int main(int argc, char *argv[]) {
 
-    std::cout << "Euler 3D software." << std::endl;
+    std::cout << "\n\nEuler 3D software." << std::endl;
 
     if (argc != 2) {
         std::cerr << "Usage : EES2D_APP <meshFileName.su2> " << std::endl;
@@ -20,7 +20,5 @@ int main(int argc, char *argv[]) {
     std::string fileName = argv[1];
 
     E3D::Parser::SU2MeshParser su2_parser(fileName);
-
-
     return 0;
 }
