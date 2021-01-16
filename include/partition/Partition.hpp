@@ -14,18 +14,13 @@
 #include <string>
 #include <vector>
 
+#include "parser/Element.hpp"
+
 class Mesh
 {
 };
 class Marker
 {
-};
-
-struct Point
-{
-    double x;
-    double y;
-    double z;
 };
 
 struct SU2Mesh
@@ -37,8 +32,10 @@ struct SU2Mesh
     std::vector<int> elem2node;
     std::vector<int> interfaceStart;
     std::vector<int> interface;
+    std::vector<std::vector<int>> boundaryStart;
+    std::vector<std::vector<int>> boundary;
 
-    std::vector<Point> coord;
+    std::vector<E3D::Parser::Node> coord;
 };
 
 class Partition

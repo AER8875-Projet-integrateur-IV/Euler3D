@@ -1,4 +1,4 @@
-#include "../../include/Partition.hpp"
+#include "partition/Partition.hpp"
 #include <metis.h>
 
 Partition::Partition(Mesh *meshGlobal, int &nPart)
@@ -68,10 +68,12 @@ void Partition::SolvePart2Elem()
 void Partition::SolveElem2Node()
 {
     // Initialisation
+    int NELEM = _m_meshGlobal->getNELEM();
     _m_localNode2GlobalStart.reserve(_m_nPart);
     _m_localNode2Global.reserve(_m_meshGlobal->getNPOIN());
     _m_localNode2GlobalStart.push_back(0);
     _m_nNodePerPart.reserve(_m_nPart);
+    _m_globalElem2Local.assign(NELEM, 0);
     // Constructuction de la connectivité element vers noeuds de chaque partition
     for (int iPart = 0; iPart < _m_nPart; iPart++)
     {
@@ -89,6 +91,7 @@ void Partition::SolveElem2Node()
         for (int iElemLoc = 0; iElemLoc < finE - debutE; iElemLoc++)
         {
             int iElemGlob = _m_Part2Elem[debutE + iElemLoc];
+            _m_globalElem2Local[iElemGlob] = iElemLoc;
             // Parcours des noeuds de l'élément
             int debutN = _m_meshGlobal->getElem2NodeStart()->at(iElemGlob);
             int finN = _m_meshGlobal->getElem2NodeStart()->at(iElemGlob + 1);
@@ -180,7 +183,8 @@ void Partition::SolveBorder()
                     }
                     else // Condition Limite du maillage global
                     {
-                        continue;
+                        int iFace = _m_meshGlobal->getFace(iElemGlob, jElemGlob); // Méthode à adapter
+                        int iMark = _m_meshGlobal->getFace2BC()[2 * iFace + 1];   // à adapter
                     }
                 }
             }
