@@ -1,4 +1,4 @@
-#include "../../include/Partition.hpp"
+#include "partition/Partition.hpp"
 #include <metis.h>
 
 Partition::Partition(Mesh *meshGlobal, int &nPart)
