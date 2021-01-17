@@ -1,3 +1,5 @@
+#pragma once
+#include "parser/Element.hpp"
 // les coords sont definis dans le struct Element
 // struct Coord
 // {
