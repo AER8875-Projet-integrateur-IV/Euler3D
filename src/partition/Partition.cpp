@@ -202,6 +202,7 @@ void Partition::SolveBorder()
         _m_part[iPart].Ninterface.assign(_m_nPart, 0);
         _m_part[iPart].Ninterface.assign(_m_nPart, 0);
         _m_part[iPart].interface_elem.resize(_m_nPart);
+        //_m_part[iPart].interface_elemStart.resize(_m_nPart, std::vector<int>(1, 0));
     }
     // Calcul des interfaces entre les partitions
     for (int iPart = 0; iPart < _m_nPart; iPart++)
