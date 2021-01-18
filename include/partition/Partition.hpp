@@ -30,10 +30,14 @@ struct SU2Mesh
     int NPOIN;
     std::vector<int> elem2nodeStart;
     std::vector<int> elem2node;
-    std::vector<int> interfaceStart;
-    std::vector<int> interface;
+    /*     std::vector<int> interfaceStart;
+    std::vector<int> interface; */
     std::vector<std::vector<int>> boundaryStart;
     std::vector<std::vector<int>> boundary;
+
+    std::vector<int> Ninterface;
+    std::vector<int> Ninterface_elem;
+    std::vector<std::vector<int>> interface_elem;
 
     std::vector<E3D::Parser::Node> coord;
 };

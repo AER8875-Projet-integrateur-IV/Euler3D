@@ -19,7 +19,7 @@ void Partition::SolveElem2Part()
     long int NELEM = _m_meshGlobal->getNELEM();
     long int NPOIN = _m_meshGlobal->getNPOIN();
 
-    _m_elem2Part.assign(NELEM, 0);
+    _m_elem2Part.resize(NELEM);
     std::vector<int> node2Part(NPOIN);
     long int objval;
     long int ncommon(3); // A revoir
@@ -69,8 +69,8 @@ void Partition::SolveElem2Node()
 {
     // Initialisation
     int NELEM = _m_meshGlobal->getNELEM();
-    _m_localNode2GlobalStart.reserve(_m_nPart);
-    _m_localNode2Global.reserve(_m_meshGlobal->getNPOIN());
+    _m_localNode2GlobalStart.resize(_m_nPart + 1);
+    _m_localNode2Global.resize(_m_meshGlobal->getNPOIN());
     _m_localNode2GlobalStart.push_back(0);
     _m_nNodePerPart.reserve(_m_nPart);
     _m_globalElem2Local.assign(NELEM, 0);
@@ -81,7 +81,7 @@ void Partition::SolveElem2Node()
         SU2Mesh iMesh;
         iMesh.NDIM = _m_meshGlobal->getNDIM();
         iMesh.NELEM = _m_nElemPerPart[iPart];
-        iMesh.elem2nodeStart.reserve(iMesh.NELEM + 1);
+        iMesh.elem2nodeStart.resize(iMesh.NELEM + 1);
         iMesh.elem2node.reserve(4 * _m_nElemPerPart[iPart]); //nbre de noeuds per elem>=4 (tetraedres)
         iMesh.elem2nodeStart.push_back(0);
         // Parcours de chaque elements de la partition et renumérotation des noeuds
@@ -134,7 +134,7 @@ int Partition::Global2Local(int &iPart, int &nodeGlobal)
     return nLocalNode;
 }
 
-void Partition::SolveBorder()
+/* void Partition::SolveBorder()
 {
     int NELEM = _m_meshGlobal->getNELEM();
     for (int iPart = 0; iPart < _m_nPart; iPart++)
@@ -156,9 +156,9 @@ void Partition::SolveBorder()
                 int jElemGlob = _m_meshGlobal->getElem2Elem()->at(elemGlobj);
                 // Vérifier si l'élément est dans la partition
                 int jPart = _m_elem2Part[jElemGlob];
-                if (jPart != iPart)
+                if (jElemGlob < NELEM)
                 {
-                    if (jElemGlob < NELEM) // Interface entre deux partitions
+                    if (jPart != iPart) // Interface entre deux partitions
                     {
                         _m_part[iPart].interface.push_back(iElemGlob);
                         _m_part[iPart].interface.push_back(_m_globalElem2Local[jElemGlob]);
@@ -181,11 +181,66 @@ void Partition::SolveBorder()
                         }
                         _m_part[iPart].interfaceStart.push_back(_m_part[iPart].interface.size());
                     }
-                    else // Condition Limite du maillage global
+                }
+                else // Condition Limite du maillage global
+                {
+                    int iFace = _m_meshGlobal->getFace(iElemGlob, jElemGlob); // Méthode à adapter
+                    int iMark = _m_meshGlobal->getFace2BC()[2 * iFace + 1];   // à adapter
+                }
+            }
+        }
+    }
+    return;
+} */
+
+void Partition::SolveBorder()
+{
+    // Initialsation
+    int NELEM = _m_meshGlobal->getNELEM();
+    for (int iPart = 0; iPart < _m_nPart; iPart++)
+    {
+        _m_part[iPart].Ninterface.assign(_m_nPart, 0);
+        _m_part[iPart].Ninterface.assign(_m_nPart, 0);
+        _m_part[iPart].interface_elem.resize(_m_nPart);
+    }
+    // Calcul des interfaces entre les partitions
+    for (int iPart = 0; iPart < _m_nPart; iPart++)
+    {
+        // Parcours de chaque elements de la partition
+        int debutE = _m_Part2ElemStart[iPart];
+        int finE = _m_Part2ElemStart[iPart + 1];
+        for (int iElemLoc = 0; iElemLoc < finE - debutE; iElemLoc++)
+        {
+            int iElemGlob = _m_Part2Elem[debutE + iElemLoc];
+            // Parcours des voisins de iElemGlob
+            int debutV = _m_meshGlobal->getElem2ElemStart()->at(iElemGlob);
+            int finV = _m_meshGlobal->getElem2ElemStart()->at(iElemGlob + 1);
+            for (int elemGlobj = debutV; elemGlobj < finV; elemGlobj++)
+            {
+                // Récupération de l'élément voisin
+                int jElemGlob = _m_meshGlobal->getElem2Elem()->at(elemGlobj);
+                if (jElemGlob < NELEM) // Element interne du maillage global
+                {
+                    // Vérifier si l'élément est dans la partition
+                    int jPart = _m_elem2Part[jElemGlob];
+                    if (jPart > iPart) // Interface entre deux partitions
                     {
-                        int iFace = _m_meshGlobal->getFace(iElemGlob, jElemGlob); // Méthode à adapter
-                        int iMark = _m_meshGlobal->getFace2BC()[2 * iFace + 1];   // à adapter
+                        _m_part[iPart].Ninterface[jPart] = 1;
+                        _m_part[jPart].Ninterface[iPart] = 1;
+
+                        _m_part[iPart].Ninterface_elem[jPart]++;
+                        _m_part[jPart].Ninterface_elem[iPart]++;
+
+                        _m_part[iPart].interface_elem[jPart].push_back(iElemLoc);
+                        _m_part[iPart].interface_elem[jPart].push_back(_m_globalElem2Local[jElemGlob]);
+
+                        _m_part[jPart].interface_elem[iPart].push_back(_m_globalElem2Local[jElemGlob]);
+                        _m_part[jPart].interface_elem[iPart].push_back(iElemLoc);
                     }
+                }
+                else // Condition Limite du maillage global
+                {
+                    continue;
                 }
             }
         }
