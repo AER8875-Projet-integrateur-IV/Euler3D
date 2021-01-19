@@ -1,4 +1,6 @@
 //TODO : include licence
+#pragma once
+
 
 #include <string>
 #include <fstream>
@@ -6,7 +8,7 @@
 
 #include "parser/Element.hpp"
 
-#pragma once
+
 
 
 namespace E3D::Parser {

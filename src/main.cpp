@@ -1,6 +1,5 @@
 #include <iostream>
-#include "parser/SU2MeshParser.hpp"
-
+#include "mesh/Mesh.hpp"
 /**
  * @brief Entry point for the Euler3D software
  * @param argc : Number of command line parameters
@@ -19,6 +18,7 @@ int main(int argc, char *argv[]) {
 
     std::string fileName = argv[1];
 
-    E3D::Parser::SU2MeshParser su2_parser(fileName);
+    E3D::Mesh mesh(fileName);
+
     return 0;
 }
