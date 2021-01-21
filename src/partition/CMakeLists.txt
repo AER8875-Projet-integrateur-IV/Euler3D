@@ -36,8 +36,8 @@ set(SOURCE Partition.cpp SU2Writer.cpp)
 #              NOTHING SHOULD BE MODIFIED BELOW THIS LINE                      #
 ################################################################################
 
-add_library(NAME_LIBRARY SOURCE)
-TARGET_INCLUDE_DIRECTORIES(NAME_LIBRARY PUBLIC ${PROJECT_SOURCE_DIR}/include)
+add_library(${NAME_LIBRARY} ${SOURCE})
+TARGET_INCLUDE_DIRECTORIES(${NAME_LIBRARY} PUBLIC ${PROJECT_SOURCE_DIR}/include)
 
-TARGET_COMPILE_OPTIONS(NAME_LIBRARY PUBLIC "$<$<CONFIG:DEBUG>:${debug_flags}>" )
-TARGET_COMPILE_OPTIONS(NAME_LIBRARY PUBLIC "$<$<CONFIG:RELEASE>:${release_flags}>" )
+TARGET_COMPILE_OPTIONS(${NAME_LIBRARY} PUBLIC "$<$<CONFIG:DEBUG>:${debug_flags}>" )
+TARGET_COMPILE_OPTIONS(${NAME_LIBRARY} PUBLIC "$<$<CONFIG:RELEASE>:${release_flags}>" )
