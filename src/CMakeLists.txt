@@ -1,5 +1,6 @@
 add_subdirectory(parser)
 add_subdirectory(partition)
+add_subdirectory(mesh)
 # Setting flags
 set(debug_flags -W -Wall -pedantic -O0 -g3)
 set(release_flags -W -Wall -pedantic -O3 )
