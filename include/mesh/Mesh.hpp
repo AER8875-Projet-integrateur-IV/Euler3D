@@ -32,6 +32,13 @@ namespace E3D {
         inline const E3D::Parser::Node GetNodeCoord (const int NodeID) const {
             return _parser.GetPoints()[NodeID];
         }
+        
+        /**
+         * @return Node vector
+         */
+        inline const std::vector<E3D::Parser::Node>& GetNodeVector () const {
+            return _parser.GetPoints();
+        }
 
         /**
          *
@@ -50,6 +57,13 @@ namespace E3D {
          */
         inline const E3D::Parser::Element GetInteriorElement(int ElementID) const {
             return _parser.GetVolumeElems()[ElementID];
+        }
+
+        /**
+         * @return Interior Element vector
+         */
+        inline const std::vector<E3D::Parser::Element>& GetInteriorElementVector() const {
+            return _parser.GetVolumeElems();
         }
 
         /**
