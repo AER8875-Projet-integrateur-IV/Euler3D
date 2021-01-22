@@ -35,6 +35,11 @@ namespace E3D::Parser {
 
         /**
          *
+         * @return Number of dimensions of the geometry (2D or 3D)
+         */
+        inline int GetnDim() const { return this->_nDim; }
+        /**
+         *
          * @return total number of element (Surface + volume)
          */
         inline int GetTotalElemCount() const { return this->_nElem; }
@@ -47,7 +52,7 @@ namespace E3D::Parser {
 
         /**
          *
-         * @return NUumber of Volume ELements
+         * @return NUumber of Volume Elements
          */
         inline int GetVolumeElemCount() const { return this->_nVolumeElem; }
 
@@ -67,25 +72,25 @@ namespace E3D::Parser {
          *
          * @return Vector of element object, for volume elements
          */
-        inline std::vector<Element> GetVolumeElems() const { return this->_VolumeElements; }
+        inline const std::vector<Element>& GetVolumeElems() const { return this->_VolumeElements; }
 
         /**
          *
          * @return Pairs of BC tags and number of elements associated to the tag. Ex : [("fairfield", 64), ("wall", 128)]
          */
-        inline std::vector<std::pair<std::string, int>> GetTags() const { return this->_tags; }
+        inline const std::vector<std::pair<std::string, int>>& GetTags() const { return this->_tags; }
 
         /**
          *
          * @return Vector holding node object, holding all the nodes of the mesh
          */
-        inline std::vector<Node> GetPoints() const { return this->_Points; }
+        inline const std::vector<Node>& GetPoints() const { return this->_Points; }
 
         /**
          *
          * @return Pairs of BC tag and elements under this tag : [ ('fairfield',[Elem1,Elem2...]) , ('Wall',[Elem1,Elem2...]) ... ]
          */
-        inline BC_Structure GetBoundaryElems() const { return this->_BoundaryElements; }
+        inline const BC_Structure& GetBoundaryElems() const { return this->_BoundaryElements; }
 
 
     private:
@@ -116,7 +121,7 @@ namespace E3D::Parser {
         const std::pair<int, int> _VtkTria = std::make_pair(5, 3);    /** @brief VTK code for a triangle (3 nodes) */
         const std::pair<int, int> _VtkPixel = std::make_pair(8,
                                                              4);    /** @brief VTK code for a pixel (perfect rectangle) */
-        const std::pair<int, int> _VtkQuad = std::make_pair(10, 4);   /** @brief VTK code for a quad (4 nodes) */
+        const std::pair<int, int> _VtkQuad = std::make_pair(9, 4);   /** @brief VTK code for a quad (4 nodes) */
 
         /** @brief ordered from most to least frequently used vtkVOlumeELement to accelerate comparaison match */
         const std::vector<std::pair<int, int>> _vtkVolumeElements{_VtkTetra,

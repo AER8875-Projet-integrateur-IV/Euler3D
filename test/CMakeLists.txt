@@ -5,6 +5,7 @@
 set(TEST_SOURCE
     CatchMain.cpp 
     Test_Catch.cpp 
+    Test_Parser.cpp
     Test_SU2Writer.cpp
 )
 # Add subdirectories 
@@ -19,6 +20,7 @@ message(STATUS "Tests are included")
 add_subdirectory(extern/Catch2)
 add_executable(tests ${TEST_SOURCE})
 target_link_libraries(tests Catch2::Catch2 
+                            Parser
                             Partition)
 TARGET_INCLUDE_DIRECTORIES(tests PUBLIC ${PROJECT_SOURCE_DIR}/include)
 
