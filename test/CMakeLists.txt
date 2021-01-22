@@ -3,11 +3,12 @@
 
 # Add executables to this variable
 set(TEST_SOURCE
-    CatchMain.cpp Test_Catch.cpp
+    CatchMain.cpp 
+    Test_Catch.cpp 
+    Test_SU2Writer.cpp
 )
 # Add subdirectories 
 
-# add_subdirectory(parser)
 
 ###############################################
 # Nothing should have to be changed from here
@@ -17,7 +18,9 @@ message(STATUS "Tests are included")
 # link Catch2 library
 add_subdirectory(extern/Catch2)
 add_executable(tests ${TEST_SOURCE})
-target_link_libraries(tests Catch2::Catch2)
+target_link_libraries(tests Catch2::Catch2 
+                            Partition)
+TARGET_INCLUDE_DIRECTORIES(tests PUBLIC ${PROJECT_SOURCE_DIR}/include)
 
 # add Catch2 cmake scripts to module path to allow automatic
 # test discovery
