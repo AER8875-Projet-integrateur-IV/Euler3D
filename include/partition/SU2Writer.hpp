@@ -7,23 +7,25 @@
  * 
  */
 #pragma once
-#include <ofstream>
+#include <fstream>
+#include "mesh/Mesh.hpp"
 
-class Mesh{};
 
 class SU2Writer
 {
 private:
     std::ofstream _m_file;
-    Mesh* _m_mesh;
+    int _m_doublePrecision;
+    E3D::Mesh* _m_mesh;
+
 public:
     /**
      * @brief Construct a new SU2Writer object
      * 
      * @param path path to the output file
-     * @param mesh mesh object to be written to file
+     * @param doublePrecision number of digits to be used for writing floats
      */
-    SU2Writer(std::string path, Mesh* mesh);
+    SU2Writer(std::string path, int doublePrecision);
 
     /**
      * @brief Destroy the SU2Writer object
@@ -34,34 +36,40 @@ public:
     /**
      * @brief Write the whole mesh to file
      * 
+     * @param mesh mesh object to be written to file
      */
-    void Write();
+    void Write(E3D::Mesh &mesh);
 
     /**
      * @brief Write the volume elements 2 node connectivity to file
      * 
+     * @param elemVector Vector of elements from which the connectivity data
+     *                  will be extracted 
      */
-    void WriteElement2Node();
+    void WriteElement2Node(std::vector<E3D::Parser::Element>& elemVector);
 
     /**
-     * @brief Write the element 2 node connectivity of a vector of elements
+     * @brief Write element 2 node connectivity for a vector of elements
      * 
-     * @param elemVector Elements to be written to file. The elements can be
-     *                  volumique or border elements
+     * @param elemVector Vector of elements from which the connectivity data
+     *                  will be extracted 
      */
-    void WriteConnec(std::vector<E3D::Parser::Element> &elemVector);
+    void WriteConnec(const std::vector<E3D::Parser::Element>& elemVector);
 
     /**
      * @brief Write the coordinates of all the node in the input mesh object
      * 
+     * @param nDim Number of dimensions in the mesh
+     * @param nodeVector Node vector containing the coordinates
      */
-    void WriteCoord();
+    void WriteCoord(int nDim, std::vector<E3D::Parser::Node>& nodeVector);
 
     /**
      * @brief Write the standard markers (farfield and wall) to file
      * 
+     * @param markers Border condition data as defined in SU2MeshParser.hpp
      */
-    void WriteMarker();
+    void WriteMarker(E3D::Parser::BC_Structure &markers);
 
     /**
      * @brief Write to a file the inter-partition connectivity for the internal 
@@ -76,6 +84,6 @@ public:
      *  2       54
      *  3       34
      */ 
-    void WriteInternalMarker()
+    void WriteInternalMarker();
 };
 
