@@ -17,10 +17,16 @@ set(NAME_LIBRARY Partition)
 
 set(SOURCE Partition.cpp SU2Writer.cpp)
 
+
 #   3. Add the command add_subdirectory(NameOfThisDirectory) to the CMakeLists.txt
 #      in the parent folder
 
-#   4. Add your library's name in the relevent 
+set(DEPENDANCIES Mesh Parser metis)
+
+#   4. Add the command add_subdirectory(NameOfThisDirectory) to the CMakeLists.txt
+#      in the parent folder
+
+#   5. Add your library's name in the relevent 
 #      target_link_libraries(Euler3D_APP PUBLIC ThisIsALibrary ThisTo ThisIsYourLibrairy) 
 #
 #      You need to link your library once for each executable that will need it
@@ -38,6 +44,7 @@ set(SOURCE Partition.cpp SU2Writer.cpp)
 
 add_library(${NAME_LIBRARY} ${SOURCE})
 TARGET_INCLUDE_DIRECTORIES(${NAME_LIBRARY} PUBLIC ${PROJECT_SOURCE_DIR}/include)
+target_link_libraries(${NAME_LIBRARY} PUBLIC ${DEPENDANCIES})
 
 TARGET_COMPILE_OPTIONS(${NAME_LIBRARY} PUBLIC "$<$<CONFIG:DEBUG>:${debug_flags}>" )
 TARGET_COMPILE_OPTIONS(${NAME_LIBRARY} PUBLIC "$<$<CONFIG:RELEASE>:${release_flags}>" )
