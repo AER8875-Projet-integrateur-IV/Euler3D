@@ -1,6 +1,8 @@
 #include "partition/Partition.hpp"
 #include <metis.h>
 
+using namespace E3D::Partition;
+
 Partition::Partition(Mesh *meshGlobal, int &nPart)
 {
     _m_meshGlobal = meshGlobal;
@@ -16,23 +18,36 @@ Partition::~Partition()
 
 void Partition::SolveElem2Part()
 {
-    long int NELEM = _m_meshGlobal->getNELEM();
-    long int NPOIN = _m_meshGlobal->getNPOIN();
+    // Initialisation
+    long int NELEM = _m_meshGlobal->GetMeshInteriorElemCount();
+    long int NPOIN = _m_meshGlobal->GetMeshNodeCount();
 
+    // Connectivité elem2node du mmaillage global
+    _m_elem2NodeStart.reserve(NELEM + 1);
+    _m_elem2NodeStart.push_back(0);
+    std::vector<E3D::Parser::Element> elems = _m_meshGlobal->GetInteriorElementVector();
+    for (int iElem = 0; iElem < NELEM; iElem++)
+    {
+        for (auto node : elems[iElem].getElemNodes())
+        {
+            _m_elem2Node.push_back(node);
+        }
+        _m_elem2NodeStart.push_back(_m_elem2Node.size());
+    }
     _m_elem2Part.resize(NELEM);
-    std::vector<int> node2Part(NPOIN);
+    long node2Part[NPOIN]; // vecteur qui va contenir la partition de chaque noeud
     long int objval;
-    long int ncommon(3); // A revoir
-    int success = METIS_PartMeshDual(&NELEM, &NPOIN, (long int *)_m_meshGlobal->getElem2NodeStart()->data(),
-                                     (long int *)_m_meshGlobal->getElem2NodeStart()->data(), NULL, NULL,
+    long int ncommon(4); // A revoir
+    int success = METIS_PartMeshDual(&NELEM, &NPOIN, _m_elem2NodeStart.data(),
+                                     _m_elem2Node.data(), NULL, NULL,
                                      &ncommon, (long int *)&_m_nPart, NULL, NULL, &objval,
-                                     (long int *)_m_elem2Part.data(), (long int *)node2Part.data());
+                                     _m_elem2Part.data(), &node2Part[0]);
     return;
 }
 
 void Partition::SolvePart2Elem()
 {
-    int NELEM = _m_meshGlobal->getNELEM();
+    int NELEM = _m_meshGlobal->GetMeshInteriorElemCount();
     // Calcul du nombre d'éléments par partition
     _m_nElemPerPart.assign(_m_nPart, 0);
     for (int iElem = 0; iElem < NELEM; iElem++)
@@ -42,7 +57,7 @@ void Partition::SolvePart2Elem()
     // Construction de la connectivité partition vers éléments
     // // Initialisation
     _m_Part2ElemStart.reserve(_m_nPart + 1);
-    _m_Part2Elem.assign(NELEM, 0);
+    _m_Part2Elem.resize(NELEM);
     _m_Part2ElemStart.push_back(0);
     // // Calcul du vecteur d'indexation
     for (int iPart = 0; iPart < _m_nPart; iPart++)
@@ -68,9 +83,9 @@ void Partition::SolvePart2Elem()
 void Partition::SolveElem2Node()
 {
     // Initialisation
-    int NELEM = _m_meshGlobal->getNELEM();
+    int NELEM = _m_meshGlobal->GetMeshInteriorElemCount();
     _m_localNode2GlobalStart.resize(_m_nPart + 1);
-    _m_localNode2Global.resize(_m_meshGlobal->getNPOIN());
+    _m_localNode2Global.resize(_m_meshGlobal->GetMeshNodeCount());
     _m_localNode2GlobalStart.push_back(0);
     _m_nNodePerPart.reserve(_m_nPart);
     _m_globalElem2Local.assign(NELEM, 0);
@@ -79,7 +94,7 @@ void Partition::SolveElem2Node()
     {
         // Initialisation du maillage de la partition
         SU2Mesh iMesh;
-        iMesh.NDIM = _m_meshGlobal->getNDIM();
+        iMesh.NDIM = _m_meshGlobal->GetMeshDim();
         iMesh.NELEM = _m_nElemPerPart[iPart];
         iMesh.elem2nodeStart.resize(iMesh.NELEM + 1);
         iMesh.elem2node.reserve(4 * _m_nElemPerPart[iPart]); //nbre de noeuds per elem>=4 (tetraedres)
@@ -93,12 +108,12 @@ void Partition::SolveElem2Node()
             int iElemGlob = _m_Part2Elem[debutE + iElemLoc];
             _m_globalElem2Local[iElemGlob] = iElemLoc;
             // Parcours des noeuds de l'élément
-            int debutN = _m_meshGlobal->getElem2NodeStart()->at(iElemGlob);
-            int finN = _m_meshGlobal->getElem2NodeStart()->at(iElemGlob + 1);
+            int debutN = _m_elem2NodeStart[iElemGlob];
+            int finN = _m_elem2NodeStart[iElemGlob + 1];
             for (int iNode = debutN; iNode < finN; iNode++)
             {
                 // Récupération du noeud global de l'élément
-                int nodeGlob = _m_meshGlobal->getElem2Node()->at(iNode);
+                int nodeGlob = _m_elem2Node[iNode];
                 // Identification du noeud local
                 int nodeLoc = Global2Local(iPart, nodeGlob);
                 // Ajout du noeud local à la connectivité du maillage de la partition
@@ -196,7 +211,7 @@ int Partition::Global2Local(int &iPart, int &nodeGlobal)
 void Partition::SolveBorder()
 {
     // Initialsation
-    int NELEM = _m_meshGlobal->getNELEM();
+    int NELEM = _m_meshGlobal->GetMeshInteriorElemCount();
     for (int iPart = 0; iPart < _m_nPart; iPart++)
     {
         _m_part[iPart].Ninterface.assign(_m_nPart, 0);
@@ -214,12 +229,12 @@ void Partition::SolveBorder()
         {
             int iElemGlob = _m_Part2Elem[debutE + iElemLoc];
             // Parcours des voisins de iElemGlob
-            int debutV = _m_meshGlobal->getElem2ElemStart()->at(iElemGlob);
-            int finV = _m_meshGlobal->getElem2ElemStart()->at(iElemGlob + 1);
+            int debutV = _m_meshGlobal->GetElement2ElementStart()[iElemGlob];
+            int finV = _m_meshGlobal->GetElement2ElementStart()[iElemGlob + 1];
             for (int elemGlobj = debutV; elemGlobj < finV; elemGlobj++)
             {
                 // Récupération de l'élément voisin
-                int jElemGlob = _m_meshGlobal->getElem2Elem()->at(elemGlobj);
+                int jElemGlob = _m_meshGlobal->GetElement2Element()[elemGlobj];
                 if (jElemGlob < NELEM) // Element interne du maillage global
                 {
                     // Vérifier si l'élément est dans la partition
@@ -247,4 +262,11 @@ void Partition::SolveBorder()
         }
     }
     return;
+}
+
+void Partition::Write()
+{
+    std::cout << "Début Partionnement:\n";
+    SolveElem2Part();
+    std::cout << "Fin Partionnement:\n";
 }
