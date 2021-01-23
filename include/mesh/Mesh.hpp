@@ -13,6 +13,7 @@ struct SU2Mesh
     std::vector<int> interface;
     E3D::Parser::BC_Structure Boundary;
     std::vector<E3D::Parser::Node> coord;
+    std::vector<int> nlocalfaces; //ce vecteur contient le nb de faces de chaque element (vtk)
 
     // variable calculees et assignees par connectivity
     int nFace;
@@ -25,6 +26,7 @@ struct SU2Mesh
     std::vector<int> elem2faceStart;
     std::vector<int> face2elem;
     std::vector<int> face2elemStart;
+
 
     //a confirmer, implementer des methodes pour simplifier l'indexation
     inline const uint32_t &ElemToNode(const uint32_t &ElemId, const uint32_t &LocalNodeID) const {
