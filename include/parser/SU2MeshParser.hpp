@@ -9,8 +9,6 @@
 #include "parser/Element.hpp"
 
 
-
-
 namespace E3D::Parser {
 
     /**
@@ -40,6 +38,7 @@ namespace E3D::Parser {
          * @return Number of dimensions of the geometry (2D or 3D)
          */
         inline int GetnDim() const { return this->_nDim; }
+
         /**
          *
          * @return total number of element (Surface + volume)
@@ -74,26 +73,36 @@ namespace E3D::Parser {
          *
          * @return Vector of element object, for volume elements
          */
-        inline const std::vector<Element>& GetVolumeElems() const { return this->_VolumeElements; }
+        inline const std::vector<Element> &GetVolumeElems() const { return this->_InteriorElements; }
 
         /**
          *
          * @return Pairs of BC tags and number of elements associated to the tag. Ex : [("fairfield", 64), ("wall", 128)]
          */
-        inline const std::vector<std::pair<std::string, int>>& GetTags() const { return this->_tags; }
+        inline const std::vector<std::pair<std::string, int>> &GetTags() const { return this->_tags; }
 
         /**
          *
          * @return Vector holding node object, holding all the nodes of the mesh
          */
-        inline const std::vector<Node>& GetPoints() const { return this->_Points; }
+        inline const std::vector<Node> &GetPoints() const { return this->_Points; }
 
         /**
          *
          * @return Pairs of BC tag and elements under this tag : [ ('fairfield',[Elem1,Elem2...]) , ('Wall',[Elem1,Elem2...]) ... ]
          */
-        inline const BC_Structure& GetBoundaryElems() const { return this->_BoundaryElements; }
+        inline const BC_Structure &GetBoundaryElems() const { return this->_BoundaryElements; }
 
+        /**
+         * @return Vector holding Number of faces around interior elements
+         */
+        inline const std::vector<int>& GetInteriorElementsFaceCount() const {return this->_InteriorElementsFaceCount;}
+
+        /**
+         *
+         * @return Vector holding Vtk ID of interior elements
+         */
+        inline const std::vector<int>& GetInteriorElementVtkID() const {return this->_InteriorElementsVtkID;}
 
     private:
 
@@ -105,25 +114,25 @@ namespace E3D::Parser {
         int _nVolumeElem = 0;                      /** @brief Number of volume elements */
         int _nPoints = 0;                          /** @brief Number of points */
         int _nMarkers = 0;                         /** @brief Number of boundary conditions */
-        std::vector<Element> _VolumeElements;              /** @brief vector holding Volume elements */
+        std::vector<Element> _InteriorElements;              /** @brief vector holding Volume elements */
+        std::vector<int> _InteriorElementsVtkID ;            /** @brief VTK ID of interior Elements */
+        std::vector<int> _InteriorElementsFaceCount ;        /** @Bbrief Number of face of interior elements */
         std::vector<Node> _Points;                         /** @brief Vector to hold all nodes of the mesh */
         std::vector<std::pair<std::string, int>> _tags;    /** @brief Mesh boundaries tags and number of element (example : ("farfield",64) */
         BC_Structure _BoundaryElements;                    /** @brief Vector holding Boundary elements */
 
 
         // Volume VTK codes
-        const std::pair<int, int> _VtkTetra = std::make_pair(10,
-                                                             4);   /** @brief VTK code for a tetrahedron (4 Nodes) */
-        const std::pair<int, int> _VtkVoxel = std::make_pair(11, 8);   /** @brief VTK code for a voxel (perfect cube) */
-        const std::pair<int, int> _VtkHexa = std::make_pair(12, 8);   /** @brief VTK code for a hexahedron (8 nodes) */
-        const std::pair<int, int> _VtkWedge = std::make_pair(13, 6);   /** @brief VTK code for a wedge (6 nodes) */
+        const std::pair<int, int> _VtkTetra = std::make_pair(10,4);      /** @brief VTK code for a tetrahedron (4 Nodes) */
+        const std::pair<int, int> _VtkVoxel = std::make_pair(11, 8);     /** @brief VTK code for a voxel (perfect cube) */
+        const std::pair<int, int> _VtkHexa = std::make_pair(12, 8);      /** @brief VTK code for a hexahedron (8 nodes) */
+        const std::pair<int, int> _VtkWedge = std::make_pair(13, 6);     /** @brief VTK code for a wedge (6 nodes) */
         const std::pair<int, int> _VtkPyramid = std::make_pair(14, 5);   /** @brief VTK code for a pyramid (5 nodes) */
 
         // Surface VTK codes
         const std::pair<int, int> _VtkTria = std::make_pair(5, 3);    /** @brief VTK code for a triangle (3 nodes) */
-        const std::pair<int, int> _VtkPixel = std::make_pair(8,
-                                                             4);    /** @brief VTK code for a pixel (perfect rectangle) */
-        const std::pair<int, int> _VtkQuad = std::make_pair(9, 4);   /** @brief VTK code for a quad (4 nodes) */
+        const std::pair<int, int> _VtkPixel = std::make_pair(8,4);    /** @brief VTK code for a pixel (perfect rectangle) */
+        const std::pair<int, int> _VtkQuad = std::make_pair(9, 4);    /** @brief VTK code for a quad (4 nodes) */
 
         /** @brief ordered from most to least frequently used vtkVOlumeELement to accelerate comparaison match */
         const std::vector<std::pair<int, int>> _vtkVolumeElements{_VtkTetra,
