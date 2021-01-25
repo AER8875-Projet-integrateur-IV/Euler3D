@@ -21,9 +21,12 @@ void Partition::SolveElem2Part()
     // Initialisation
     long int NELEM = _m_meshGlobal->GetMeshInteriorElemCount();
     long int NPOIN = _m_meshGlobal->GetMeshNodeCount();
+    long int npart(_m_nPart); // METIS utilise le type long
+    _m_elem2Part.resize(NELEM);
 
     // Connectivité elem2node du mmaillage global
     _m_elem2NodeStart.reserve(NELEM + 1);
+    _m_elem2Node.reserve(4 * NELEM);
     _m_elem2NodeStart.push_back(0);
     std::vector<E3D::Parser::Element> elems = _m_meshGlobal->GetInteriorElementVector();
     for (int iElem = 0; iElem < NELEM; iElem++)
@@ -34,22 +37,27 @@ void Partition::SolveElem2Part()
         }
         _m_elem2NodeStart.push_back(_m_elem2Node.size());
     }
-    _m_elem2Part.resize(NELEM);
+
+    // Paramètres utiles pour appeler METIS
     long node2Part[NPOIN]; // vecteur qui va contenir la partition de chaque noeud
     long int objval;
-    long int ncommon(4); // A revoir
-    long int npart(_m_nPart);
+    long int ncommon;
+    if (_m_meshGlobal->GetMeshDim() == 2)
+    {
+        ncommon = 2;
+    }
+    else if (_m_meshGlobal->GetMeshDim() == 3)
+    {
+        ncommon = 3;
+    }
+
+    // Appel de METIS
     int success = METIS_PartMeshDual(&NELEM, &NPOIN, _m_elem2NodeStart.data(),
                                      _m_elem2Node.data(), NULL, NULL,
                                      &ncommon, &npart, NULL, NULL, &objval,
                                      _m_elem2Part.data(), &node2Part[0]);
 
-    /*     for (int i = 0; i < NELEM; i++)
-    {
-        std::cout << _m_elem2Part[i] << " ";
-    }
-    std::cout << "\n"; */
-
+    std::cout << "Partition Success: " << success << std::endl;
     return;
 }
 
@@ -85,11 +93,6 @@ void Partition::SolvePart2Elem()
         _m_Part2ElemStart[iPart] = _m_Part2ElemStart[iPart - 1];
     }
     _m_Part2ElemStart[0] = 0;
-    /*     for (int i = 0; i < NELEM; i++)
-    {
-        std::cout << _m_Part2Elem[i] << " ";
-    }
-    std::cout << "\n"; */
     return;
 }
 
@@ -148,7 +151,7 @@ void Partition::SolveElem2Node()
 int Partition::Global2Local(int &iPart, int &nodeGlobal)
 {
     int nLocalNode = _m_localNode2GlobalStart[iPart + 1] - _m_localNode2GlobalStart[iPart];
-
+    // Parcourir les noeuds locaux déjà affectés pour retrouver le noeud global nodeGlobal
     for (int i = 0; i < nLocalNode; i++)
     {
         if (nodeGlobal == _m_localNode2Global[i + _m_localNode2GlobalStart[iPart]])
@@ -156,70 +159,11 @@ int Partition::Global2Local(int &iPart, int &nodeGlobal)
             return i;
         }
     }
-
+    // Créer un nouveau noeuds local pour le noeud global nodeGlobal
     _m_localNode2Global.push_back(nodeGlobal);
     _m_localNode2GlobalStart[iPart + 1]++;
     return nLocalNode;
 }
-
-/* void Partition::SolveBorder()
-{
-    int NELEM = _m_meshGlobal->getNELEM();
-    for (int iPart = 0; iPart < _m_nPart; iPart++)
-    {
-        // Initialisation
-        _m_part[iPart].interfaceStart.push_back(0);
-        // Parcours de chaque elements de la partition
-        int debutE = _m_Part2ElemStart[iPart];
-        int finE = _m_Part2ElemStart[iPart + 1];
-        for (int iElemLoc = 0; iElemLoc < finE - debutE; iElemLoc++)
-        {
-            int iElemGlob = _m_Part2Elem[debutE + iElemLoc];
-            // Parcours des voisins de iElemGlob
-            int debutV = _m_meshGlobal->getElem2ElemStart()->at(iElemGlob);
-            int finV = _m_meshGlobal->getElem2ElemStart()->at(iElemGlob + 1);
-            for (int elemGlobj = debutV; elemGlobj < finV; elemGlobj++)
-            {
-                // Récupération de l'élément voisin
-                int jElemGlob = _m_meshGlobal->getElem2Elem()->at(elemGlobj);
-                // Vérifier si l'élément est dans la partition
-                int jPart = _m_elem2Part[jElemGlob];
-                if (jElemGlob < NELEM)
-                {
-                    if (jPart != iPart) // Interface entre deux partitions
-                    {
-                        _m_part[iPart].interface.push_back(iElemGlob);
-                        _m_part[iPart].interface.push_back(_m_globalElem2Local[jElemGlob]);
-                        _m_part[iPart].interface.push_back(jPart);
-                        for (int nodeLoci = _m_part[iPart].elem2nodeStart[iElemLoc]; nodeLoci < _m_part[iPart].elem2nodeStart[iElemLoc + 1]; nodeLoci++)
-                        {
-                            int iNodeLoc = _m_part[iPart].elem2node[nodeLoci];
-                            int iNodeGlob = _m_localNode2Global[iNodeLoc + _m_localNode2GlobalStart[iPart]];
-                            for (int nodeGlobj = _m_meshGlobal->getElem2NodeStart()->at(jElemGlob); nodeGlobj < _m_meshGlobal->getElem2NodeStart()->at(jElemGlob + 1); nodeGlobj++)
-                            {
-                                // Récupération du noeud global de l'élément voisin
-                                int jNodeGlob = _m_meshGlobal->getElem2Node()->at(nodeGlobj);
-                                if (iNodeGlob == jNodeGlob)
-                                {
-                                    _m_part[iPart].interface.push_back(iNodeLoc);
-
-                                    break;
-                                }
-                            }
-                        }
-                        _m_part[iPart].interfaceStart.push_back(_m_part[iPart].interface.size());
-                    }
-                }
-                else // Condition Limite du maillage global
-                {
-                    int iFace = _m_meshGlobal->getFace(iElemGlob, jElemGlob); // Méthode à adapter
-                    int iMark = _m_meshGlobal->getFace2BC()[2 * iFace + 1];   // à adapter
-                }
-            }
-        }
-    }
-    return;
-} */
 
 void Partition::SolveBorder()
 {
@@ -228,7 +172,7 @@ void Partition::SolveBorder()
     for (int iPart = 0; iPart < _m_nPart; iPart++)
     {
         _m_part[iPart].Ninterface.assign(_m_nPart, 0);
-        _m_part[iPart].Ninterface.assign(_m_nPart, 0);
+        _m_part[iPart].Ninterface_elem.assign(_m_nPart, 0);
         _m_part[iPart].interface_elem.resize(_m_nPart);
         //_m_part[iPart].interface_elemStart.resize(_m_nPart, std::vector<int>(1, 0));
     }
@@ -289,23 +233,29 @@ void Partition::Write()
 
 void Partition::WriteTecplot(std::string fileName)
 {
+    // Création du fichier
     FILE *fid = fopen(fileName.c_str(), "w");
+    // Cas d'un maillage 2D
     if (_m_meshGlobal->GetMeshDim() == 2)
     {
+        // Entête du fichier
         fprintf(fid, "VARIABLES=\"X\",\"Y\"\n");
+        // Écriture de chaque partition dans une zone de Tecplot
         for (int iPart = 0; iPart < _m_nPart; iPart++)
         {
+            // Entête de la zone
             int nNodes = _m_nNodePerPart[iPart];
             int nElements = _m_nElemPerPart[iPart];
-
             fprintf(fid, "ZONE T=\"Element\"\nNodes=%d, Elements=%d, ZONETYPE=FEPOLYGON\nDATAPACKING=POINT\n", nNodes, nElements);
 
+            // Coordonnées des noeuds de la partition
             for (int nodeI = 0; nodeI < nNodes; nodeI++)
             {
                 E3D::Parser::Node node = _m_meshGlobal->GetNodeCoord(_m_localNode2Global[nodeI + _m_localNode2GlobalStart[iPart]]);
                 fprintf(fid, "%.12e %.12e\n", node.getX(), node.getY());
             }
 
+            // Connectivité des éléments de la partition
             for (int elementI = 0; elementI < nElements; elementI++)
             {
                 for (int iNode = _m_part[iPart].elem2nodeStart[elementI]; iNode < _m_part[iPart].elem2nodeStart[elementI + 1]; iNode++)
@@ -316,22 +266,27 @@ void Partition::WriteTecplot(std::string fileName)
             }
         }
     }
+    // Cas d'un maillage 3D
+    // Elements ayant seulement 8 noeuds seront considérés
     else if (_m_meshGlobal->GetMeshDim() == 3)
     {
+        // Entête du fichier
         fprintf(fid, "VARIABLES=\"X\",\"Y\",\"Z\"\n");
         for (int iPart = 0; iPart < _m_nPart; iPart++)
         {
+            // Entête de la zone
             int nNodes = _m_nNodePerPart[iPart];
             int nElements = _m_nElemPerPart[iPart];
-
             fprintf(fid, "ZONE T=\"Element\"\nNodes=%d, Elements=%d, ZONETYPE=FEBRICK\nDATAPACKING=POINT\n", nNodes, nElements);
 
+            // Coordonnées des noeuds de la partition
             for (int nodeI = 0; nodeI < nNodes; nodeI++)
             {
                 E3D::Parser::Node node = _m_meshGlobal->GetNodeCoord(_m_localNode2Global[nodeI + _m_localNode2GlobalStart[iPart]]);
                 fprintf(fid, "%.12e %.12e %.12e\n", node.getX(), node.getY(), node.getZ());
             }
 
+            // Connectivité des éléments de la partition
             for (int elementI = 0; elementI < nElements; elementI++)
             {
                 for (int iNode = _m_part[iPart].elem2nodeStart[elementI]; iNode < _m_part[iPart].elem2nodeStart[elementI + 1]; iNode++)
@@ -342,7 +297,7 @@ void Partition::WriteTecplot(std::string fileName)
             }
         }
     }
-
+    // Fermeture du fichier
     fclose(fid);
     return;
 }

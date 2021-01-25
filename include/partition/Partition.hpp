@@ -21,23 +21,26 @@ namespace E3D::Partition
 {
     struct SU2Mesh
     {
+        // Dimensions de la partition
         int NDIM;
         int NELEM;
         int NPOIN;
+
+        // Connectivité elements - nodes
         std::vector<int> elem2nodeStart;
         std::vector<int> elem2node;
-        //std::vector<int> interfaceStart;
-        //std::vector<int> interface;
 
+        // Interfaces avec les autres partitions
+        std::vector<int> Ninterface;
+        std::vector<int> Ninterface_elem;
+        std::vector<std::vector<int>> interface_elem;
+
+        // Conditions limites du maillage global
         std::vector<std::vector<int>> boundaryStart;
         std::vector<std::vector<int>> boundary;
 
-        std::vector<int> Ninterface;
-        std::vector<int> Ninterface_elem;
-        //std::vector<std::vector<int>> interface_elemStart;
-        std::vector<std::vector<int>> interface_elem;
-
-        std::vector<E3D::Parser::Node> coord;
+        // Coordonnées des noeuds
+        std::vector<int> nodeGlob;
     };
 
     class Partition
@@ -63,9 +66,10 @@ namespace E3D::Partition
         // This vector need to be linked with _m_elem2Part in order to obtain the index of the partition
         std::vector<int> _m_globalElem2Local;
 
+        // Vecteur contenant les partitions
         std::vector<SU2Mesh> _m_part;
-        std::vector<E3D::Parser::BC_Structure> _m_marker;
 
+        // Connectivité element noeud pour l'appel de METIS
         std::vector<long int> _m_elem2Node;
         std::vector<long int> _m_elem2NodeStart;
 
