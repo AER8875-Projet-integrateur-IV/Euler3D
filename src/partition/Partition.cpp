@@ -38,9 +38,10 @@ void Partition::SolveElem2Part()
     long node2Part[NPOIN]; // vecteur qui va contenir la partition de chaque noeud
     long int objval;
     long int ncommon(4); // A revoir
+    long int npart(_m_nPart);
     int success = METIS_PartMeshDual(&NELEM, &NPOIN, _m_elem2NodeStart.data(),
                                      _m_elem2Node.data(), NULL, NULL,
-                                     &ncommon, (long int *)&_m_nPart, NULL, NULL, &objval,
+                                     &ncommon, &npart, NULL, NULL, &objval,
                                      _m_elem2Part.data(), &node2Part[0]);
     return;
 }
@@ -268,5 +269,68 @@ void Partition::Write()
 {
     std::cout << "Début Partionnement:\n";
     SolveElem2Part();
+    SolvePart2Elem();
+    SolveElem2Node();
+    WriteTecplot("test.dat");
     std::cout << "Fin Partionnement:\n";
+}
+
+void Partition::WriteTecplot(std::string fileName)
+{
+    FILE *fid = fopen(fileName.c_str(), "w");
+    if (_m_meshGlobal->GetMeshDim() == 2)
+    {
+        fprintf(fid, "VARIABLES=\"X\",\"Y\"\n");
+        for (int iPart = 0; iPart < _m_nPart; iPart++)
+        {
+            int nNodes = _m_nNodePerPart[iPart];
+            int nElements = _m_nElemPerPart[iPart];
+
+            fprintf(fid, "ZONE T=\"Element\"\nNodes=%d, Elements=%d, ZONETYPE=FEPOLYGON\nDATAPACKING=POINT\n", nNodes, nElements);
+
+            for (int nodeI = 0; nodeI < nNodes; nodeI++)
+            {
+                E3D::Parser::Node node = _m_meshGlobal->GetNodeCoord(_m_localNode2Global[nodeI + _m_localNode2GlobalStart[iPart]]);
+                fprintf(fid, "%.12e %.12e\n", node.getX(), node.getY());
+            }
+
+            for (int elementI = 0; elementI < nElements; elementI++)
+            {
+                for (int iNode = _m_part[iPart].elem2nodeStart[elementI]; iNode < _m_part[iPart].elem2nodeStart[elementI + 1]; iNode++)
+                {
+                    fprintf(fid, "%d ", _m_part[iPart].elem2node[iNode] + 1);
+                }
+                fprintf(fid, "\n");
+            }
+        }
+    }
+    else if (_m_meshGlobal->GetMeshDim() == 3)
+    {
+        fprintf(fid, "VARIABLES=\"X\",\"Y\",\"Z\"\n");
+        for (int iPart = 0; iPart < _m_nPart; iPart++)
+        {
+            int nNodes = _m_nNodePerPart[iPart];
+            int nElements = _m_nElemPerPart[iPart];
+
+            fprintf(fid, "ZONE T=\"Element\"\nNodes=%d, Elements=%d, ZONETYPE=FEBRICK\nDATAPACKING=POINT\n", nNodes, nElements);
+
+            for (int nodeI = 0; nodeI < nNodes; nodeI++)
+            {
+                E3D::Parser::Node node = _m_meshGlobal->GetNodeCoord(_m_localNode2Global[nodeI + _m_localNode2GlobalStart[iPart]]);
+                fprintf(fid, "%.12e %.12e %.12e\n", node.getX(), node.getY(), node.getZ());
+            }
+
+            for (int elementI = 0; elementI < nElements; elementI++)
+            {
+                for (int iNode = _m_part[iPart].elem2nodeStart[elementI]; iNode < _m_part[iPart].elem2nodeStart[elementI + 1]; iNode++)
+                {
+                    fprintf(fid, "%d ", _m_part[iPart].elem2node[iNode] + 1);
+                }
+                fprintf(fid, "\n");
+            }
+        }
+    }
+
+    fclose(fid);
+    return;
 }

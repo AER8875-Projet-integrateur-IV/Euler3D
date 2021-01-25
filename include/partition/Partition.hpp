@@ -105,6 +105,12 @@ namespace E3D::Partition
          * limites initiales présentes dans le maillage global.
          */
         void SolveBorder();
+        /**
+         * Écrit la partition dans un fichier Tecplot
+         * 
+         * @param[in]   fileName   Nom du fichier Tecplot
+         */
+        void WriteTecplot(std::string fileName);
 
     public:
         /** 
