@@ -22,7 +22,7 @@ int main(int argc, char *argv[])
     std::string fileName = argv[1];
 
     E3D::Mesh *mesh = new E3D::Mesh(fileName);
-    int nPart = 2;
+    int nPart = 5;
     E3D::Partition::Partition part(mesh, nPart);
     part.Write();
 

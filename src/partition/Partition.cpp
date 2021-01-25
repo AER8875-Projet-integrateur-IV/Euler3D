@@ -43,6 +43,13 @@ void Partition::SolveElem2Part()
                                      _m_elem2Node.data(), NULL, NULL,
                                      &ncommon, &npart, NULL, NULL, &objval,
                                      _m_elem2Part.data(), &node2Part[0]);
+
+    /*     for (int i = 0; i < NELEM; i++)
+    {
+        std::cout << _m_elem2Part[i] << " ";
+    }
+    std::cout << "\n"; */
+
     return;
 }
 
@@ -78,6 +85,11 @@ void Partition::SolvePart2Elem()
         _m_Part2ElemStart[iPart] = _m_Part2ElemStart[iPart - 1];
     }
     _m_Part2ElemStart[0] = 0;
+    /*     for (int i = 0; i < NELEM; i++)
+    {
+        std::cout << _m_Part2Elem[i] << " ";
+    }
+    std::cout << "\n"; */
     return;
 }
 
@@ -85,8 +97,8 @@ void Partition::SolveElem2Node()
 {
     // Initialisation
     int NELEM = _m_meshGlobal->GetMeshInteriorElemCount();
-    _m_localNode2GlobalStart.resize(_m_nPart + 1);
-    _m_localNode2Global.resize(_m_meshGlobal->GetMeshNodeCount());
+    _m_localNode2GlobalStart.reserve(_m_nPart + 1);
+    _m_localNode2Global.reserve(_m_meshGlobal->GetMeshNodeCount());
     _m_localNode2GlobalStart.push_back(0);
     _m_nNodePerPart.reserve(_m_nPart);
     _m_globalElem2Local.assign(NELEM, 0);
@@ -97,7 +109,7 @@ void Partition::SolveElem2Node()
         SU2Mesh iMesh;
         iMesh.NDIM = _m_meshGlobal->GetMeshDim();
         iMesh.NELEM = _m_nElemPerPart[iPart];
-        iMesh.elem2nodeStart.resize(iMesh.NELEM + 1);
+        iMesh.elem2nodeStart.reserve(iMesh.NELEM + 1);
         iMesh.elem2node.reserve(4 * _m_nElemPerPart[iPart]); //nbre de noeuds per elem>=4 (tetraedres)
         iMesh.elem2nodeStart.push_back(0);
         // Parcours de chaque elements de la partition et renumérotation des noeuds
