@@ -166,23 +166,23 @@ int main(){
       int lhelp_indiceStart[nLocalFacefElement] = {0,4,8,12,16,20};
       for (size_t iface = 0; iface < nLocalFacefElement; iface++) {
         int nLocalNodefFace = nNodefFace[ielem][iface];
-        int lhelp[nLocalNodefFace[iface]] = {0};
+        int lhelp[nLocalNodefFace] = {0};
         int lpoint[nNode] = {0};
-        for (size_t inode = 0; inode < nLocalNodefFace[iface]; inode++) {
+        for (size_t inode = 0; inode < nLocalNodefFace; inode++) {
           lhelp[inode] = element2node[startI+lhelp_indice[lhelp_indiceStart[iface]+inode]];
           lpoint[lhelp[inode]]  = 1;
         }
         int ipoint = lhelp[0];
 
         int elemStart = node2elementStart[ipoint];
-        int elemEnd = node2elementStart[ipoin+1];
+        int elemEnd = node2elementStart[ipoint+1];
 
         for (size_t j = elemStart; j < elemEnd; j++) {
-          jelem = node2element[j];
+          int jelem = node2element[j];
 
           if (jelem != ielem) {
-            startJ = element2nodeStart[jelem];
-            endJ = element2nodeStart[jelem+1];
+            int startJ = element2nodeStart[jelem];
+            int endJ = element2nodeStart[jelem+1];
 
 
           }
