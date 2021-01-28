@@ -116,6 +116,8 @@ namespace E3D::Partition
          */
         void WriteTecplot(std::string fileName);
 
+        void WriteSU2(E3D::Partition::SU2Mesh const &partition);
+
     public:
         /** 
          * @brief       Constructor 

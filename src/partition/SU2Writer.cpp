@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <stdexcept>
 
+#include "partition/Partition.hpp"
 #include "parser/Element.hpp"
 #include "mesh/Mesh.hpp"
 
@@ -25,8 +26,10 @@ SU2Writer::~SU2Writer()
     _m_file.close();
 }
 
-void SU2Writer::Write(E3D::Mesh &mesh){
-    _m_mesh = &mesh;
+void SU2Writer::Write(std::vector<E3D::Parser::Element>& interiorElemVector,
+                        int nDim, std::vector<E3D::Parser::Node>& nodeVector){
+    this->WriteElement2Node(interiorElemVector);
+    this->WriteCoord(nDim, nodeVector);
 }
 
 void SU2Writer::WriteElement2Node(std::vector<E3D::Parser::Element>& elemVector){

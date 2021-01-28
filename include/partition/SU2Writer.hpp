@@ -9,14 +9,13 @@
 #pragma once
 #include <fstream>
 #include "mesh/Mesh.hpp"
-
+#include "partition/Partition.hpp"
 
 class SU2Writer
 {
 private:
     std::ofstream _m_file;
     int _m_doublePrecision;
-    E3D::Mesh* _m_mesh;
 
 public:
     /**
@@ -38,7 +37,8 @@ public:
      * 
      * @param mesh mesh object to be written to file
      */
-    void Write(E3D::Mesh &mesh);
+    void Write(std::vector<E3D::Parser::Element>& interiorElemVector,
+                int nDim, std::vector<E3D::Parser::Node>& nodeVector);
 
     /**
      * @brief Write the volume elements 2 node connectivity to file

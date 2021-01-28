@@ -229,6 +229,46 @@ void Partition::Write()
     SolveElem2Node();
     WriteTecplot("test.dat");
     std::cout << "Fin Partionnement:\n";
+
+    // Écriture fichier SU2
+    for (E3D::Partition::SU2Mesh const &partition : _m_part){
+        this->WriteSU2(partition);
+    }
+}
+
+void Partition::WriteSU2(E3D::Partition::SU2Mesh const &partition){
+    // vector Node
+    std::vector<E3D::Parser::Node> const &globNodeVector = _m_meshGlobal->GetNodeVector();
+
+    std::vector<E3D::Parser::Node> nodeVector;
+    nodeVector.resize(partition.NPOIN);
+    
+    for(int const nodeGlobI : partition.nodeGlob){
+        nodeVector.push_back(globNodeVector[nodeGlobI]);
+    }
+
+    // Element to Node
+    std::vector<E3D::Parser::Element> const &globElemVector = _m_meshGlobal->GetInteriorElementVector();
+
+    std::vector<E3D::Parser::Element> elemVector;
+    elemVector.resize(partition.NELEM);
+
+    for(int i = 0; i<partition.NELEM; i++){
+        std::vector<int> vectorNodeID;
+        int nNode = partition.elem2nodeStart[i+1]-partition.elem2nodeStart[i];
+        vectorNodeID.reserve(nNode);
+
+        for(int nodeI = partition.elem2nodeStart[i]; nodeI<partition.elem2nodeStart[i+1]; nodeI++){
+            vectorNodeID.push_back(partition.elem2node[nodeI]);
+        }
+
+        // TODO change VTK ID from 0 to good value
+        elemVector.push_back(E3D::Parser::Element(0, vectorNodeID));
+    }
+
+    // Physical boundary conditions
+    E3D::Parser::BC_Structure bc;
+    
 }
 
 void Partition::WriteTecplot(std::string fileName)
