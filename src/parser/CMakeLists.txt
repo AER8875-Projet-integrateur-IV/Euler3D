@@ -1,5 +1,5 @@
 
-add_library(Parser SU2MeshParser.cpp)
+add_library(Parser SU2MeshParser.cpp ../../include/parser/ConfigParser.h)
 TARGET_INCLUDE_DIRECTORIES(Parser PUBLIC ${PROJECT_SOURCE_DIR}/include)
 
 TARGET_COMPILE_OPTIONS(Parser PUBLIC "$<$<CONFIG:DEBUG>:${debug_flags}>" )
