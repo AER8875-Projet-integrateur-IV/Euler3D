@@ -25,16 +25,8 @@ TEST_CASE("SU2Mesh class test", "[partition]") {
 
         REQUIRE(mesh.Markers.size() == 2);
 
-        std::pair<std::string, std::vector<E3D::Parser::Element>> marker1, marker2;
-
-        marker1 = mesh.Markers[0];
-        marker2 = mesh.Markers[1];
-
-        REQUIRE(marker1.first == "testTag1");
-        REQUIRE(marker1.second.size() == 1);
-        
-        REQUIRE(marker2.first == "testTag2");
-        REQUIRE(marker2.second.size() == 2);
+        REQUIRE(mesh.Markers["testTag1"].size() == 1);
+        REQUIRE(mesh.Markers["testTag2"].size() == 2);
     }
 
 }

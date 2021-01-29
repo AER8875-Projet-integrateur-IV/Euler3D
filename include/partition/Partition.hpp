@@ -13,6 +13,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <unordered_map>
 
 #include "parser/Element.hpp"
 #include "mesh/Mesh.hpp"
@@ -36,7 +37,8 @@ namespace E3D::Partition
         std::vector<std::vector<int>> interface_elem;
 
         // Conditions limites du maillage global
-        E3D::Parser::BC_Structure Markers;
+        // E3D::Parser::BC_Structure Markers;
+        std::unordered_map<std::string, std::vector<E3D::Parser::Element>> Markers;
 
         // Coordonnées des noeuds
         std::vector<int> nodeGlob;

@@ -10,25 +10,17 @@ void SU2Mesh::AddMarkerElement(std::string tag, int VTKid, int* elem2Node, int n
     std::vector<int> nodes (elem2Node, elem2Node+nNode);
     E3D::Parser::Element elem(VTKid, nodes);
     
-    // Check if the marker tag already exists
-    for(auto const &existingMarker : this->Markers){
-        if(tag == existingMarker.first){
-            // The border condition exists
-            // Add the new element to this condition
-            std::vector<E3D::Parser::Element> elemVector = std::get<1>(existingMarker);
-            elemVector.push_back(elem);
-            
-            // No need to check for other tags once a match is found 
-            return;
-        }
+    if(Markers.count(tag) == 0){
+        // No match was found in existing markers
+        // Create new marker
+        std::vector<E3D::Parser::Element> newElemVector;
+        newElemVector.push_back(elem);
+        Markers[tag] = newElemVector;
+    } else{
+        // The border condition exists
+        // Add the new element to this condition        
+        Markers[tag].push_back(elem);
     }
-
-    // No match was found in existing markers
-    // Create new marker
-    std::pair<std::string, std::vector<E3D::Parser::Element>> newMarker;
-    newMarker.first = tag;
-    newMarker.second.push_back(elem);
-    this->Markers.push_back(newMarker);
 }
 
 Partition::Partition(Mesh *meshGlobal, int &nPart)
