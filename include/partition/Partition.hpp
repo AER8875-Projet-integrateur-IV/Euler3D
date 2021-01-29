@@ -36,11 +36,20 @@ namespace E3D::Partition
         std::vector<std::vector<int>> interface_elem;
 
         // Conditions limites du maillage global
-        std::vector<std::vector<int>> boundaryStart;
-        std::vector<std::vector<int>> boundary;
+        E3D::Parser::BC_Structure Markers;
 
         // Coordonnées des noeuds
         std::vector<int> nodeGlob;
+
+        /**
+         * @brief Add an element to Markers member variable
+         * 
+         * @param tag marker tag
+         * @param VTKid element VTK id number
+         * @param elem2Node pointer to the first element of the elem2Node array
+         * @param nNode number of nodes in the elem2Node array
+         */
+        void AddMarkerElement(std::string tag, int VTKid, int* elem2Node, int nNode);
     };
 
     class Partition

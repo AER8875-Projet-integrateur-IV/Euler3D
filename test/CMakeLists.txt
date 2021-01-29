@@ -7,6 +7,7 @@ set(TEST_SOURCE
     Test_Catch.cpp 
     Test_Parser.cpp
     Test_SU2Writer.cpp
+    Test_SU2Mesh.cpp
 )
 # Add subdirectories 
 
