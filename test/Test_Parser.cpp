@@ -97,6 +97,18 @@ TEST_CASE("SU2MeshParser class test", "[parser]") {
         REQUIRE(parser.GetTags() == tags);
         REQUIRE(parser.GetBoundaryElems().size() == 4);
 
+
+        // Testing Interior VTKID vector
+        REQUIRE(parser.GetInteriorElementVtkID().front() == 12);
+        REQUIRE(parser.GetInteriorElementVtkID()[50] == 12 );
+        REQUIRE(parser.GetInteriorElementVtkID().back() == 12);
+
+        // Testing Interior face Count vector
+        REQUIRE(parser.GetInteriorElementsFaceCount().front() == 6);
+        REQUIRE(parser.GetInteriorElementsFaceCount()[50] == 6);
+        REQUIRE(parser.GetInteriorElementsFaceCount().back() == 6);
+
+
         // First BC "farfield"
         REQUIRE(parser.GetBoundaryElems()[0].first == tags[0].first);
         REQUIRE(parser.GetBoundaryElems()[0].second.front().getElemNodes() == farfield_firstElem_nodes);
