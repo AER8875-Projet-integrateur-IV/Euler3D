@@ -73,30 +73,37 @@ namespace E3D::Parser {
          *
          * @return Vector of element object, for volume elements
          */
-        inline const std::vector<Element> &GetVolumeElems() const { return this->_InteriorElements; }
+
+        inline const std::vector<Element> &GetVolumeElems() const { return this->_InteriorElements}
+
 
         /**
          *
          * @return Pairs of BC tags and number of elements associated to the tag. Ex : [("fairfield", 64), ("wall", 128)]
          */
-        inline const std::vector<std::pair<std::string, int>> &GetTags() const { return this->_tags; }
+
+        inline const std::vector<std::pair<std::string, int>>& GetTags() const { return this->_tags; }
 
         /**
          *
          * @return Vector holding node object, holding all the nodes of the mesh
          */
-        inline const std::vector<Node> &GetPoints() const { return this->_Points; }
+
+        inline const std::vector<Node>& GetPoints() const { return this->_Points; }
 
         /**
          *
          * @return Pairs of BC tag and elements under this tag : [ ('fairfield',[Elem1,Elem2...]) , ('Wall',[Elem1,Elem2...]) ... ]
          */
-        inline const BC_Structure &GetBoundaryElems() const { return this->_BoundaryElements; }
+
 
         /**
          * @return Vector holding Number of faces around interior elements
          */
         inline const std::vector<int>& GetInteriorElementsFaceCount() const {return this->_InteriorElementsFaceCount;}
+
+        inline const BC_Structure& GetBoundaryElems() const { return this->_BoundaryElements; }
+
 
         /**
          *
@@ -131,8 +138,10 @@ namespace E3D::Parser {
 
         // Surface VTK codes
         const std::pair<int, int> _VtkTria = std::make_pair(5, 3);    /** @brief VTK code for a triangle (3 nodes) */
+
         const std::pair<int, int> _VtkPixel = std::make_pair(8,4);    /** @brief VTK code for a pixel (perfect rectangle) */
         const std::pair<int, int> _VtkQuad = std::make_pair(9, 4);    /** @brief VTK code for a quad (4 nodes) */
+
 
         /** @brief ordered from most to least frequently used vtkVOlumeELement to accelerate comparaison match */
         const std::vector<std::pair<int, int>> _vtkVolumeElements{_VtkTetra,
