@@ -32,7 +32,7 @@ namespace E3D {
         inline const E3D::Parser::Node GetNodeCoord (const int NodeID) const {
             return _parser.GetPoints()[NodeID];
         }
-        
+
         /**
          * @return Node vector
          */
@@ -82,12 +82,28 @@ namespace E3D {
             return _parser.GetTags()[tagID].second;
         }
 
+        inline const std::vector<int> &GetInteriorVTKID() const {
+            return _parser.GetInteriorElementVtkID();
+        }
+
+        void SetConnectivity();
         // ------------------ Connectivity Info ----------------------
 
 
     private:
         Parser::SU2MeshParser _parser;
         std::vector<int> _connectivity;
+        // variable calculees et assignees par connectivity
+        int nFace;
+        int nElemTot;
+        std::vector<int> node2element;
+        std::vector<int> node2elementStart;
+        std::vector<int> element2element;
+        std::vector<int> element2elementStart;
+        std::vector<int> element2face;
+        std::vector<int> element2faceStart;
+        std::vector<int> face2element;
+        std::vector<int> face2elementStart;
     };
 
 }
