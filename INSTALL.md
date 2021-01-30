@@ -23,7 +23,7 @@ Relevant options are:
 
 `-DPACKAGE_TESTS=ON` Build tests
 
-Minimal example: ` $ cmake [options] ..`
+Minimal example: ` $ cmake ..`
 
 ***Note: you have to delete your build directory and start from scratch if you
 want to use new options***
