@@ -74,7 +74,7 @@ namespace E3D::Parser {
          * @return Vector of element object, for volume elements
          */
 
-        inline const std::vector<Element> &GetVolumeElems() const { return this->_InteriorElements}
+        inline const std::vector<Element> &GetVolumeElems() const { return this->_InteriorElements;}
 
 
         /**
@@ -157,25 +157,25 @@ namespace E3D::Parser {
          * @brief Parse and write number of dimensions to a private member variable (_nDim).
          * @param filestream input file stream handle.
          */
-        void parseDim(std::ifstream &filestream);
+        void parseDim();
 
         /**
          * @brief Parse and write number of volume elements to private member variables (_nVolumeElem).
          * @param filestream input file stream handle.
          */
-        void parseVolumeElem(std::ifstream &);
+        void parseVolumeElem();
 
         /**
          * @brief Parse and write number of points to private member variables (_nPoints).
          * @param filestream input file stream handle.
          */
-        void parsePoints(std::ifstream &);
+        void parsePoints();
 
         /**
          * @brief Parse boundary condition info . Write to _nBoundaryElem and _nMarkers.
          * @param filestream input file stream handle.
          */
-        void parseBC(std::ifstream &);
+        void parseBC();
 
     };
 } // namespace E3D
