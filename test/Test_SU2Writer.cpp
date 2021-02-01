@@ -10,7 +10,7 @@
 TEST_CASE("SU2Writer class test", "[partition]") {
 
     std::string targetPath("tmp_Test_SU2Writer.su2");
-    SU2Writer writer(targetPath, 3);    
+    E3D::Partition::SU2Writer writer(targetPath, 3);    
     std::ifstream file(targetPath);
 
     std::string line;

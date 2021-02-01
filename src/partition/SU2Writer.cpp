@@ -12,7 +12,9 @@
 
 #include <iomanip> 
 
-SU2Writer::SU2Writer(std::string path, int doublePrecision = 10)
+using namespace E3D::Partition;
+
+SU2Writer::SU2Writer(std::string path, int doublePrecision)
 {
     _m_file = std::ofstream(path);
     _m_doublePrecision = doublePrecision;
@@ -27,9 +29,11 @@ SU2Writer::~SU2Writer()
 }
 
 void SU2Writer::Write(std::vector<E3D::Parser::Element>& interiorElemVector,
-                        int nDim, std::vector<E3D::Parser::Node>& nodeVector){
+                        int nDim, std::vector<E3D::Parser::Node>& nodeVector,
+                        E3D::Parser::BC_Structure &bc){
     this->WriteElement2Node(interiorElemVector);
     this->WriteCoord(nDim, nodeVector);
+    this->WriteMarker(bc);
 }
 
 void SU2Writer::WriteElement2Node(std::vector<E3D::Parser::Element>& elemVector){
