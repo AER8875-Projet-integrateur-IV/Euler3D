@@ -1,8 +1,11 @@
 #pragma once
 
 #include <string>
+#include <memory>
 #include "parser/Element.hpp"
 #include "parser/SU2MeshParser.hpp"
+#include "connectivity/Connectivity.hpp"
+
 
 namespace E3D {
 
@@ -86,8 +89,9 @@ namespace E3D {
             return _parser.GetInteriorElementVtkID();
         }
 
-        void SetConnectivity();
         // ------------------ Connectivity Info ----------------------
+
+        void solveConnectivity();
 
 
     private:
@@ -96,14 +100,14 @@ namespace E3D {
         // variable calculees et assignees par connectivity
         int nFace;
         int nElemTot;
-        std::vector<int> node2element;
-        std::vector<int> node2elementStart;
-        std::vector<int> element2element;
-        std::vector<int> element2elementStart;
-        std::vector<int> element2face;
-        std::vector<int> element2faceStart;
-        std::vector<int> face2element;
-        std::vector<int> face2elementStart;
+        std::unique_ptr<std::vector<int>>  node2element;
+        std::unique_ptr<std::vector<int>>  node2elementStart;
+        std::unique_ptr<std::vector<int>>  element2element;
+        std::unique_ptr<std::vector<int>>  element2elementStart;
+        std::unique_ptr<std::vector<int>>  element2face;
+        std::unique_ptr<std::vector<int>>  element2faceStart ;
+        std::unique_ptr<std::vector<int>>  face2element;
+        std::unique_ptr<std::vector<int>>  face2elementStart;
     };
 
 }
