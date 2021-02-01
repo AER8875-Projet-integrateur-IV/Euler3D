@@ -28,10 +28,10 @@ SU2MeshParser::SU2MeshParser(const std::string &filename)
               << _filename
               << "\n";
 
-    parseDim(_ifilestream);
-    parseVolumeElem(_ifilestream);
-    parsePoints(_ifilestream);
-    parseBC(_ifilestream);
+    parseDim();
+    parseVolumeElem();
+    parsePoints();
+    parseBC();
 
     _nElem = _nBoundaryElem + _nVolumeElem;
 
@@ -48,7 +48,7 @@ SU2MeshParser::SU2MeshParser(const std::string &filename)
 }
 
 
-void SU2MeshParser::parseDim(std::ifstream &filestream) {
+void SU2MeshParser::parseDim() {
 
     std::string line;
     bool ndim_found = false;
@@ -78,7 +78,7 @@ void SU2MeshParser::parseDim(std::ifstream &filestream) {
     }
 }
 
-void SU2MeshParser::parseVolumeElem(std::ifstream &) {
+void SU2MeshParser::parseVolumeElem() {
     std::string line;
     bool nelem_found = false;
 
@@ -144,7 +144,7 @@ void SU2MeshParser::parseVolumeElem(std::ifstream &) {
               << "\n";
 }
 
-void SU2MeshParser::parsePoints(std::ifstream &) {
+void SU2MeshParser::parsePoints() {
     std::string line;
     bool npoint_found = false;
 
@@ -196,7 +196,7 @@ void SU2MeshParser::parsePoints(std::ifstream &) {
 }
 
 
-void SU2MeshParser::parseBC(std::ifstream &) {
+void SU2MeshParser::parseBC() {
     std::string line;
     bool nmark_found = false;
 
