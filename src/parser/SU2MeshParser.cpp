@@ -91,7 +91,9 @@ void SU2MeshParser::parseVolumeElem(std::ifstream &) {
 
             ss.seekg(6) >> _nVolumeElem;
 
-            _VolumeElements.reserve(_nVolumeElem + 1);
+            _InteriorElements.reserve(_nVolumeElem + 1);
+            _InteriorElementsVtkID.reserve(_nVolumeElem + 1);
+            _InteriorElementsFaceCount.reserve(_nVolumeElem + 1);
 
             nelem_found = true;
 
@@ -106,12 +108,21 @@ void SU2MeshParser::parseVolumeElem(std::ifstream &) {
                 ss1 >> TempVtkID;
                 for (auto&[ID, nbNodes] : _vtkVolumeElements) {
                     if (TempVtkID == ID) {
+                        // Populating InteriorElementsVtkID
+                        _InteriorElementsVtkID.push_back(TempVtkID);
+                        // Populating InteriorElementsFaceCount
+                        if ((nbNodes == 8) || (nbNodes == 6)) {
+                            nbNodes == 8 ? _InteriorElementsFaceCount.push_back(6)
+                                         : _InteriorElementsFaceCount.push_back(5);
+                        } else
+                            _InteriorElementsFaceCount.push_back(nbNodes);
+                        // Populating InteriorElements
                         TempNodesSurrElem.reserve(nbNodes);
                         for (int j = 0; j < nbNodes; j++) {
                             ss1 >> TempNodeID;
                             TempNodesSurrElem.push_back(TempNodeID);
                         }
-                        _VolumeElements.emplace_back(Element(TempVtkID, TempNodesSurrElem));
+                        _InteriorElements.emplace_back(Element(TempVtkID, TempNodesSurrElem));
                         TempNodesSurrElem.clear();
                         break;
                     }
@@ -239,7 +250,7 @@ void SU2MeshParser::parseBC(std::ifstream &) {
                         if (TempVtkID == ID) {
                             TempNodesSurrElem.reserve(nbNodes);
                             for (int j = 0; j < nbNodes; j++) {
-                                ss1 >> TempNodeID;
+                                ss3 >> TempNodeID;
                                 TempNodesSurrElem.push_back(TempNodeID);
                             }
                             TempTagElements.emplace_back(Element(TempVtkID, TempNodesSurrElem));
@@ -252,8 +263,8 @@ void SU2MeshParser::parseBC(std::ifstream &) {
 
                 }
                 TempBcPairWithAllElems.second = TempTagElements;
-                TempTagElements.clear();
                 _BoundaryElements.push_back(TempBcPairWithAllElems);
+                TempTagElements.clear();
             }
             break;
         }

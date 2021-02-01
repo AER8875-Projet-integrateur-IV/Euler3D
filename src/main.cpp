@@ -1,7 +1,7 @@
 #include <iostream>
 // Quels sont les includes nécessaires?
 #include "parser/SU2MeshParser.hpp"
-// #include "mesh/Mesh.hpp"
+#include "mesh/Mesh.hpp"
 // #include "partition/Partition.hpp"
 #include "post/post.hpp"
 
@@ -22,9 +22,8 @@ int main(int argc, char *argv[]) {
     }
 
     std::string fileName = argv[1];
-    E3D::Parser::SU2MeshParser su2_parser(fileName);
 
-    // E3D::Post::Post part(mesh, nPart);
-    // post.Write();
+    E3D::Mesh mesh(fileName);
+
     return 0;
 }
