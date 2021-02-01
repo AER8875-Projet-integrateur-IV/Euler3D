@@ -15,7 +15,7 @@
 #include <unordered_map>
 
 #include "parser/Element.hpp"
-#include "mesh/Mesh.hpp"
+// #include "mesh/Mesh.hpp"
 
 namespace E3D::Post
 {
@@ -38,7 +38,7 @@ namespace E3D::Post
          * @param[in]   nPart           number of mesh partitions required
          *
          */
-        Post(Mesh *meshGlobal, int &nPart);
+        // Post(Mesh *meshGlobal, int &nPart);
         /**
          * Destructeur de la classe
          *

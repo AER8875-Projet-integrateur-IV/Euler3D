@@ -1,8 +1,8 @@
 #include <iostream>
 // Quels sont les includes nécessaires?
 #include "parser/SU2MeshParser.hpp"
-#include "mesh/Mesh.hpp"
-#include "partition/Partition.hpp"
+// #include "mesh/Mesh.hpp"
+// #include "partition/Partition.hpp"
 #include "post/post.hpp"
 
 /**
