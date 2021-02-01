@@ -18,12 +18,15 @@ int main(int argc, char *argv[]) {
 
     if (argc != 2) {
         std::cerr << "Usage : EES2D_APP <meshFileName.su2> " << std::endl;
-        exit(EXIT_FAILURE);
+        // exit(EXIT_FAILURE);
     }
 
-    std::string fileName = argv[1];
-
-    E3D::Mesh mesh(fileName);
-
+    std::string fileName = "/home/vincentbar/Bureau/naca0012_euler_9x9x5_O_1B.su2";
+    E3D::Parser::SU2MeshParser su2_parser(fileName);
+    int nPart = 1;
+    std::string varFile = "";
+    E3D::Post::Post P(fileName, varFile, nPart);
+    P.Write();
+    
     return 0;
 }

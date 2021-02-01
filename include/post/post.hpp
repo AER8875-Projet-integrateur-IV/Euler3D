@@ -15,6 +15,7 @@
 #include <unordered_map>
 
 #include "parser/Element.hpp"
+#include "parser/SU2MeshParser.hpp"
 // #include "mesh/Mesh.hpp"
 
 namespace E3D::Post
@@ -23,6 +24,13 @@ namespace E3D::Post
     class Post
     {
     private:
+        /*Fichier maillage*/
+        std::string _fileName;
+        /*Fichier variable solveur*/
+        std::string _fileVar;
+        /*Nombre de partitions*/
+        int _nPart;
+
         /**
          * Écrit la solution dans un fichier Tecplot
          *
@@ -31,18 +39,7 @@ namespace E3D::Post
         void WriteTecplot(std::string fileName);
 
     public:
-        /**
-         * @brief       Constructor
-         *
-         * @param[in]   meshGlobal      mesh to be partitionned with solved connectivity
-         * @param[in]   nPart           number of mesh partitions required
-         *
-         */
-        // Post(Mesh *meshGlobal, int &nPart);
-        /**
-         * Destructeur de la classe
-         *
-         */
+        Post(std::string mesh, std::string var, int nPart);
         ~Post();
 
         void Write();
