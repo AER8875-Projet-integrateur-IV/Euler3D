@@ -1,5 +1,5 @@
 /**
- * @file Post.cpp
+ * @file Post.hpp
  * @author Vincent Bar
  * @date 2021/02/01
  * @brief Write a solution file to read on Tecplot
