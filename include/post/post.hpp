@@ -1,6 +1,6 @@
 /**
- * @file Post.cpp
- * @author Vincent Bar
+ * @file Post.hpp
+ * @author Vincent Bar, Aziz Ndiaye, Abraham Bherer-Constant
  * @date 2021/02/01
  * @brief Write a solution file to read on Tecplot
  *
@@ -19,6 +19,7 @@
 
 namespace E3D::Post
 {
+  
     class Post
     {
     private:

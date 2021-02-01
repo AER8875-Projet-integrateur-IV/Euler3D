@@ -1,6 +1,6 @@
 /**
  * @file Post.cpp
- * @author Vincent Bar
+ * @author Vincent Bar, Aziz Ndiaye, Abraham Bherer-Constant
  * @date 2021/02/01
  * @brief Write a solution file to read on Tecplot
  *
@@ -33,7 +33,6 @@ void Post::Write()
     WriteTecplot("test.dat");
     std::cout << "Fin Post:\n";
 }
-
 
 void Post::WriteTecplot(std::string fileName)
 {
