@@ -6,8 +6,7 @@ os : linux
 before_install:
   - test -n $CC  && unset CC
   - test -n $CXX && unset CXX
-before_install:
-    - eval "${MATRIX_EVAL}"
+  - eval "${MATRIX_EVAL}"
 matrix:
     - compiler: g++
       addons:
