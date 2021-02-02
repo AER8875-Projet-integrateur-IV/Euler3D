@@ -2,6 +2,11 @@ language: cpp
 dist: bionic
 os : linux
 
+# Can interfere with MPI projects
+before_install:
+  - test -n $CC  && unset CC
+  - test -n $CXX && unset CXX
+  
 matrix:
     - compiler: g++
       addons:
@@ -10,7 +15,9 @@ matrix:
             - ubuntu-toolchain-r-test
           packages:
             - g++-9
-      env: COMPILER=g++-9
+      env: 
+        - COMPILER=g++-9
+        - MATRIX_EVAL="CC=gcc-9 && CXX=g++-9"
       
 script:
     - g++ -v && cmake --version
