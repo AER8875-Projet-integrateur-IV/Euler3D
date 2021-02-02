@@ -123,6 +123,8 @@ namespace E3D::Partition {
          * @param[in]   fileName   Nom du fichier Tecplot
          */
 		void WriteTecplot(std::string fileName);
+		void PrintInterfaces();
+		void DisplayVector(std::vector<int> vecteur, std::string nomVecteur);
 
 		void WriteSU2(E3D::Partition::SU2Mesh const &partition);
 

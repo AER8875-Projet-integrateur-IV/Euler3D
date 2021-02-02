@@ -210,6 +210,7 @@ void Partition::Write() {
 	SolvePart2Elem();
 	SolveElem2Node();
 	SolveBorder();
+	PrintInterfaces();
 	//WriteTecplot("test.dat");
 	std::cout << "Fin Partionnement:\n";
 
@@ -312,3 +313,33 @@ void Partition::WriteTecplot(std::string fileName) {
 	fclose(fid);
 	return;
 }
+
+void Partition::PrintInterfaces() {
+	for (int iPart = 0; iPart < _m_nPart; iPart++) {
+		std::cout << "Partition " << iPart << ":\n";
+		std::cout << "\tNbre d'élements: " << _m_part[iPart].NELEM << " Nbre de noeuds: " << _m_part[iPart].NPOIN << "\n";
+		std::cout << "\t";
+		DisplayVector(_m_part[iPart].elem2nodeStart, "element2nodeStart");
+		std::cout << "\n\t";
+		DisplayVector(_m_part[iPart].elem2node, "element2node");
+		std::cout << "\n\t";
+		DisplayVector(_m_part[iPart].Ninterface, "1 interface, 0 pas interface");
+		std::cout << "\n\t";
+		DisplayVector(_m_part[iPart].Ninterface_elem, "nbre elements par interface");
+		for (int iInterface = 0; iInterface < _m_nPart; iInterface++) {
+			std::cout << "\n\t\t";
+			DisplayVector(_m_part[iPart].interface_elem[iInterface], "interface elements");
+		}
+		std::cout << "\n###############################\n";
+	}
+
+
+	return;
+}
+void Partition::DisplayVector(std::vector<int> vecteur, std::string nomVecteur) {
+	std::cout << nomVecteur << " = { ";
+	for (int i = 0; i < vecteur.size(); i++) {
+		std::cout << vecteur[i] << ", ";
+	}
+	std::cout << "} ";
+};

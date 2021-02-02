@@ -21,7 +21,7 @@ int main(int argc, char *argv[]) {
 	std::string fileName = "/home/aziz/Bureau/A2020/PI4/Codes/Euler3D/test/mesh/naca0012_9x9x5_unittest_mesh.su2";
 
 	E3D::Mesh *mesh = new E3D::Mesh(fileName);
-	int nPart = 2;
+	int nPart = 4;
 	E3D::Partition::Partition part(mesh, nPart);
 	part.Write();
 
