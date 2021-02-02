@@ -56,8 +56,7 @@ namespace E3D {
          * 
          * @return const E3D::Parser::BC_Structure 
          */
-        inline const E3D::Parser::BC_Structure GetBoundaryConditionVector() const
-        {
+        inline const E3D::Parser::BC_Structure& GetBoundaryConditionVector() const {
             return _parser.GetBoundaryElems();
         }
 
