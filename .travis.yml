@@ -26,6 +26,7 @@ script:
     - cd build
     - cmake -DCMAKE_BUILD_TYPE=Release -DPACKAGE_TESTS=ON ..
     - cmake --build .
-    - make test
+    - cd test
+    - ctest
   
   
