@@ -74,7 +74,7 @@ namespace E3D::Parser {
          * @return Vector of element object, for volume elements
          */
 
-        inline const std::vector<Element> &GetVolumeElems() const { return this->_InteriorElements;}
+        inline const std::vector<Element> &GetVolumeElems() const { return this->_InteriorElements ; }
 
 
         /**
