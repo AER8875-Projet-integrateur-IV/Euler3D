@@ -1,6 +1,7 @@
 #include <catch2/catch.hpp>
 #include "parser/SU2MeshParser.hpp"
 #include <iostream>
+#include "parser/SimConfig.hpp"
 
 TEST_CASE("SU2MeshParser class test", "[parser]") {
 
@@ -130,6 +131,48 @@ TEST_CASE("SU2MeshParser class test", "[parser]") {
         REQUIRE(parser.GetBoundaryElems()[3].second.back().getElemNodes() == wall_lastElem_nodes);
 
     }
+
+
+}
+
+TEST_CASE("SimConfig class test", "[parser]") {
+    std::string ConfigFileName = "../../test/ConfigFiles/ConfigFIle_test.e3d";
+    E3D::Parser::SimConfig config(ConfigFileName);
+
+    // Testing mesh partitions file name
+    std::vector<std::string> partitionFiles = {"../../test/mesh/StructuredBlock_8#0.par",
+                                               "../../test/mesh/StructuredBlock_8#1.par",
+                                               "../../test/mesh/StructuredBlock_8#2.par",
+                                               "../../test/mesh/StructuredBlock_8#3.par"};
+    std::vector<std::string> parsedPartitionFiles = config.getPartitionedMeshFiles();
+
+    REQUIRE(config.getNumberPartitions() == 4);
+
+    for (int i=0 ; i< config.getNumberPartitions(); i++){
+        REQUIRE(parsedPartitionFiles[i] == partitionFiles[i]);
+    }
+
+    // Simulation parameters
+    REQUIRE(config.getMach() == Approx(0.7346523151));
+    REQUIRE(config.getVelocity() == 250);
+    REQUIRE(config.getAoA() == 1);
+    REQUIRE(config.getPressure() == 101325);
+    REQUIRE(config.getTemperature() == 288.15);
+    REQUIRE(config.getViscosity() == 1.853e-5);
+    REQUIRE(config.getDensity() == 1.2886);
+    REQUIRE(config.getGamma() == 1.4);
+    REQUIRE(config.getGasConstant() == 287.058);
+    REQUIRE(config.getSpecificHeat() == 1004.7);
+    REQUIRE(config.getSolverScheme() == E3D::Parser::SimConfig::SolverScheme::AUSM);
+    REQUIRE(config.getTemporalScheme() == E3D::Parser::SimConfig::TemporalScheme::RK5);
+    REQUIRE(config.getCFL() == 3);
+    REQUIRE(config.getMinResidual() == 1e-10);
+    REQUIRE(config.getTecplotFile() == "output.dat");
+
+    //
+
+
+
 
 
 }
