@@ -45,6 +45,8 @@ SU2MeshParser::SU2MeshParser(const std::string &filename)
 
     std::cout << std::string(58, '#') << std::endl;
 
+    _ifilestream.close();
+
 }
 
 
