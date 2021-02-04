@@ -28,10 +28,10 @@ SU2MeshParser::SU2MeshParser(const std::string &filename)
               << _filename
               << "\n";
 
-    parseDim(_ifilestream);
-    parseVolumeElem(_ifilestream);
-    parsePoints(_ifilestream);
-    parseBC(_ifilestream);
+    parseDim();
+    parseVolumeElem();
+    parsePoints();
+    parseBC();
 
     _nElem = _nBoundaryElem + _nVolumeElem;
 
@@ -48,7 +48,7 @@ SU2MeshParser::SU2MeshParser(const std::string &filename)
 }
 
 
-void SU2MeshParser::parseDim(std::ifstream &filestream) {
+void SU2MeshParser::parseDim() {
 
     std::string line;
     bool ndim_found = false;
@@ -78,7 +78,7 @@ void SU2MeshParser::parseDim(std::ifstream &filestream) {
     }
 }
 
-void SU2MeshParser::parseVolumeElem(std::ifstream &) {
+void SU2MeshParser::parseVolumeElem() {
     std::string line;
     bool nelem_found = false;
 
@@ -91,7 +91,9 @@ void SU2MeshParser::parseVolumeElem(std::ifstream &) {
 
             ss.seekg(6) >> _nVolumeElem;
 
-            _VolumeElements.reserve(_nVolumeElem + 1);
+            _InteriorElements.reserve(_nVolumeElem + 1);
+            _InteriorElementsVtkID.reserve(_nVolumeElem + 1);
+            _InteriorElementsFaceCount.reserve(_nVolumeElem + 1);
 
             nelem_found = true;
 
@@ -106,12 +108,21 @@ void SU2MeshParser::parseVolumeElem(std::ifstream &) {
                 ss1 >> TempVtkID;
                 for (auto&[ID, nbNodes] : _vtkVolumeElements) {
                     if (TempVtkID == ID) {
+                        // Populating InteriorElementsVtkID
+                        _InteriorElementsVtkID.push_back(TempVtkID);
+                        // Populating InteriorElementsFaceCount
+                        if ((nbNodes == 8) || (nbNodes == 6)) {
+                            nbNodes == 8 ? _InteriorElementsFaceCount.push_back(6)
+                                         : _InteriorElementsFaceCount.push_back(5);
+                        } else
+                            _InteriorElementsFaceCount.push_back(nbNodes);
+                        // Populating InteriorElements
                         TempNodesSurrElem.reserve(nbNodes);
                         for (int j = 0; j < nbNodes; j++) {
                             ss1 >> TempNodeID;
                             TempNodesSurrElem.push_back(TempNodeID);
                         }
-                        _VolumeElements.emplace_back(Element(TempVtkID, TempNodesSurrElem));
+                        _InteriorElements.emplace_back(Element(TempVtkID, TempNodesSurrElem));
                         TempNodesSurrElem.clear();
                         break;
                     }
@@ -133,7 +144,7 @@ void SU2MeshParser::parseVolumeElem(std::ifstream &) {
               << "\n";
 }
 
-void SU2MeshParser::parsePoints(std::ifstream &) {
+void SU2MeshParser::parsePoints() {
     std::string line;
     bool npoint_found = false;
 
@@ -185,7 +196,7 @@ void SU2MeshParser::parsePoints(std::ifstream &) {
 }
 
 
-void SU2MeshParser::parseBC(std::ifstream &) {
+void SU2MeshParser::parseBC() {
     std::string line;
     bool nmark_found = false;
 

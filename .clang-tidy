@@ -1,0 +1,3 @@
+Checks: "-*,use-emplace,mpi-*,performance-*,cppcoreguidelines-pro-type-static-cast-downcast,google-readability-casting,modernize-*,-modernize-pass-by-value,-modernize-raw-string-literal,-modernize-use-auto,-modernize-use-override,-modernize-use-default-member-init,-modernize-use-transparent-functors,-performance-inefficient-string-concatenation"
+
+WarningsAsErrors: '*'
