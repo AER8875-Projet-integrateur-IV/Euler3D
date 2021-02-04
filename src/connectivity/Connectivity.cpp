@@ -102,8 +102,34 @@ void Connectivity::SolveElement2Element(const std::vector<int> &VTK){
   _element2element.resize(_element2elementStart[_nElem],-1);
 
 
+  //creating lhelp_indice vector
+  std::vector<std::vector<int>> _lhelp_indice{{0,2,1,0,1,3,1,2,3,2,0,3},
+                                              {0,3,2,1,0,1,5,4,1,2,6,5,2,3,7,6,3,0,4,7,4,5,6,7},
+                                              {0,1,2,0,2,5,3,0,3,4,1,1,4,5,2,3,5,4},
+                                              {0,3,2,1,0,1,4,1,2,4,2,3,4,3,0,4}};
+  // _lhelp_indice.resize(4);
+  // _lhelp_indice[0].reserve(12);
+  // _lhelp_indice[0]{0,2,1,0,1,3,1,2,3,2,0,3};
+  // _lhelp_indice[1].reserve(24);
+  // _lhelp_indice[1]{0,3,2,1,0,1,5,4,1,2,6,5,2,3,7,6,3,0,4,7,4,5,6,7};
+  // _lhelp_indice[2].reserve(18);
+  // _lhelp_indice[2]{0,1,2,0,2,5,3,0,3,4,1,1,4,5,2,3,5,4};
+  // _lhelp_indice[3].reserve(16);
+  // _lhelp_indice[3]{0,3,2,1,0,1,4,1,2,4,2,3,4,3,0,4};
 
-
+  std::vector<std::vector<int>> _lhelp_indiceStart{{0,3,6,9,12},
+                                                   {0,4,8,12,16,20,24},
+                                                   {0,3,7,11,15,18},
+                                                   {0,4,7,10,13,16}};
+  // _lhelp_indiceStart.resize(4);
+  // _lhelp_indiceStart[0].reserve(5);
+  // _lhelp_indiceStart[0]{0,3,6,9,12};
+  // _lhelp_indiceStart[1].reserve(7);
+  // _lhelp_indiceStart[1]{0,4,8,12,16,20,24};
+  // _lhelp_indiceStart[2].reserve(6);
+  // _lhelp_indiceStart[2]{0,3,7,11,15,18};
+  // _lhelp_indiceStart[3].reserve(6);
+  // _lhelp_indiceStart[3]{0,4,7,10,13,16};
 
 
 
@@ -115,57 +141,50 @@ void Connectivity::SolveElement2Element(const std::vector<int> &VTK){
   for (size_t ielem = 0; ielem < _nElem; ielem++) {
     int startI = _element2nodeStart[ielem];
     int endI = _element2nodeStart[ielem+1];
-    std::vector<int> _lhelp_indice;
-    std::vector<int> _lhelp_indiceStart;
+    int ilhelp;
+
+
+
 
     // ---------- determine le type d'element ---------------
     if (VTK[ielem] == 10) {
       //methode pour tetrahedre
       nLocalFacefElement = _nFacefElement[ielem];
 
-      _lhelp_indice.reserve(12);
-      _lhelp_indice = {0,2,1,0,1,3,1,2,3,2,0,3};
-      _lhelp_indiceStart.reserve(5);
-      _lhelp_indiceStart = {0,3,6,9,12};
+      ilhelp = 0;
 
     }
     else if (VTK[ielem] == 12) {
       //methode pour cube
       nLocalFacefElement = _nFacefElement[ielem];
 
-      _lhelp_indice.reserve(24);
-      _lhelp_indice.assign({0,3,2,1,0,1,5,4,1,2,6,5,2,3,7,6,3,0,4,7,4,5,6,7}) ;
-      _lhelp_indiceStart.reserve(7);
-      _lhelp_indiceStart.assign({0,4,8,12,16,20,24}) ;
+      ilhelp = 1;
 
     }
     else if (VTK[ielem] == 13) {
       //methode pour wedge
       nLocalFacefElement = _nFacefElement[ielem];
 
-      _lhelp_indice.reserve(18);
-      _lhelp_indice.assign({0,1,2,0,2,5,3,0,3,4,1,1,4,5,2,3,5,4});
-      _lhelp_indiceStart.reserve(6);
-      _lhelp_indiceStart.assign({0,3,7,11,15,18});
+      ilhelp = 2;
 
     }
     else if (VTK[ielem] == 14) {
       //methode pour pyramide base carree
       nLocalFacefElement = _nFacefElement[ielem];
 
-      _lhelp_indice.reserve(16);
-      _lhelp_indice.assign({0,3,2,1,0,1,4,1,2,4,2,3,4,3,0,4});
-      _lhelp_indiceStart.reserve(6);
-      _lhelp_indiceStart.assign({0,4,7,10,13,16});
+      ilhelp = 3;
 
     }
     else {
       std::cout << "VTK not recognised!" << '\n';
     }
-    printf("%2d \n", _lhelp_indice.size() );
-    for (size_t i = 0; i < _lhelp_indice.size(); i++) {
-      printf("%2d ", _lhelp_indice[0]);
+
+    std::cout << "ilhelp:  " << ilhelp << '\n';
+    for (size_t i = 0; i < _lhelp_indice[ilhelp].size(); i++) {
+      printf("%2d ", _lhelp_indice[ilhelp][i]);
     }
+    std::cout << '\n';
+    std::cout << "test2" << '\n';
 
     // ---------- commence la connectivity element2element et face ---------------
     for (size_t iface = 0; iface < nLocalFacefElement; iface++) {
@@ -173,7 +192,7 @@ void Connectivity::SolveElement2Element(const std::vector<int> &VTK){
       int lhelp[nLocalNodefFaceI] = {0};
       int lpoint[_nNode] = {0};
       for (size_t inode = 0; inode < nLocalNodefFaceI; inode++) {
-        lhelp[inode] = _element2node[startI+_lhelp_indice[_lhelp_indiceStart[iface]+inode]];
+        lhelp[inode] = _element2node[startI+_lhelp_indice[ilhelp][_lhelp_indiceStart[ilhelp][iface]+inode]];
         lpoint[lhelp[inode]]  = 1;
       }
       int ipoint = lhelp[0];

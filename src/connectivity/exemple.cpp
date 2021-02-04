@@ -21,7 +21,7 @@ int main(){
 
   Connec._nElem = 4;// remplace le call de solve element2node
   Connec._nNode = 15;
-  
+
   for (size_t i = 0; i < nElem+1; i++) {
     printf("%2d ", Connec._element2nodeStart[i] );
   }
@@ -36,12 +36,7 @@ int main(){
 
 
   Connec.ComputeVTKLinkedLists(VTK);
-  for (size_t i = 0; i < Connec._nNodefFace.size(); i++) {
-    std::cout << '\n';
-    for (size_t j = 0; j < Connec._nNodefFace[i].size(); j++) {
-      printf("%2d ", Connec._nNodefFace[i][j] );
-    }
-  }
+
   std::cout  << '\n';
   Connec.SolveNode2element();
   Connec.SolveElement2Element(VTK);
@@ -51,6 +46,15 @@ int main(){
   std::cout << '\n';
   for (size_t i = 0; i < Connec._element2elementStart[Connec._nElem]; i++) {
     printf("%2d ", Connec._element2element[i] );
+  }
+  std::cout << '\n';
+
+  for (size_t i = 0; i < Connec._nElem+1; i++) {
+    printf("%2d ", Connec._element2faceStart[i] );
+  }
+  std::cout << '\n';
+  for (size_t i = 0; i < Connec._element2faceStart[Connec._nElem]; i++) {
+    printf("%2d ", Connec._element2face[i] );
   }
   std::cout << '\n';
 //SolveElement2Element(nElem, element2node, element2nodeStart, nNode, node2element, node2elementStart);
