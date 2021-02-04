@@ -48,10 +48,9 @@ void Connectivity::SolveNode2element(){
     }
 
   }
-  std::cout << _node2elementStart[0] << " " ;
   for (size_t i = 1; i < _node2elementStart.size(); i++) {
     _node2elementStart[i] += _node2elementStart[i-1];
-    printf("%2d ", _node2elementStart[i] );
+    //printf("%2d ", _node2elementStart[i] );
   }
 
   int j;
@@ -69,10 +68,7 @@ void Connectivity::SolveNode2element(){
     }
 
   }
-  std::cout << '\n';
-  for (size_t i = 0; i < _node2element.size(); i++) {
-    printf("%2d ", _node2element[i] );
-  }
+  
 
 
 
@@ -179,12 +175,6 @@ void Connectivity::SolveElement2Element(const std::vector<int> &VTK){
       std::cout << "VTK not recognised!" << '\n';
     }
 
-    std::cout << "ilhelp:  " << ilhelp << '\n';
-    for (size_t i = 0; i < _lhelp_indice[ilhelp].size(); i++) {
-      printf("%2d ", _lhelp_indice[ilhelp][i]);
-    }
-    std::cout << '\n';
-    std::cout << "test2" << '\n';
 
     // ---------- commence la connectivity element2element et face ---------------
     for (size_t iface = 0; iface < nLocalFacefElement; iface++) {
@@ -221,20 +211,21 @@ void Connectivity::SolveElement2Element(const std::vector<int> &VTK){
                 count += lpoint[_element2node[pointIndex]];
                 if (count == nLocalNodefFaceI) {
                   _element2element[_element2elementStart[ielem]+ iface] = jelem;
-                }
-                if (_element2element[_element2elementStart[jelem] + jface] == ielem) {
-                  _element2face[_element2elementStart[ielem] + iface] = _element2face[_element2elementStart[jelem] + jface];
-                }
-                else {
-                  _element2face[_element2elementStart[ielem] + iface] = faceCount;
-                  _element2face[_element2elementStart[jelem] + jface] = faceCount;
-                  _face2element[2*faceCount] = ielem;
-                  _face2element[2*faceCount +1] = jelem;
-                  for (size_t i = 0; i < nLocalNodefFaceI; i++) {
-                    _face2node.push_back(lhelp[i]);
-                    nodeCount +=1;
+                
+                  if (_element2element[_element2elementStart[jelem] + jface] == ielem) {
+                    _element2face[_element2elementStart[ielem] + iface] = _element2face[_element2elementStart[jelem] + jface];
                   }
-                  faceCount++;
+                  else {
+                    _element2face[_element2elementStart[ielem] + iface] = faceCount;
+                    _element2face[_element2elementStart[jelem] + jface] = faceCount;
+                    _face2element[2*faceCount] = ielem;
+                    _face2element[2*faceCount +1] = jelem;
+                    for (size_t i = 0; i < nLocalNodefFaceI; i++) {
+                      _face2node.push_back(lhelp[i]);
+                      nodeCount +=1;
+                    }
+                    faceCount++;
+                  }
                 }
               }
             }
@@ -246,6 +237,24 @@ void Connectivity::SolveElement2Element(const std::vector<int> &VTK){
       }
     }
   }
+
+  // Complete element2element with the ghost cells
+  int elemCount = _nElem;
+  for (int i = 0; i < _element2element.size(); ++i) {
+		if (_element2element[i] == -1) {
+			_element2element[i] = elemCount;
+			elemCount += 1;
+		}
+	}
+
+  // Complete element2face with the ghost cells
+  for (int i = 0; i < _element2face.size(); ++i) {
+		if (_element2face[i] == -1) {
+			_element2face[i] = faceCount;
+			faceCount += 1;
+		}
+	}
+
 }
 
 const std::vector<int> Connectivity::GetNodeIndices(int face, int jelem, int nLocalFacefElement, int VTK){

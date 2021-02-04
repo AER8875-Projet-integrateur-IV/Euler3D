@@ -21,13 +21,14 @@ int main(){
 
   Connec._nElem = 4;// remplace le call de solve element2node
   Connec._nNode = 15;
+  printf("element2nodeStart = \n");
 
   for (size_t i = 0; i < nElem+1; i++) {
     printf("%2d ", Connec._element2nodeStart[i] );
   }
 
   std::cout << '\n';
-
+  printf("element2node = \n");
   for (size_t i = 0; i < Connec._element2nodeStart[Connec._nElem]; i++) {
     printf("%2d ", Connec._element2node[i] );
   }
@@ -39,22 +40,42 @@ int main(){
 
   std::cout  << '\n';
   Connec.SolveNode2element();
+  printf("node2elementStart = \n");
+  for (size_t i = 1; i < Connec._node2elementStart.size(); i++) {
+    printf("%2d ", Connec._node2elementStart[i] );
+  }
+  std::cout << '\n';
+  printf("node2element = \n");
+  for (size_t i = 0; i < Connec._node2element.size(); i++) {
+    printf("%2d ", Connec._node2element[i] );
+  }
+
+
   Connec.SolveElement2Element(VTK);
+  printf("element2elementStart = \n");
   for (size_t i = 0; i < Connec._nElem+1; i++) {
     printf("%2d ", Connec._element2elementStart[i] );
   }
   std::cout << '\n';
+  printf("element2element = \n");
   for (size_t i = 0; i < Connec._element2elementStart[Connec._nElem]; i++) {
     printf("%2d ", Connec._element2element[i] );
   }
   std::cout << '\n';
-
+  printf("element2faceStart = \n");
   for (size_t i = 0; i < Connec._nElem+1; i++) {
     printf("%2d ", Connec._element2faceStart[i] );
   }
   std::cout << '\n';
+  printf("element2face = \n");
   for (size_t i = 0; i < Connec._element2faceStart[Connec._nElem]; i++) {
     printf("%2d ", Connec._element2face[i] );
+  }
+  std::cout << '\n';
+
+  printf("face2element = \n");
+  for (size_t i = 0; i < Connec._face2element.size(); i++) {
+    printf("%2d ", Connec._face2element[i] );
   }
   std::cout << '\n';
 //SolveElement2Element(nElem, element2node, element2nodeStart, nNode, node2element, node2elementStart);
