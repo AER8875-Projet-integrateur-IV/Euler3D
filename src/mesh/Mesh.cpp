@@ -24,6 +24,6 @@ void Mesh::solveConnectivity() {
     element2face = std::make_unique<std::vector<int>>(connectivityObj._element2face);
     element2faceStart = std::make_unique<std::vector<int>>(connectivityObj._element2faceStart);
     face2element = std::make_unique<std::vector<int>>(connectivityObj._face2element);
-    face2elementStart = std::make_unique<std::vector<int>>(connectivityObj._face2elementStart);
+    
 
 }

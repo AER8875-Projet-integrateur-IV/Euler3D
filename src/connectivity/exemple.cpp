@@ -78,6 +78,20 @@ int main(){
     printf("%2d ", Connec._face2element[i] );
   }
   std::cout << '\n';
+
+  printf("%2d\n", Connec._face2node.size() );
+  
+  // printf("face2nodeStart = \n");
+  // for (size_t i = 0; i < Connec.face2nodeStart[Connec._nElem]; i++) {
+  //   printf("%2d ", Connec.face2nodeStart[i] );
+  // }
+  // std::cout << '\n';
+  //
+  // printf("face2element = \n");
+  // for (size_t i = 0; i < Connec._face2node.size(); i++) {
+  //   printf("%2d ", Connec._face2node[i] );
+  // }
+  // std::cout << '\n';
 //SolveElement2Element(nElem, element2node, element2nodeStart, nNode, node2element, node2elementStart);
 
 

@@ -25,7 +25,6 @@ public:
   std::vector<int> _element2face;
   std::vector<int> _element2faceStart;
   std::vector<int> _face2element;
-  std::vector<int> _face2elementStart;
   std::vector<int> _face2node;
   std::vector<int> _face2nodeStart;
   std::vector<int> _nFacefElement;

@@ -68,7 +68,7 @@ void Connectivity::SolveNode2element(){
     }
 
   }
-  
+
 
 
 
@@ -103,36 +103,18 @@ void Connectivity::SolveElement2Element(const std::vector<int> &VTK){
                                               {0,3,2,1,0,1,5,4,1,2,6,5,2,3,7,6,3,0,4,7,4,5,6,7},
                                               {0,1,2,0,2,5,3,0,3,4,1,1,4,5,2,3,5,4},
                                               {0,3,2,1,0,1,4,1,2,4,2,3,4,3,0,4}};
-  // _lhelp_indice.resize(4);
-  // _lhelp_indice[0].reserve(12);
-  // _lhelp_indice[0]{0,2,1,0,1,3,1,2,3,2,0,3};
-  // _lhelp_indice[1].reserve(24);
-  // _lhelp_indice[1]{0,3,2,1,0,1,5,4,1,2,6,5,2,3,7,6,3,0,4,7,4,5,6,7};
-  // _lhelp_indice[2].reserve(18);
-  // _lhelp_indice[2]{0,1,2,0,2,5,3,0,3,4,1,1,4,5,2,3,5,4};
-  // _lhelp_indice[3].reserve(16);
-  // _lhelp_indice[3]{0,3,2,1,0,1,4,1,2,4,2,3,4,3,0,4};
 
   std::vector<std::vector<int>> _lhelp_indiceStart{{0,3,6,9,12},
                                                    {0,4,8,12,16,20,24},
                                                    {0,3,7,11,15,18},
                                                    {0,4,7,10,13,16}};
-  // _lhelp_indiceStart.resize(4);
-  // _lhelp_indiceStart[0].reserve(5);
-  // _lhelp_indiceStart[0]{0,3,6,9,12};
-  // _lhelp_indiceStart[1].reserve(7);
-  // _lhelp_indiceStart[1]{0,4,8,12,16,20,24};
-  // _lhelp_indiceStart[2].reserve(6);
-  // _lhelp_indiceStart[2]{0,3,7,11,15,18};
-  // _lhelp_indiceStart[3].reserve(6);
-  // _lhelp_indiceStart[3]{0,4,7,10,13,16};
 
 
 
   int nLocalFacefElement;
   int faceCount = 0;
   int nodeCount = 0;
-
+  int face2nodeCount = 0;
 
   for (size_t ielem = 0; ielem < _nElem; ielem++) {
     int startI = _element2nodeStart[ielem];
@@ -146,28 +128,28 @@ void Connectivity::SolveElement2Element(const std::vector<int> &VTK){
     if (VTK[ielem] == 10) {
       //methode pour tetrahedre
       nLocalFacefElement = _nFacefElement[ielem];
-
+      face2nodeCount += 12;
       ilhelp = 0;
 
     }
     else if (VTK[ielem] == 12) {
       //methode pour cube
       nLocalFacefElement = _nFacefElement[ielem];
-
+      face2nodeCount += 24;
       ilhelp = 1;
 
     }
     else if (VTK[ielem] == 13) {
       //methode pour wedge
       nLocalFacefElement = _nFacefElement[ielem];
-
+      face2nodeCount += 18;
       ilhelp = 2;
 
     }
     else if (VTK[ielem] == 14) {
       //methode pour pyramide base carree
       nLocalFacefElement = _nFacefElement[ielem];
-
+      face2nodeCount += 16;
       ilhelp = 3;
 
     }
@@ -205,23 +187,20 @@ void Connectivity::SolveElement2Element(const std::vector<int> &VTK){
               for (size_t JlocalNode = 0; JlocalNode < nNodeForFaceJ; JlocalNode++) {
                 int pointIndex = startJ + nodeIndice[JlocalNode];
 
-                // if (facej == (nLocaleFacesJ - 1) && localNodeJ == (nNodesForFaceJ - 1)) {
-                // 	pointIndex = startJ;
-                // } // a voir si besoin
                 count += lpoint[_element2node[pointIndex]];
                 if (count == nLocalNodefFaceI) {
                   _element2element[_element2elementStart[ielem]+ iface] = jelem;
-                
+
                   if (_element2element[_element2elementStart[jelem] + jface] == ielem) {
                     _element2face[_element2elementStart[ielem] + iface] = _element2face[_element2elementStart[jelem] + jface];
                   }
                   else {
+                    face2nodeCount -= count;
                     _element2face[_element2elementStart[ielem] + iface] = faceCount;
                     _element2face[_element2elementStart[jelem] + jface] = faceCount;
                     _face2element[2*faceCount] = ielem;
                     _face2element[2*faceCount +1] = jelem;
                     for (size_t i = 0; i < nLocalNodefFaceI; i++) {
-                      _face2node.push_back(lhelp[i]);
                       nodeCount +=1;
                     }
                     faceCount++;
@@ -254,6 +233,31 @@ void Connectivity::SolveElement2Element(const std::vector<int> &VTK){
 			faceCount += 1;
 		}
 	}
+
+  printf("face2nodeCount: %2d\n",face2nodeCount );
+
+  //compute face2element
+  elemCount = _nElem;
+  for (size_t ielem = 0; ielem < _nElem; ielem++) {
+    int startI = _element2faceStart[ielem];
+    int endI = _element2faceStart[ielem+1];
+    for (size_t j = startI; j < endI; j++) {
+      int iface = _element2face[j]*2;
+      if (_face2element[iface] == -1) {
+        _face2element[iface] = ielem;
+        _face2element[iface+1] = elemCount;
+        elemCount++;
+      }
+    }
+  }
+
+  // -------------- computing face2node -----------------------
+
+  _face2nodeStart.resize(_nFace);
+  _face2node.resize(face2nodeCount, -1);
+
+
+
 
 }
 
