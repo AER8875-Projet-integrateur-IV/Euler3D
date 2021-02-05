@@ -52,6 +52,15 @@ namespace E3D
         }
 
         /**
+         * @brief Get the Boundary Condition Vector object
+         * 
+         * @return const E3D::Parser::BC_Structure 
+         */
+        inline const E3D::Parser::BC_Structure& GetBoundaryConditionVector() const {
+            return _parser.GetBoundaryElems();
+        }
+
+        /**
          * @param ElementID Element Position
          * @return Element object
          */
@@ -107,4 +116,4 @@ namespace E3D
         std::vector<int> _elem2elem;
     };
 
-} // namespace E3D
+}
