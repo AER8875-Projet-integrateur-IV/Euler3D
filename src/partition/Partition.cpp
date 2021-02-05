@@ -62,10 +62,10 @@ void Partition::SolveElem2Part()
     }
 
     // Paramètres utiles pour appeler METIS
-    long node2Part[NPOIN]; // vecteur qui va contenir la partition de chaque noeud
-    long int objval;
-    long int ncommon;
-    if (_m_meshGlobal->GetMeshDim() == 2)
+	std::vector<long> node2Part(NPOIN);// vecteur qui va contenir la partition de chaque noeud
+	long int objval;
+	long int ncommon;
+	if (_m_meshGlobal->GetMeshDim() == 2)
     {
         ncommon = 2;
     }
@@ -75,17 +75,17 @@ void Partition::SolveElem2Part()
     }
 
     // Appel de METIS
-    int success = METIS_PartMeshDual(&NELEM, &NPOIN, _m_elem2NodeStart.data(),
-                                     _m_elem2Node.data(), NULL, NULL,
-                                     &ncommon, &npart, NULL, NULL, &objval,
-                                     _m_elem2Part.data(), &node2Part[0]);
+	int success = METIS_PartMeshDual(&NELEM, &NPOIN, _m_elem2NodeStart.data(),
+	                                 _m_elem2Node.data(), nullptr, nullptr,
+	                                 &ncommon, &npart, nullptr, nullptr, &objval,
+	                                 _m_elem2Part.data(), node2Part.data());
 
-    std::cout << std::setw(30)
-              << "METIS partition success : "
-              << std::setw(6)
-              << success
-              << "\n";
-    return;
+	std::cout << std::setw(30)
+	          << "METIS partition success : "
+	          << std::setw(6)
+	          << success
+	          << "\n";
+	return;
 }
 
 void Partition::SolvePart2Elem()
@@ -357,16 +357,16 @@ int Partition::Local2GlobalNode(int localNodeID, int partID){
     return globalID; 
 }
 
-void Partition::Write(std::string SU2OuputPath)
-{
-    std::cout << std::string(24, '#') << "  Partitionning  " << std::string(24, '#') << "\n\n" << std::endl;
-    std::cout << std::setw(30)
-              << "Number of Partitions : "
-              << std::setw(6)
-              << _m_nPart
-              << "\n";
+void Partition::Write(const std::string &SU2OuputPath) {
+	std::cout << std::string(24, '#') << "  Partitionning  " << std::string(24, '#') << "\n\n"
+	          << std::endl;
+	std::cout << std::setw(30)
+	          << "Number of Partitions : "
+	          << std::setw(6)
+	          << _m_nPart
+	          << "\n";
 
-    SolveElem2Part();
+	SolveElem2Part();
     SolvePart2Elem();
     SolveElem2Node();
     PartitionPhysicalBorder();
@@ -388,11 +388,11 @@ void Partition::Write(std::string SU2OuputPath)
     std::cout << std::string(58, '#') << std::endl;
 }
 
-void Partition::WriteSU2(E3D::Partition::SU2Mesh const &partition, std::string path){
-    // vector Node
-    std::vector<E3D::Parser::Node> const &globNodeVector = _m_meshGlobal->GetNodeVector();
+void Partition::WriteSU2(E3D::Partition::SU2Mesh const &partition, const std::string &path) {
+	// vector Node
+	std::vector<E3D::Parser::Node> const &globNodeVector = _m_meshGlobal->GetNodeVector();
 
-    std::vector<E3D::Parser::Node> nodeVector;
+	std::vector<E3D::Parser::Node> nodeVector;
     nodeVector.reserve(partition.NPOIN);
     
     for (int i = 0; i < partition.NPOIN; i++)
@@ -402,8 +402,6 @@ void Partition::WriteSU2(E3D::Partition::SU2Mesh const &partition, std::string p
     }
 
     // Element to Node
-    std::vector<E3D::Parser::Element> const &globElemVector = _m_meshGlobal->GetInteriorElementVector();
-
     std::vector<E3D::Parser::Element> elemVector;
     elemVector.reserve(partition.NELEM);
 
@@ -417,27 +415,23 @@ void Partition::WriteSU2(E3D::Partition::SU2Mesh const &partition, std::string p
         }
 
         // TODO change VTK ID from 0 to good value
-        elemVector.push_back(E3D::Parser::Element(-1, vectorNodeID));
-    }
+		elemVector.emplace_back(E3D::Parser::Element(-1, vectorNodeID));
+	}
 
-    // Physical boundary conditions
-    E3D::Parser::BC_Structure bc;
+	// Physical boundary conditions
+	E3D::Parser::BC_Structure bc;
     for(const auto &marker : partition.Markers){
         bc.push_back(marker);
     }
 
     SU2Writer writer(path);
     writer.Write(elemVector, partition.NDIM, nodeVector, bc);
-
-
-    
 }
 
-void Partition::WriteTecplot(std::string fileName)
-{
-    // Création du fichier
-    FILE *fid = fopen(fileName.c_str(), "w");
-    // Cas d'un maillage 2D
+void Partition::WriteTecplot(const std::string &fileName) {
+	// Création du fichier
+	FILE *fid = fopen(fileName.c_str(), "w");
+	// Cas d'un maillage 2D
     if (_m_meshGlobal->GetMeshDim() == 2)
     {
         // Entête du fichier

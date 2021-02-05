@@ -133,26 +133,26 @@ namespace E3D::Partition
          * 
          * @param[in]   fileName   Nom du fichier Tecplot
          */
-        void WriteTecplot(std::string fileName);
+		void WriteTecplot(const std::string &fileName);
 
-        /**
+		/**
          * @brief Transforms the SU2Mesh data structure into a compatible structure
          *      for the write 
          * 
          * @param partition SU2Mesh object to be written to file
          * @param path Save path
          */
-        void WriteSU2(E3D::Partition::SU2Mesh const &partition, std::string path);
+		void WriteSU2(E3D::Partition::SU2Mesh const &partition, const std::string &path);
 
-    public:
-        /** 
+	public:
+		/** 
          * @brief       Constructor 
          *
          * @param[in]   meshGlobal      mesh to be partitionned with solved connectivity
          * @param[in]   nPart           number of mesh partitions required
          *
          */
-        Partition(Mesh *meshGlobal, int &nPart);
+		Partition(Mesh *meshGlobal, int &nPart);
         /**
          * Destructeur de la classe
          *
@@ -165,18 +165,18 @@ namespace E3D::Partition
          * @param SU2OuputPath Save path for the partitions, the # symbol will
          *      be replaced by the partition ID
          */
-        void Write(std::string SU2OuputPath = "part#.part");
+		void Write(const std::string &SU2OuputPath = "part#.part");
 
-        /**
+		/**
          * @brief Find the global node ID from a local node ID and part ID
          * 
          * @param localNodeID 
          * @param partID 
          * @return int global node ID
          */
-        int Local2GlobalNode(int localNodeID, int partID);
+		int Local2GlobalNode(int localNodeID, int partID);
 
-        /**
+		/**
          * @brief Check all partition element for a match with a marker from the
          *      global mesh
          * 
@@ -203,4 +203,4 @@ namespace E3D::Partition
          */
         static void FindContainedElements(const std::vector<int>& subSet, const std::vector<int>& globalSet, std::vector<int>& indexVector);
     };
-}; // namespace E3D::Partition
+}// namespace E3D::Partition

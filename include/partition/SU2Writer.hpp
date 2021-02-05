@@ -29,9 +29,9 @@ namespace E3D::Partition
          * @param path path to the output file
          * @param doublePrecision number of digits to be used for writing floats
          */
-        SU2Writer(std::string path, int doublePrecision = 10);
+		SU2Writer(const std::string &path, int doublePrecision = 10);
 
-        /**
+		/**
          * @brief Destroy the SU2Writer object
          * 
          */
@@ -72,9 +72,9 @@ namespace E3D::Partition
          * @param nDim Number of dimensions in the mesh
          * @param nodeVector Node vector containing the coordinates
          */
-        void WriteCoord(int nDim, std::vector<E3D::Parser::Node>& nodeVector);
+		void WriteCoord(std::vector<E3D::Parser::Node> &nodeVector);
 
-        /**
+		/**
          * @brief Write the standard markers (farfield and wall) to file
          * 
          * @param markers Border condition data as defined in SU2MeshParser.hpp

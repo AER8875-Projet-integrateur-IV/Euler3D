@@ -21,9 +21,9 @@ TEST_CASE("SU2Writer class test", "[partition]") {
 
         std::vector<E3D::Parser::Node> nodes{node1, node2};
 
-        writer.WriteCoord(3,nodes);
+		writer.WriteCoord(nodes);
 
-        std::getline(file, line);
+		std::getline(file, line);
         REQUIRE("%" == line);
         std::getline(file, line);
         REQUIRE("% Node coordinates" == line);

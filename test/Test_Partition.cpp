@@ -1,3 +1,11 @@
+/**
+ * @file Test_Partition.cpp
+ * @author Abraham Bhérer-Constant (abraham.bconstant@gmail.com)
+ * @brief Test file for Partition class
+ * @date 2021-02-05
+ * 
+ * 
+ */
 #include <catch2/catch.hpp>
 #include "partition/Partition.hpp"
 #include <vector>

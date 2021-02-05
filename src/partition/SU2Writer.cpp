@@ -14,9 +14,8 @@
 
 using namespace E3D::Partition;
 
-SU2Writer::SU2Writer(std::string path, int doublePrecision)
-{
-    _m_file = std::ofstream(path);
+SU2Writer::SU2Writer(const std::string &path, int doublePrecision) {
+	_m_file = std::ofstream(path);
     _m_doublePrecision = doublePrecision;
     _m_file << std::setprecision(_m_doublePrecision) 
             << std::setiosflags(std::ios::dec)
@@ -36,8 +35,8 @@ void SU2Writer::Write(std::vector<E3D::Parser::Element>& interiorElemVector,
             << "%\n"
             << "NDIME= " << nDim << "\n";
     this->WriteElement2Node(interiorElemVector);
-    this->WriteCoord(nDim, nodeVector);
-    this->WriteMarker(bc);
+	this->WriteCoord(nodeVector);
+	this->WriteMarker(bc);
 }
 
 void SU2Writer::WriteElement2Node(std::vector<E3D::Parser::Element>& elemVector){
@@ -66,8 +65,8 @@ void SU2Writer::WriteConnec(const std::vector<E3D::Parser::Element>& elemVector,
 }
 
 
-void SU2Writer::WriteCoord(int nDim, std::vector<E3D::Parser::Node>& nodeVector){
-    int nNode = nodeVector.size();
+void SU2Writer::WriteCoord(std::vector<E3D::Parser::Node> &nodeVector) {
+	int nNode = nodeVector.size();
     _m_file << "%\n"
             << "% Node coordinates\n"
             << "%\n";
@@ -81,7 +80,6 @@ void SU2Writer::WriteCoord(int nDim, std::vector<E3D::Parser::Node>& nodeVector)
                 << std::setw(10) << node.index()
                 << std::endl;
     }
-    
 }
 
 void SU2Writer::WriteMarker(E3D::Parser::BC_Structure &markers){
