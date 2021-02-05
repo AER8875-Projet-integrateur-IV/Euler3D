@@ -24,6 +24,7 @@ target_link_libraries(tests Catch2::Catch2
                             Parser
                             Partition)
 TARGET_INCLUDE_DIRECTORIES(tests PUBLIC ${PROJECT_SOURCE_DIR}/include)
+TARGET_INCLUDE_DIRECTORIES(tests PUBLIC ${PROJECT_SOURCE_DIR}/extern)
 
 # add Catch2 cmake scripts to module path to allow automatic
 # test discovery

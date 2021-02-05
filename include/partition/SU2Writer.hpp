@@ -13,6 +13,9 @@
 
 namespace E3D::Partition
 {    
+    const int CONNEC_ELEMENT2NODE = 0;
+    const int CONNEC_MARKER = 1;
+
     class SU2Writer
     {
     private:
@@ -56,8 +59,12 @@ namespace E3D::Partition
          * 
          * @param elemVector Vector of elements from which the connectivity data
          *                  will be extracted 
+         * @param type Define if the connectivity being written is for volume
+         *                  elements or for marker elements. Possible options
+         *                  include E3D::Partition::CONNEC_ELEMENT2NODE or
+         *                  E3D::Partition::CONNEC_MARKER
          */
-        void WriteConnec(const std::vector<E3D::Parser::Element>& elemVector);
+        void WriteConnec(const std::vector<E3D::Parser::Element>& elemVector, int type);
 
         /**
          * @brief Write the coordinates of all the node in the input mesh object
