@@ -26,7 +26,8 @@ namespace E3D::Partition
         int NDIM;
         int NELEM;
         int NPOIN;
-
+        int ID;
+        
         // Connectivité elements - nodes
         std::vector<int> elem2nodeStart;
         std::vector<int> elem2node;
@@ -41,7 +42,7 @@ namespace E3D::Partition
         std::unordered_map<std::string, std::vector<E3D::Parser::Element>> Markers;
 
         // Coordonnées des noeuds
-        std::vector<int> nodeGlob;
+        // std::vector<int> nodeGlob;
 
         /**
          * @brief Add an element to Markers member variable
@@ -51,7 +52,7 @@ namespace E3D::Partition
          * @param elem2Node pointer to the first element of the elem2Node array
          * @param nNode number of nodes in the elem2Node array
          */
-        void AddMarkerElement(std::string tag, int VTKid, int* elem2Node, int nNode);
+        void AddMarkerElement(const std::string& tag, int VTKid, int* elem2Node, int nNode);
     };
 
     class Partition
@@ -121,13 +122,27 @@ namespace E3D::Partition
          */
         void SolveBorder();
         /**
+         * @brief Partition the physical border conditions to their respective
+         * subpartition
+         * 
+         */
+        void PartitionPhysicalBorder();   
+
+        /**
          * Écrit la partition dans un fichier Tecplot
          * 
          * @param[in]   fileName   Nom du fichier Tecplot
          */
         void WriteTecplot(std::string fileName);
 
-        void WriteSU2(E3D::Partition::SU2Mesh const &partition);
+        /**
+         * @brief Transforms the SU2Mesh data structure into a compatible structure
+         *      for the write 
+         * 
+         * @param partition SU2Mesh object to be written to file
+         * @param path Save path
+         */
+        void WriteSU2(E3D::Partition::SU2Mesh const &partition, std::string path);
 
     public:
         /** 
@@ -144,6 +159,48 @@ namespace E3D::Partition
          */
         ~Partition();
 
-        void Write();
+        /**
+         * @brief Partition the global mesh and write to file
+         * 
+         * @param SU2OuputPath Save path for the partitions, the # symbol will
+         *      be replaced by the partition ID
+         */
+        void Write(std::string SU2OuputPath = "part#.part");
+
+        /**
+         * @brief Find the global node ID from a local node ID and part ID
+         * 
+         * @param localNodeID 
+         * @param partID 
+         * @return int global node ID
+         */
+        int Local2GlobalNode(int localNodeID, int partID);
+
+        /**
+         * @brief Check all partition element for a match with a marker from the
+         *      global mesh
+         * 
+         * @param partID partition ID to check for match
+         * @param markerNodes Global node IDs from the marker element
+         * @param localMarkerNodes Will be overwritten with the local node IDs
+         *      from the partition matching the markerNodes vector
+         */
+        void FindMarkerInPartition(int partID, const std::vector<int> &markerNodes, std::vector<int>& localMarkerNodes); 
+
+        /**
+         * @brief Check if all values in subSet can be found in globalSet
+         * 
+         * @details Check if all values in subset are found in global. If all 
+         *      values are found, indexVector will be overwritten with the
+         *      index of the matches found in globalSet. If not all values are
+         *      found, indexVector will be overwritten with an empty vector.
+         * @param subSet vector of values to be looken for in globalSet must be
+         *      smaller or equal size to globalSet
+         * @param globalSet vector of values that will be used to extract the 
+         *      index of matches
+         * @param indexVector Stores the index of matches found if all values in
+         *      subSet are found in globalSet
+         */
+        static void FindContainedElements(const std::vector<int>& subSet, const std::vector<int>& globalSet, std::vector<int>& indexVector);
     };
 }; // namespace E3D::Partition

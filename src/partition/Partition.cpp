@@ -1,11 +1,14 @@
 #include "partition/Partition.hpp"
+#include "partition/SU2Writer.hpp"
 #include <metis.h>
 #include <algorithm>    
 #include <utility>
+#include <iomanip>
+#include <regex>
 
 using namespace E3D::Partition;
 
-void SU2Mesh::AddMarkerElement(std::string tag, int VTKid, int* elem2Node, int nNode){
+void SU2Mesh::AddMarkerElement(const std::string& tag, int VTKid, int* elem2Node, int nNode){
     // Create element vector
     std::vector<int> nodes (elem2Node, elem2Node+nNode);
     E3D::Parser::Element elem(VTKid, nodes);
@@ -77,7 +80,11 @@ void Partition::SolveElem2Part()
                                      &ncommon, &npart, NULL, NULL, &objval,
                                      _m_elem2Part.data(), &node2Part[0]);
 
-    std::cout << "Partition Success: " << success << std::endl;
+    std::cout << std::setw(30)
+              << "METIS partition success : "
+              << std::setw(6)
+              << success
+              << "\n";
     return;
 }
 
@@ -162,6 +169,7 @@ void Partition::SolveElem2Node()
         _m_nNodePerPart.push_back(_m_localNode2GlobalStart[iPart + 1] - _m_localNode2GlobalStart[iPart]);
         // Enregistrement du maillage de la partition
         iMesh.NPOIN = _m_nNodePerPart[iPart];
+        iMesh.ID = iPart;
         _m_part.push_back(iMesh);
     }
 
@@ -241,29 +249,155 @@ void Partition::SolveBorder()
     return;
 }
 
-void Partition::Write()
-{
-    std::cout << "Début Partionnement:\n";
-    SolveElem2Part();
-    SolvePart2Elem();
-    SolveElem2Node();
-    WriteTecplot("test.dat");
-    std::cout << "Fin Partionnement:\n";
-
-    // Écriture fichier SU2
-    for (E3D::Partition::SU2Mesh const &partition : _m_part){
-        this->WriteSU2(partition);
+void Partition::PartitionPhysicalBorder(){
+    std::vector<int> localMarkerNodes;
+    for(auto const &Marker : _m_meshGlobal->GetBoundaryConditionVector()){
+        const std::string &tag = Marker.first;
+        const std::vector<E3D::Parser::Element> &elemVector = Marker.second;
+        
+        
+        // Find a match for each border element of the global mesh
+        for(auto const &elem : elemVector){
+            const std::vector<int> &markerNodes = elem.getElemNodes();
+            int failedMatch = 0;
+            // Look for a match in each partition
+            for (int partI = 0; partI < _m_nPart; partI++)
+            {
+                this->FindMarkerInPartition(partI, markerNodes, localMarkerNodes);
+                if(localMarkerNodes.empty()){
+                    // No match has been found in this partition
+                    failedMatch++;
+                } else{
+                    // A match has been found
+                    int VTKid = elem.getVtkID();
+                    E3D::Partition::SU2Mesh &part = _m_part[partI];
+                    part.AddMarkerElement(tag, VTKid, localMarkerNodes.data(), localMarkerNodes.size());
+                }
+            }
+            if(failedMatch == _m_nPart){
+                throw std::runtime_error("Marker could not be found in a subpartition");
+            }
+        }
     }
 }
 
-void Partition::WriteSU2(E3D::Partition::SU2Mesh const &partition){
+void Partition::FindMarkerInPartition(int partID,
+    const std::vector<int> &markerNodes, std::vector<int>& localMarkerNodes){
+    // This function could be optimised if needed
+
+    localMarkerNodes = std::vector<int>();
+    localMarkerNodes.reserve(markerNodes.size());
+
+    E3D::Partition::SU2Mesh &part =_m_part[partID];
+    // Go over every element in the partition, if all nodes in
+    // markerNodes are found in a element, elem is part of the 
+    // current partition
+    for (int elemI = 0; elemI < part.NELEM; elemI++)
+    {
+        int start = part.elem2nodeStart[elemI];
+        int end = part.elem2nodeStart[elemI+1];
+        int size = end-start;
+        std::vector<int> globalPartNode;
+        globalPartNode.reserve(size);
+        std::vector<int> localPartNode;
+        localPartNode.reserve(size);
+        
+        // Build local node vector
+        for (int i = start; i < end; i++)
+        {
+            localPartNode.push_back(part.elem2node[i]);
+        }
+        // Build global node vector
+        for (int localID : localPartNode)
+        {     
+            globalPartNode.push_back(this->Local2GlobalNode(localID, partID));
+        }
+        
+        std::vector<int> matchIndex;
+        FindContainedElements(markerNodes, globalPartNode, matchIndex);
+        
+        if (matchIndex.size() == markerNodes.size())
+        {
+            for(int index : matchIndex){
+                localMarkerNodes.push_back(localPartNode[index]);
+            }
+
+            // a match has been found
+            return;
+        }
+    }
+    // No match has been found
+}
+
+void Partition::FindContainedElements(const std::vector<int>& subSet, const std::vector<int>& globalSet, std::vector<int>& indexVector){
+    const int *findStart = globalSet.data();
+    const int *findEnd = findStart+globalSet.size();
+
+    // This vector contains the index (taken from globalSet) of matching values
+    indexVector = std::vector<int>();
+    indexVector.reserve(subSet.size());
+
+    for(const int &value : subSet){
+        const int* p = std::find(findStart, findEnd, value);
+        if (p == findEnd){
+            // value not found in globalSet
+            break;
+        } else{
+            // value is part of globalSet
+            // save the index
+            indexVector.push_back(p-findStart);
+        }        
+    }
+    // All elements were found    
+}
+
+int Partition::Local2GlobalNode(int localNodeID, int partID){
+    int start = _m_localNode2GlobalStart[partID];
+    int globalID = _m_localNode2Global[start+localNodeID];
+    return globalID; 
+}
+
+void Partition::Write(std::string SU2OuputPath)
+{
+    std::cout << std::string(24, '#') << "  Partitionning  " << std::string(24, '#') << "\n\n" << std::endl;
+    std::cout << std::setw(30)
+              << "Number of Partitions : "
+              << std::setw(6)
+              << _m_nPart
+              << "\n";
+
+    SolveElem2Part();
+    SolvePart2Elem();
+    SolveElem2Node();
+    PartitionPhysicalBorder();
+    WriteTecplot("test.dat");
+
+    // Define name of output
+    std::cout << std::setw(30)
+              << "OutputPath : "
+              << std::setw(6)
+              << SU2OuputPath
+              << "\n";
+    
+
+    for(int i = 0;i<_m_nPart;i++){
+        SU2Mesh &part = _m_part[i];
+        std::string path = std::regex_replace(SU2OuputPath, std::regex("#"), std::to_string(i));
+        this->WriteSU2(part, path);
+    }
+    std::cout << std::string(58, '#') << std::endl;
+}
+
+void Partition::WriteSU2(E3D::Partition::SU2Mesh const &partition, std::string path){
     // vector Node
     std::vector<E3D::Parser::Node> const &globNodeVector = _m_meshGlobal->GetNodeVector();
 
     std::vector<E3D::Parser::Node> nodeVector;
-    nodeVector.resize(partition.NPOIN);
+    nodeVector.reserve(partition.NPOIN);
     
-    for(int const nodeGlobI : partition.nodeGlob){
+    for (int i = 0; i < partition.NPOIN; i++)
+    {
+        int nodeGlobI = Local2GlobalNode(i, partition.ID);
         nodeVector.push_back(globNodeVector[nodeGlobI]);
     }
 
@@ -271,7 +405,7 @@ void Partition::WriteSU2(E3D::Partition::SU2Mesh const &partition){
     std::vector<E3D::Parser::Element> const &globElemVector = _m_meshGlobal->GetInteriorElementVector();
 
     std::vector<E3D::Parser::Element> elemVector;
-    elemVector.resize(partition.NELEM);
+    elemVector.reserve(partition.NELEM);
 
     for(int i = 0; i<partition.NELEM; i++){
         std::vector<int> vectorNodeID;
@@ -283,11 +417,19 @@ void Partition::WriteSU2(E3D::Partition::SU2Mesh const &partition){
         }
 
         // TODO change VTK ID from 0 to good value
-        elemVector.push_back(E3D::Parser::Element(0, vectorNodeID));
+        elemVector.push_back(E3D::Parser::Element(-1, vectorNodeID));
     }
 
     // Physical boundary conditions
     E3D::Parser::BC_Structure bc;
+    for(const auto &marker : partition.Markers){
+        bc.push_back(marker);
+    }
+
+    SU2Writer writer(path);
+    writer.Write(elemVector, partition.NDIM, nodeVector, bc);
+
+
     
 }
 
