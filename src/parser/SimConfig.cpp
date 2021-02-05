@@ -6,7 +6,8 @@
 
 #include "parser/SimConfig.hpp"
 #include <iostream>
-#include <math.h>
+#include <cmath>
+#include <iomanip>
 
 using namespace E3D::Parser;
 
@@ -20,7 +21,20 @@ SimConfig::SimConfig(std::string filename) : _configFileStream(filename), _confi
         exit(EXIT_FAILURE);
     }
 
+    // Print name of config file
+    std::cout << "\n"
+              << std::setw(30)
+              << "Configuration File : "
+              << std::setw(6)
+              << _configFile
+              << "\n";
+
     parseConfigFile();
+
+    // Print end of config file parsing section
+    std::cout << "\n\n"<<std::string(63, '#') << std::endl;
+
+
 }
 
 void SimConfig::parseConfigFile() {
@@ -51,6 +65,14 @@ void SimConfig::parseConfigFile() {
                     }
                     _meshFiles = partitionMeshes;
 
+                    // Print number of partitions
+                    std::cout << "\n"
+                              << std::setw(30)
+                              << "Number of partitions : "
+                              << std::setw(6)
+                              << _nbPartition
+                              << "\n";
+
 
                 } else if (line.find("SPEED_OPTION") != std::string::npos) {
                     int speedChoice;
@@ -60,6 +82,15 @@ void SimConfig::parseConfigFile() {
                     ss1.seekg(12) >> _mach;
                 } else if (line.find("AOA") != std::string::npos) {
                     ss1.seekg(4) >> _aoa;
+
+                    // Print angle of attack
+                    std::cout << "\n"
+                              << std::setw(30)
+                              << "Angle of attack (deg): "
+                              << std::setw(6)
+                              << _aoa
+                              << "\n";
+
                 } else if (line.find("AIRFLOW_PRESSURE") != std::string::npos) {
                     ss1.seekg(17) >> _pressure;
                 } else if (line.find("AIRFLOW_TEMPERATURE") != std::string::npos) {
@@ -118,5 +149,15 @@ void SimConfig::parseConfigFile() {
         _velocity = _mach;
         _mach = _velocity / (std::sqrt(_gamma * _gasConstant * _temp));
     }
+
+    // Print mach value
+    std::cout << "\n"
+              << std::setw(30)
+              << "Mach : "
+              << std::setw(6)
+              << _mach
+              << "\n";
+
+
 
 }
