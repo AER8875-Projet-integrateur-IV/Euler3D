@@ -31,6 +31,8 @@ namespace E3D::Parser {
          */
         SU2MeshParser(const std::string &fileName);
 
+        void printInfo();
+
         // Getters
 
         /**
@@ -176,6 +178,10 @@ namespace E3D::Parser {
          * @param filestream input file stream handle.
          */
         void parseBC();
+
+        /**
+         * @brief prints class statistics
+         */
 
     };
 } // namespace E3D

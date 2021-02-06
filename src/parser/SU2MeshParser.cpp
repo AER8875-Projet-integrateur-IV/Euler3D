@@ -1,6 +1,6 @@
 
 #include <iostream>
-#include <cstdlib>
+#include <stdlib.h>
 #include <sstream>
 #include <iomanip>
 
@@ -12,8 +12,6 @@ using E3D::Parser::SU2MeshParser;
 SU2MeshParser::SU2MeshParser(const std::string &filename)
         : _filename(filename), _ifilestream(filename) {
 
-    //print SU2MeshParser class initialization
-    std::cout << std::string(24, '#') << "  SU2MeshParser  " << std::string(24, '#') << "\n\n" << std::endl;
 
     //File operation check
     if (!_ifilestream) {
@@ -21,12 +19,6 @@ SU2MeshParser::SU2MeshParser(const std::string &filename)
         exit(EXIT_FAILURE);
     }
 
-    // print mesh file name
-    std::cout << std::setw(30)
-              << "Mesh File Name : "
-              << std::setw(6)
-              << _filename
-              << "\n";
 
     parseDim();
     parseVolumeElem();
@@ -34,18 +26,6 @@ SU2MeshParser::SU2MeshParser(const std::string &filename)
     parseBC();
 
     _nElem = _nBoundaryElem + _nVolumeElem;
-
-    // print total count of elements
-    std::cout << "\n"
-              << std::setw(30)
-              << "Total Number of Elements : "
-              << std::setw(6)
-              << _nElem
-              << "\n\n";
-
-    std::cout << std::string(58, '#') << std::endl;
-
-    _ifilestream.close();
 
 }
 
@@ -139,11 +119,7 @@ void SU2MeshParser::parseVolumeElem() {
         exit(EXIT_FAILURE);
     }
 
-    std::cout << std::setw(30)
-              << "Number of Volume Elements : "
-              << std::setw(6)
-              << _nVolumeElem
-              << "\n";
+
 }
 
 void SU2MeshParser::parsePoints() {
@@ -190,11 +166,7 @@ void SU2MeshParser::parsePoints() {
         exit(EXIT_FAILURE);
     }
 
-    std::cout << std::setw(30)
-              << "Number of Nodes : "
-              << std::setw(6)
-              << _nPoints
-              << "\n";
+
 }
 
 
@@ -277,6 +249,31 @@ void SU2MeshParser::parseBC() {
         exit(EXIT_FAILURE);
     }
 
+
+}
+
+void SU2MeshParser::printInfo() {
+
+    // print mesh file name
+    std::cout << "\n"
+              << std::setw(30)
+              << "Mesh File Name : "
+              << std::setw(6)
+              << _filename
+              << "\n";
+
+    std::cout << std::setw(30)
+              << "Number of Volume Elements : "
+              << std::setw(6)
+              << _nVolumeElem
+              << "\n";
+
+    std::cout << std::setw(30)
+              << "Number of Nodes : "
+              << std::setw(6)
+              << _nPoints
+              << "\n";
+
     std::cout << std::setw(30)
               << "Number of BC Elements : "
               << std::setw(6)
@@ -293,6 +290,15 @@ void SU2MeshParser::parseBC() {
         std::cout << std::setw(20) << "Tag: " << std::setw(10) << tag << " | Number of elements: " << count
                   << std::endl;
     }
+
+
+    // print total count of elements
+    std::cout << "\n"
+              << std::setw(30)
+              << "Total Number of Elements : "
+              << std::setw(6)
+              << _nElem
+              << "\n\n";
 
 
 }
