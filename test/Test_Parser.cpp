@@ -140,10 +140,10 @@ TEST_CASE("SimConfig class test", "[parser]") {
     E3D::Parser::SimConfig config(ConfigFileName);
 
     // Testing mesh partitions file name
-    std::vector<std::string> partitionFiles = {"../../test/mesh/StructuredBlock_8#0.par",
-                                               "../../test/mesh/StructuredBlock_8#1.par",
-                                               "../../test/mesh/StructuredBlock_8#2.par",
-                                               "../../test/mesh/StructuredBlock_8#3.par"};
+    std::vector<std::string> partitionFiles = {"../../test/mesh/StructuredBlock_8_p0.par",
+                                               "../../test/mesh/StructuredBlock_8_p1.par",
+                                               "../../test/mesh/StructuredBlock_8_p2.par",
+                                               "../../test/mesh/StructuredBlock_8_p3.par"};
     std::vector<std::string> parsedPartitionFiles = config.getPartitionedMeshFiles();
 
     REQUIRE(config.getNumberPartitions() == 4);
