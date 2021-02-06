@@ -16,10 +16,6 @@ int main(int argc, char* argv[]){
         exit(EXIT_FAILURE);
     }
 
-
-
-
-
     int rankID,nb_processes;
 
     // Initialize MPI code
@@ -38,6 +34,7 @@ int main(int argc, char* argv[]){
             printf("Number of partition = %i | Number of MPI processes : %i \n", config.getNumberPartitions(), nb_processes);
             exit(EXIT_FAILURE);
         }
+        config.printInfo();
     }
 
 //Parser::SU2PartitionParser rankPartitionParser(config.getPartitionedMeshFiles()[rankID], rankID);
