@@ -11,10 +11,10 @@ START
 ------------------- PRE-PROCESSING CONTROL -------------------
 #Path to partitioned mesh files (from executable directory)
 PARTITION_FILES= 4
-../../test/mesh/StructuredBlock_8#0.par
-../../test/mesh/StructuredBlock_8#1.par
-../../test/mesh/StructuredBlock_8#2.par
-../../test/mesh/StructuredBlock_8#3.par
+../../test/mesh/StructuredBlock_8_p0.par
+../../test/mesh/StructuredBlock_8_p1.par
+../../test/mesh/StructuredBlock_8_p2.par
+../../test/mesh/StructuredBlock_8_p3.par
 
 
 ------------------- SIMULATION CONTROL -------------------
