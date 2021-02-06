@@ -11,5 +11,6 @@ int main(int argc, char* argv[]){
 
     std::string configFile = argv[1];
     E3D::Parser::SimConfig config(configFile);
+    config.printInfo();
     return 0;
 }
