@@ -21,7 +21,12 @@ add_compile_options_config(RELEASE "-Wall" "-Wextra" "-Ofast" "-pedantic")
 add_compile_options_config(DEBUG "-Wall" "-Wextra" "-g3" "-pedantic")
 
 ADD_SUBDIRECTORY(src)
+
+#include tests
 option(PACKAGE_TESTS "Build the tests" OFF)
+
+#include MPI
+
 
 
 IF(PACKAGE_TESTS)
