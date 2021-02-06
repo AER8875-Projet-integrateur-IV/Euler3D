@@ -10,9 +10,11 @@ namespace E3D::Parser {
 
     class SimConfig {
     public :
-        SimConfig(std::string filename);
+        SimConfig(const std::string& filename);
 
         void parseConfigFile();
+
+        void printInfo();
 
          enum class SpeedType{
             MACH,
