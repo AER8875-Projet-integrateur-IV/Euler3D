@@ -10,12 +10,9 @@ START
 
 ------------------- PRE-PROCESSING CONTROL -------------------
 #Path to partitioned mesh files (from executable directory)
+# Hashtag character will be replaced with file index, from 0 to Nb of partitions
 PARTITION_FILES= 4
-../../test/mesh/StructuredBlock_8_p0.par
-../../test/mesh/StructuredBlock_8_p1.par
-../../test/mesh/StructuredBlock_8_p2.par
-../../test/mesh/StructuredBlock_8_p3.par
-
+../../test/mesh/StructuredBlock_8_p#.par
 
 ------------------- SIMULATION CONTROL -------------------
 
