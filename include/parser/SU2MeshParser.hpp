@@ -177,5 +177,10 @@ namespace E3D::Parser {
          */
         void parseBC();
 
+        /**
+         * @brief prints class statistics
+         */
+         void printInfo();
+
     };
 } // namespace E3D
