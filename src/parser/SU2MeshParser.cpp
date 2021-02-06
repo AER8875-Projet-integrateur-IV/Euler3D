@@ -20,7 +20,6 @@ SU2MeshParser::SU2MeshParser(const std::string &filename)
     }
 
 
-
     parseDim();
     parseVolumeElem();
     parsePoints();
@@ -260,7 +259,8 @@ void SU2MeshParser::printInfo() {
               << std::setw(30)
               << "Mesh File Name : "
               << std::setw(6)
-              << _filename;
+              << _filename
+              << "\n";
 
     std::cout << std::setw(30)
               << "Number of Volume Elements : "
