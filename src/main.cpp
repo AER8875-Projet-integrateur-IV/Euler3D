@@ -19,6 +19,7 @@ int main(int argc, char *argv[]) {
     std::string fileName = argv[1];
 
     E3D::Mesh mesh(fileName);
+    mesh.solveConnectivity();
 
     return 0;
 }

@@ -50,8 +50,8 @@ int main(){
     printf("%2d ", Connec._node2element[i] );
   }
 
-
-  Connec.SolveElement2Element(VTK);
+  int BoundaryFaces  = 16;//aller chercher ca avec le parser
+  Connec.SolveElement2Element(VTK, BoundaryFaces);
   printf("element2elementStart = \n");
   for (size_t i = 0; i < Connec._nElem+1; i++) {
     printf("%2d ", Connec._element2elementStart[i] );
@@ -79,20 +79,19 @@ int main(){
   }
   std::cout << '\n';
 
-  printf("%2d\n", Connec._face2node.size() );
-  
-  // printf("face2nodeStart = \n");
-  // for (size_t i = 0; i < Connec.face2nodeStart[Connec._nElem]; i++) {
-  //   printf("%2d ", Connec.face2nodeStart[i] );
-  // }
-  // std::cout << '\n';
-  //
-  // printf("face2element = \n");
-  // for (size_t i = 0; i < Connec._face2node.size(); i++) {
-  //   printf("%2d ", Connec._face2node[i] );
-  // }
-  // std::cout << '\n';
-//SolveElement2Element(nElem, element2node, element2nodeStart, nNode, node2element, node2elementStart);
+
+  printf("face2nodeStart = \n");
+  for (size_t i = 0; i < Connec._face2nodeStart.size(); i++) {
+    printf("%2d ", Connec._face2nodeStart[i] );
+  }
+  std::cout << '\n';
+
+  printf("face2node = \n");
+  for (size_t i = 0; i < Connec._face2node.size(); i++) {
+    printf("%2d ", Connec._face2node[i] );
+  }
+  std::cout << '\n';
+
 
 
 

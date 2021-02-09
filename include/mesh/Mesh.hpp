@@ -107,7 +107,9 @@ namespace E3D {
         std::unique_ptr<std::vector<int>>  element2face;
         std::unique_ptr<std::vector<int>>  element2faceStart ;
         std::unique_ptr<std::vector<int>>  face2element;
-        std::unique_ptr<std::vector<int>>  face2elementStart;
+        std::unique_ptr<std::vector<int>>  face2nodeStart;
+        std::unique_ptr<std::vector<int>>  face2node;
+        Connectivity connectivityObj;
     };
 
 }

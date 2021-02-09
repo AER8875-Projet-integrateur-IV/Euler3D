@@ -7,9 +7,10 @@
 
 class Connectivity {
 public:
+  //Connectivity(E3D::Parser::Mesh &mesh):_mesh(mesh){};
   void SolveElement2node(const std::vector<E3D::Parser::Element> &elemVector);
   void SolveNode2element();
-  void SolveElement2Element(const std::vector<int> &VTK);
+  void SolveElement2Element(const std::vector<int> &VTK, int BoundaryFaces);
   const std::vector<int> GetNodeIndices(int face, int jelem, int nLocalFacefElement, int VTK);
   void ComputeVTKLinkedLists(const std::vector<int> &VTK);
 
@@ -29,5 +30,8 @@ public:
   std::vector<int> _face2nodeStart;
   std::vector<int> _nFacefElement;
   std::vector<std::vector<int>> _nNodefFace;
+
+//private:
+  //E3D::Parser::Mesh _mesh;
 
 };
