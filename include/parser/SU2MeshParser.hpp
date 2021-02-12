@@ -30,7 +30,10 @@ namespace E3D::Parser {
          * @brief Default ctor, Executes private member functions to parse data from mesh file.
          */
         SU2MeshParser(const std::string &fileName);
-
+        
+        /**
+         * @brief prints class statistics
+         */
         void printInfo();
 
         // Getters
@@ -178,10 +181,6 @@ namespace E3D::Parser {
          * @param filestream input file stream handle.
          */
         void parseBC();
-
-        /**
-         * @brief prints class statistics
-         */
 
     };
 } // namespace E3D
