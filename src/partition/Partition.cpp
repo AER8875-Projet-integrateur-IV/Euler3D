@@ -414,8 +414,12 @@ void Partition::WriteSU2(E3D::Partition::SU2Mesh const &partition, const std::st
             vectorNodeID.push_back(partition.elem2node[nodeI]);
         }
 
+        // Find VTK id
+        int start = _m_Part2ElemStart[partition.ID];
+        int globElemID = _m_Part2Elem[start+i];
+        int VTK = _m_meshGlobal->GetInteriorElement(globElemID).getVtkID();
         // TODO change VTK ID from 0 to good value
-		elemVector.emplace_back(E3D::Parser::Element(-1, vectorNodeID));
+		elemVector.emplace_back(E3D::Parser::Element(VTK, vectorNodeID));
 	}
 
 	// Physical boundary conditions
