@@ -27,6 +27,7 @@ SU2MeshParser::SU2MeshParser(const std::string &filename)
 
     _nElem = _nBoundaryElem + _nVolumeElem;
 
+    _ifilestream.close();
 }
 
 
