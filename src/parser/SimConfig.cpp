@@ -8,7 +8,7 @@
 #include <iostream>
 #include <cmath>
 #include <iomanip>
-
+#include <regex>
 using namespace E3D::Parser;
 
 SimConfig::SimConfig(const std::string &filename) : _configFileStream(filename), _configFile(filename) {
@@ -37,16 +37,24 @@ void SimConfig::parseConfigFile() {
                 if (line[0] == '#') {
                     continue;
                 } else if (line.find("PARTITION_FILES=") != std::string::npos) {
-                    std::vector<std::string> partitionMeshes;
-                    std::string tempPartitionName;
+
+                    // Parse number of patition and go next line
                     ss1.seekg(16) >> _nbPartition;
+                    std::getline(_configFileStream, line);
+
+                    // vector to hold partitions file names
+                    std::vector<std::string> partitionMeshes;
+                    std::stringstream ss2(line);
+
+                    // string to hold partition file name with #
+                    std::string tempHashtagPartitionName;
+                    ss2 >> tempHashtagPartitionName;
+
+                    // Replacing # with partition number
                     for (int i = 0; i < _nbPartition; i++) {
-
-                        std::getline(_configFileStream, line);
-                        std::stringstream ss2(line);
-                        ss2 >> tempPartitionName;
-                        partitionMeshes.push_back(tempPartitionName);
-
+                        std::string tempModifiedPartitionName = tempHashtagPartitionName;
+                        tempModifiedPartitionName = std::regex_replace(tempModifiedPartitionName, std::regex("\\#"), std::to_string(i));
+                        partitionMeshes.push_back(tempModifiedPartitionName);
                     }
                     _meshFiles = partitionMeshes;
 

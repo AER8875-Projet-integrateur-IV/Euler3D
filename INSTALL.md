@@ -1,7 +1,19 @@
-## Dependancies
+## External Dependancies
 [OpenMPI](https://www.open-mpi.org/)
 
 [METIS](http://glaros.dtc.umn.edu/gkhome/metis/metis/overview)
+
+### Adding a boost dependancy
+
+1. Check if the library is Header only
+
+1. Download the [boost copy tool](https://www.boost.org/doc/libs/1_75_0/tools/bcp/doc/html/index.html)
+
+2. Add you dependancy to ./extern/boost using the following command
+    ```
+    $ bcp --path=/path/to/boost/dir scoped_ptr /extern
+    ```
+    Where scoped_ptr is the header you want to add
 
 ## Build process
 
