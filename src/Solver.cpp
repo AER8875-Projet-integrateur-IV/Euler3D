@@ -3,20 +3,17 @@
 #include <mpi.h>
 #include <cstdlib>
 
-#include "parser/SU2PartitionParser.hpp"
+#include "parallelization/MPIHandler.hpp"
+#include "parser/MeshPartition.hpp"
 #include "parser/SimConfig.hpp"
 
 using namespace E3D;
 
 int main(int argc, char *argv[]) {
-    int rankID, nb_processes;
 
-    // Initialize MPI code
-    MPI_Init(&argc, &argv);
-    MPI_Comm_rank(MPI_COMM_WORLD, &rankID);
-    MPI_Comm_size(MPI_COMM_WORLD, &nb_processes);
+    E3D::Parallel::MPIHandler e3d_mpi(argc,argv);
 
-    if (rankID == 0) {
+    if (e3d_mpi.getRankID() == 0) {
         std::cout << "\n\nEuler 3D Solver." << std::endl;
 
         if (argc != 2) {
@@ -33,17 +30,17 @@ int main(int argc, char *argv[]) {
     E3D::Parser::SimConfig config(configFile);
 
     // Check if MPI PROCESSES = Nb of partitions
-    if (rankID == 0) {
-        if (config.getNumberPartitions() != nb_processes) {
+    if (e3d_mpi.getRankID() == 0) {
+        if (config.getNumberPartitions() != e3d_mpi.getPoolSize()) {
             printf("Number of mesh files and MPI processes are not equal !\n");
             printf("Number of partition = %i | Number of MPI processes : %i \n", config.getNumberPartitions(),
-                   nb_processes);
+                   e3d_mpi.getPoolSize());
             exit(EXIT_FAILURE);
         }
         config.printInfo();
     }
 
-//Parser::SU2PartitionParser rankPartitionParser(config.getPartitionedMeshFiles()[rankID], rankID);
+    //Parser::MeshPartition rankPartitionParser(config.getPartitionedMeshFiles()[rankID], rankID);
 
     MPI_Finalize();
 

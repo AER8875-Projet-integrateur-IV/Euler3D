@@ -1,6 +1,6 @@
 add_subdirectory(parser)
 add_subdirectory(mesh)
-
+add_subdirectory(parallelization)
 
 
 ADD_EXECUTABLE(E3D_PRE preprocessor.cpp )
@@ -9,7 +9,7 @@ target_link_libraries(E3D_PRE PUBLIC Parser Mesh)
 
 ADD_EXECUTABLE(E3D_Solver Solver.cpp)
 target_include_directories(E3D_Solver PUBLIC ../include)
-target_link_libraries(E3D_Solver PUBLIC Parser Mesh)
+target_link_libraries(E3D_Solver PUBLIC Parser Mesh Parallel_tools)
 
 target_link_libraries(E3D_Solver PUBLIC MPI::MPI_CXX)
 
