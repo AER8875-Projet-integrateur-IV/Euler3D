@@ -12,13 +12,7 @@ void Mesh::solveConnectivity() {
     // Call connectivity methods to solve and populate connectivity vectors (Remplir ici) :
     connectivityObj._nNode = GetMeshNodeCount();
     connectivityObj.SolveElement2node(GetInteriorElementVector());
-    for(auto& value:connectivityObj._element2nodeStart){
-        std::cout << value << " ";
-    }
-    std::cout << "\n";
-    for(auto& value:connectivityObj._element2node){
-        std::cout << value << " ";
-    }
+
 
 
 
