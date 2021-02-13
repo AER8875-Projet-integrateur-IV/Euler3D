@@ -10,21 +10,20 @@
 namespace E3D {
 
     struct Mesh {
-        explicit Mesh(const std::string& fileName);
+        explicit Mesh(const std::string &fileName);
 
         // ------------------ Mesh parsing Info ----------------------
 
         // CONSTANTES
         inline int GetMeshDim() const { return _parser.GetnDim(); }
 
-        inline int GetMeshInteriorElemCount() const { return _parser.GetVolumeElemCount();}
+        inline int GetMeshInteriorElemCount() const { return _parser.GetVolumeElemCount(); }
 
-        inline int GetMeshBoundaryElemCount() const {return _parser.GetBoundaryElemCount();}
+        inline int GetMeshBoundaryElemCount() const { return _parser.GetBoundaryElemCount(); }
 
-        inline int GetMeshBConditionCount() const {return _parser.GetMarkersCount();}
+        inline int GetMeshBConditionCount() const { return _parser.GetMarkersCount(); }
 
-        inline int GetMeshNodeCount() const {return _parser.GetPointsCount();}
-
+        inline int GetMeshNodeCount() const { return _parser.GetPointsCount(); }
 
 
         /**
@@ -32,14 +31,14 @@ namespace E3D {
          * @return object Node
          * @example : To get x coordinates of first node : double x = GetNodeCoord[0].getX()
          */
-        inline const E3D::Parser::Node GetNodeCoord (const int NodeID) const {
+        inline const E3D::Parser::Node GetNodeCoord(const int NodeID) const {
             return _parser.GetPoints()[NodeID];
         }
 
         /**
          * @return Node vector
          */
-        inline const std::vector<E3D::Parser::Node>& GetNodeVector () const {
+        inline const std::vector<E3D::Parser::Node> &GetNodeVector() const {
             return _parser.GetPoints();
         }
 
@@ -55,6 +54,15 @@ namespace E3D {
         }
 
         /**
+         * @brief Get the Boundary Condition Vector object
+         * 
+         * @return const E3D::Parser::BC_Structure 
+         */
+        inline const E3D::Parser::BC_Structure& GetBoundaryConditionVector() const {
+            return _parser.GetBoundaryElems();
+        }
+
+        /**
          * @param ElementID Element Position
          * @return Element object
          */
@@ -65,7 +73,7 @@ namespace E3D {
         /**
          * @return Interior Element vector
          */
-        inline const std::vector<E3D::Parser::Element>& GetInteriorElementVector() const {
+        inline const std::vector<E3D::Parser::Element> &GetInteriorElementVector() const {
             return _parser.GetVolumeElems();
         }
 
@@ -81,7 +89,7 @@ namespace E3D {
          * @param tagID BC position in mesh file (first [0], second [1] ...)
          * @return int holding the number of element in this BC
          */
-        inline const int GetNumberOfElementsInTag(int tagID) const {
+        inline int GetNumberOfElementsInTag(int tagID) const {
             return _parser.GetTags()[tagID].second;
         }
 

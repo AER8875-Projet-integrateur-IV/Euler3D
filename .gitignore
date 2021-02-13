@@ -9,6 +9,11 @@ ONERAM6_582K.su2
 #general build folders
 bin
 build
+
+# Mesh files
+ONERAM6_582K.su2
+
+
 # vscode folders
 .vs
 

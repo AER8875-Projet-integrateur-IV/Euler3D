@@ -1,17 +1,21 @@
 add_subdirectory(parser)
 add_subdirectory(mesh)
-add_subdirectory(connectivity)
-# Setting flags
-set(debug_flags -W -Wall -pedantic -O0 -g3)
-set(release_flags -W -Wall -pedantic -O3 )
 
 
 
+ADD_EXECUTABLE(E3D_PRE preprocessor.cpp )
+target_include_directories(E3D_PRE PUBLIC ../include)
+target_link_libraries(E3D_PRE PUBLIC Parser Mesh)
 
-ADD_EXECUTABLE(Euler3D_APP main.cpp)
-target_include_directories(Euler3D_APP PUBLIC ../include)
+ADD_EXECUTABLE(E3D_Solver Solver.cpp)
+target_include_directories(E3D_Solver PUBLIC ../include)
+target_link_libraries(E3D_Solver PUBLIC Parser Mesh)
 
-target_link_libraries(Euler3D_APP PUBLIC Parser Mesh Connectivity)
 
-TARGET_COMPILE_OPTIONS(Euler3D_APP PUBLIC "$<$<CONFIG:DEBUG>:${debug_flags}>" )
-TARGET_COMPILE_OPTIONS(Euler3D_APP PUBLIC "$<$<CONFIG:DEBUG>:${release_flags}>" )
+install(TARGETS E3D_PRE
+        CONFIGURATIONS Debug
+        DESTINATION bin)
+
+install(TARGETS E3D_PRE
+        CONFIGURATIONS Release
+        RUNTIME DESTINATION ${PROJECT_SOURCE_DIR}/include/)

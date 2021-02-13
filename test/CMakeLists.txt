@@ -3,7 +3,9 @@
 
 # Add executables to this variable
 set(TEST_SOURCE
-    CatchMain.cpp Test_Catch.cpp Test_Parser.cpp
+    CatchMain.cpp
+        Test_Catch.cpp
+        Test_Parser.cpp
 )
 # Add subdirectories 
 
