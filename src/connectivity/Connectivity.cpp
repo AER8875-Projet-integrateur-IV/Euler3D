@@ -6,7 +6,7 @@ void Connectivity::SolveElement2node(const std::vector<E3D::Parser::Element> &el
     _nElem = elemVector.size();
     _element2nodeStart.resize(_nElem + 1, 0);
     int counter = 0;
-    for (size_t ielem = 0; ielem < _nElem; ielem++) {
+    for (int ielem = 0; ielem < _nElem; ielem++) {
         E3D::Parser::Element elem = elemVector[ielem];
         for (int const &node : elem.getElemNodes()) {
             counter++;
@@ -17,7 +17,7 @@ void Connectivity::SolveElement2node(const std::vector<E3D::Parser::Element> &el
     //_nNode = counter;
 
     //construire element2nodeStart
-    for (size_t ielem = 0; ielem < _nElem; ielem++) {
+    for (int ielem = 0; ielem < _nElem; ielem++) {
         int localindex = 0;
         for (int i=_element2nodeStart[ielem]; i < _element2nodeStart[ielem+1]; i++) {
 
@@ -39,13 +39,13 @@ void Connectivity::SolveNode2element() {
     int startI;
     int endI;
     int nodeI;
-    for (size_t ielem = 0; ielem < _nElem; ielem++) {
+    for (int ielem = 0; ielem < _nElem; ielem++) {
 
 
         startI = _element2nodeStart[ielem];
         endI = _element2nodeStart[ielem + 1];
 
-        for (size_t i = startI; i < endI; i++) {
+        for (int i = startI; i < endI; i++) {
             nodeI = _element2node[i];
             _node2elementStart[nodeI + 1] += 1;
         }
@@ -58,11 +58,11 @@ void Connectivity::SolveNode2element() {
 
     int j;
     int store[_nNode] = {0};
-    for (size_t ielem = 0; ielem < _nElem; ielem++) {
+    for (int ielem = 0; ielem < _nElem; ielem++) {
         startI = _element2nodeStart[ielem];
         endI = _element2nodeStart[ielem + 1];
 
-        for (size_t i = startI; i < endI; i++) {
+        for (int i = startI; i < endI; i++) {
             nodeI = _element2node[i];
             j = _node2elementStart[nodeI] + store[nodeI];
             _node2element[j] = ielem;
@@ -81,7 +81,7 @@ void Connectivity::SolveElement2Element(const std::vector<int> &VTK, int Boundar
     _element2faceStart.resize(_nElem + 1);
     _element2elementStart.resize(_nElem + 1);
 
-    for (size_t i = 1; i < _nElem + 1; i++) {
+    for (int i = 1; i < _nElem + 1; i++) {
         _element2elementStart[i] = _nFacefElement[i - 1];
         _element2elementStart[i] += _element2elementStart[i - 1];
         _element2faceStart[i] = _element2elementStart[i];
@@ -115,7 +115,7 @@ void Connectivity::SolveElement2Element(const std::vector<int> &VTK, int Boundar
     int faceCount = 0;
     int face2nodeCount = 0;
 
-    for (size_t ielem = 0; ielem < _nElem; ielem++) {
+    for (int ielem = 0; ielem < _nElem; ielem++) {
         int startI = _element2nodeStart[ielem];
         int endI = _element2nodeStart[ielem + 1];
         int ilhelp;
@@ -154,11 +154,11 @@ void Connectivity::SolveElement2Element(const std::vector<int> &VTK, int Boundar
 
 
         // ---------- commence la connectivity element2element et face ---------------
-        for (size_t iface = 0; iface < nLocalFacefElement; iface++) {
+        for (int iface = 0; iface < nLocalFacefElement; iface++) {
             int nLocalNodefFaceI = _nNodefFace[ielem][iface];
             int lhelp[nLocalNodefFaceI] = {0};
             int lpoint[_nNode] = {0};
-            for (size_t inode = 0; inode < nLocalNodefFaceI; inode++) {
+            for (int inode = 0; inode < nLocalNodefFaceI; inode++) {
                 lhelp[inode] = _element2node[startI + _lhelp_indice[ilhelp][_lhelp_indiceStart[ilhelp][iface] + inode]];
                 lpoint[lhelp[inode]] = 1;
             }
@@ -167,19 +167,19 @@ void Connectivity::SolveElement2Element(const std::vector<int> &VTK, int Boundar
             int elemStart = _node2elementStart[ipoint];
             int elemEnd = _node2elementStart[ipoint + 1];
 
-            for (size_t j = elemStart; j < elemEnd; j++) {
+            for (int j = elemStart; j < elemEnd; j++) {
                 int jelem = _node2element[j];
                 if (jelem != ielem) {
                     int startJ = _element2nodeStart[jelem];
                     int endJ = _element2nodeStart[jelem + 1];
                     int nLocaleFacesJ = _nFacefElement[jelem];
 
-                    for (size_t jface = 0; jface < nLocaleFacesJ; jface++) {
+                    for (int jface = 0; jface < nLocaleFacesJ; jface++) {
                         int nNodeForFaceJ = _nNodefFace[jelem][jface];
                         if (nLocalNodefFaceI == nNodeForFaceJ) {
                             int count = 0;
                             std::vector<int> nodeIndice = GetNodeIndices(jface, jelem, nLocaleFacesJ, VTK[jelem]);
-                            for (size_t JlocalNode = 0; JlocalNode < nNodeForFaceJ; JlocalNode++) {
+                            for (int JlocalNode = 0; JlocalNode < nNodeForFaceJ; JlocalNode++) {
                                 int pointIndex = startJ + nodeIndice[JlocalNode];
 
                                 count += lpoint[_element2node[pointIndex]];
@@ -196,7 +196,7 @@ void Connectivity::SolveElement2Element(const std::vector<int> &VTK, int Boundar
                                         _face2element[2 * faceCount] = ielem;
                                         _face2element[2 * faceCount + 1] = jelem;
                                         _face2nodeStart[faceCount + 1] = _face2nodeStart[faceCount] + nNodeForFaceJ;
-                                        for (size_t inode = 0; inode < nNodeForFaceJ; inode++) {
+                                        for (int inode = 0; inode < nNodeForFaceJ; inode++) {
                                             _face2node[_face2nodeStart[faceCount] + inode] = lhelp[inode];
                                         }
                                         faceCount++;
@@ -207,7 +207,7 @@ void Connectivity::SolveElement2Element(const std::vector<int> &VTK, int Boundar
                     }
                 }
             }
-            for (size_t i = 0; i < nLocalNodefFaceI; i++) {
+            for (int i = 0; i < nLocalNodefFaceI; i++) {
                 lpoint[lhelp[i]] = 0;
             }
         }
@@ -215,7 +215,7 @@ void Connectivity::SolveElement2Element(const std::vector<int> &VTK, int Boundar
 
     // Complete element2element with the ghost cells
     int elemCount = _nElem;
-    for (int i = 0; i < _element2element.size(); ++i) {
+    for (size_t i = 0; i < _element2element.size(); ++i) {
         if (_element2element[i] == -1) {
             _element2element[i] = elemCount;
             elemCount += 1;
@@ -223,7 +223,7 @@ void Connectivity::SolveElement2Element(const std::vector<int> &VTK, int Boundar
     }
 
     // Complete element2face with the ghost cells
-    for (int i = 0; i < _element2face.size(); ++i) {
+    for (size_t i = 0; i < _element2face.size(); ++i) {
         if (_element2face[i] == -1) {
             _element2face[i] = faceCount;
             faceCount += 1;
@@ -234,10 +234,10 @@ void Connectivity::SolveElement2Element(const std::vector<int> &VTK, int Boundar
 
     //compute face2element
     elemCount = _nElem;
-    for (size_t ielem = 0; ielem < _nElem; ielem++) {
+    for (int ielem = 0; ielem < _nElem; ielem++) {
         int startI = _element2faceStart[ielem];
         int endI = _element2faceStart[ielem + 1];
-        for (size_t j = startI; j < endI; j++) {
+        for (int j = startI; j < endI; j++) {
             int iface = _element2face[j] * 2;
             if (_face2element[iface] == -1) {
                 _face2element[iface] = ielem;
@@ -247,11 +247,11 @@ void Connectivity::SolveElement2Element(const std::vector<int> &VTK, int Boundar
         }
     }
     //complete facenode avec les boundary faces
-    for (size_t iface = _nFace - BoundaryFaces; iface < _nFace; iface++) {
+    for (int iface = _nFace - BoundaryFaces; iface < _nFace; iface++) {
         int ielem = _face2element[2 * iface];
         int startI = _element2faceStart[ielem];
         int endI = _element2faceStart[ielem + 1];
-        for (size_t j = startI; j < endI; j++) {
+        for (int j = startI; j < endI; j++) {
             if (_element2face[j] == iface) {
                 std::vector<int> face2nodeIndice = GetNodeIndices(j - startI, ielem, endI - startI, VTK[ielem]);
                 _face2nodeStart[iface + 1] = _face2nodeStart[iface] + face2nodeIndice.size();
@@ -276,7 +276,7 @@ const std::vector<int> Connectivity::GetNodeIndices(int face, int jelem, int nLo
         int start = lhelp_indiceStart[face];
         int end = lhelp_indiceStart[face + 1];
         indiceNodes.resize(end - start);
-        for (size_t i = start; i < end; i++) {
+        for (int i = start; i < end; i++) {
             indiceNodes[i - start] = lhelp_indice[i];
             //printf("%d ", indiceNodes[i-start]);
         }
@@ -286,7 +286,7 @@ const std::vector<int> Connectivity::GetNodeIndices(int face, int jelem, int nLo
         int start = lhelp_indiceStart[face];
         int end = lhelp_indiceStart[face + 1];
         indiceNodes.resize(end - start);
-        for (size_t i = start; i < end; i++) {
+        for (int i = start; i < end; i++) {
             indiceNodes[i - start] = lhelp_indice[i];
             //printf("%d ", indiceNodes[i-start]);
         }
@@ -298,7 +298,7 @@ const std::vector<int> Connectivity::GetNodeIndices(int face, int jelem, int nLo
         int end = lhelp_indiceStart[face + 1];
         indiceNodes.resize(end - start);
 
-        for (size_t i = start; i < end; i++) {
+        for (int i = start; i < end; i++) {
             indiceNodes[i - start] = lhelp_indice[i];
             //printf("%d ", indiceNodes[i-start]);
         }
@@ -312,7 +312,7 @@ const std::vector<int> Connectivity::GetNodeIndices(int face, int jelem, int nLo
         int end = lhelp_indiceStart[face + 1];
         indiceNodes.resize(end - start);
 
-        for (size_t i = start; i < end; i++) {
+        for (int i = start; i < end; i++) {
             indiceNodes[i - start] = lhelp_indice[i];
             //printf("%d ", indiceNodes[i-start]);
         }
@@ -328,7 +328,7 @@ void Connectivity::ComputeVTKLinkedLists(const std::vector<int> &VTK) {
     _nFacefElement.resize(_nElem);
     _nNodefFace.resize(_nElem);
 
-    for (size_t i = 0; i < _nElem; i++) {
+    for (int i = 0; i < _nElem; i++) {
         if (VTK[i] == 10) {
             _nFacefElement[i] = 4;
             _nNodefFace[i].resize(_nFacefElement[i]);
