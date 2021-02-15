@@ -21,13 +21,11 @@ int main(int argc, char *argv[]) {
             exit(EXIT_FAILURE);
         }
     }
-
     MPI_Barrier(MPI_COMM_WORLD);
-
 
     // Parsing Config file
     std::string configFile = argv[1];
-    E3D::Parser::SimConfig config(configFile);
+    Parser::SimConfig config(configFile);
 
     // Check if MPI PROCESSES = Nb of partitions
     if (e3d_mpi.getRankID() == 0) {
@@ -39,6 +37,17 @@ int main(int argc, char *argv[]) {
         }
         config.printInfo();
     }
+
+    Parser::MeshPartition localmesh(config.getPartitionedMeshFiles()[e3d_mpi.getRankID()]);
+
+    MPI_Barrier(MPI_COMM_WORLD);
+    if (e3d_mpi.getRankID() == 0) {
+        printf("All processes (#%d) parsed mesh files !\n", e3d_mpi.getPoolSize());
+    }
+    localmesh.printAllPartitionsInfo(e3d_mpi.getRankID());
+
+    MPI_Barrier(MPI_COMM_WORLD);
+
 
     //Parser::MeshPartition rankPartitionParser(config.getPartitionedMeshFiles()[rankID], rankID);
 
