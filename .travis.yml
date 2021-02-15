@@ -31,7 +31,7 @@ script:
     - g++ -v && cmake --version
     - mkdir build
     - cd build
-    - cmake -DCMAKE_BUILD_TYPE=Release -DPACKAGE_TESTS=ON -DCMAKE_CXX_COMPILER=mpicxx ..
+    - cmake -DCMAKE_BUILD_TYPE=Release -DPACKAGE_TESTS=ON ..
     - cmake --build .
     - cd test
     - ctest
