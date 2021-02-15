@@ -12,13 +12,12 @@
 */
 
 int main(int argc, char *argv[]) {
-
-    std::cout << "\n\nEuler 3D Pre-processor." << std::endl;
     
     spdlog::stopwatch globalsw;  
     E3D::Logger logger("log.txt");
-    auto logObject = E3D::Logger::Getspdlog();
+    auto logObject = E3D::Logger::Getspdlog();  
 
+    logObject->info("Euler 3D Pre-processor.\n");    
     if (argc != 2) {
         std::cerr << "Usage : EES2D_APP <meshFileName.su2> " << std::endl;
         exit(EXIT_FAILURE);
@@ -27,7 +26,7 @@ int main(int argc, char *argv[]) {
     std::string fileName = argv[1];
     spdlog::stopwatch meshsw;  
     E3D::Mesh mesh(fileName);
-    logObject->debug("Mesh parser run time {}", meshsw);
-    logObject->debug("Total run time {}", globalsw);
+    logObject->debug("Mesh parser run time {}", meshsw); 
+    logObject->debug("Total run time {}", globalsw);     
     return 0;
 }
