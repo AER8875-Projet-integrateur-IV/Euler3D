@@ -25,6 +25,7 @@ matrix:
           - openmpi-4.0.1
 
 script:
+    - chmod +x ./build_mpi.sh
     - ./build_mpi.sh
     - g++ -v && cmake --version
     - mkdir build
