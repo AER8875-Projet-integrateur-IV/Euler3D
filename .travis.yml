@@ -19,8 +19,13 @@ matrix:
       env: 
         - COMPILER=g++-9
         - MATRIX_EVAL="CC=gcc-9 && CXX=g++-9"
-      
+      cache:
+        directories:
+          - openmpi
+          - openmpi-4.0.1
+
 script:
+    - ./build_mpi.sh
     - g++ -v && cmake --version
     - mkdir build
     - cd build
