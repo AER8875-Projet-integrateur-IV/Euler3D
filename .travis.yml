@@ -26,6 +26,10 @@ matrix:
       before_install:
         - chmod +x ./build_mpi.sh
         - ./build_mpi.sh
+        - cd openmpi-4.0.1
+        - make all
+        - make install
+        - cd ..
 
 script:
     - g++ -v && cmake --version
