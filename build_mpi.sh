@@ -15,3 +15,6 @@ if [ -f "openmpi/bin/mpirun" ] && [ -f "openmpi-4.0.1/config.log" ]; then
 	make install &> openmpi.install
 	cd ..
 fi
+
+test -n $CC && unset CC
+test -n $CXX && unset CXX
