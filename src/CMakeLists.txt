@@ -3,15 +3,19 @@ add_subdirectory(mesh)
 
 
 
-ADD_EXECUTABLE(Euler3D_APP main.cpp)
-target_include_directories(Euler3D_APP PUBLIC ../include)
+ADD_EXECUTABLE(E3D_PRE preprocessor.cpp )
+target_include_directories(E3D_PRE PUBLIC ../include)
+target_link_libraries(E3D_PRE PUBLIC Parser Mesh)
 
-target_link_libraries(Euler3D_APP PUBLIC Parser Mesh)
+ADD_EXECUTABLE(E3D_Solver Solver.cpp)
+target_include_directories(E3D_Solver PUBLIC ../include)
+target_link_libraries(E3D_Solver PUBLIC Parser Mesh)
 
-install(TARGETS Euler3D_APP
+
+install(TARGETS E3D_PRE
         CONFIGURATIONS Debug
         DESTINATION bin)
 
-install(TARGETS Euler3D_APP
+install(TARGETS E3D_PRE
         CONFIGURATIONS Release
         RUNTIME DESTINATION ${PROJECT_SOURCE_DIR}/include/)

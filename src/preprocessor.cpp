@@ -9,7 +9,7 @@
 
 int main(int argc, char *argv[]) {
 
-    std::cout << "\n\nEuler 3D software." << std::endl;
+    std::cout << "\n\nEuler 3D Pre-processor." << std::endl;
 
     if (argc != 2) {
         std::cerr << "Usage : EES2D_APP <meshFileName.su2> " << std::endl;
