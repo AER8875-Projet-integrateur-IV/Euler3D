@@ -26,16 +26,12 @@ matrix:
       before_install:
         - chmod +x ./build_mpi.sh
         - ./build_mpi.sh
-        - cd openmpi-4.0.1
-        - make all
-        - make install
-        - cd ..
 
 script:
     - g++ -v && cmake --version
     - mkdir build
     - cd build
-    - cmake -DCMAKE_BUILD_TYPE=Release -DPACKAGE_TESTS=ON ..
+    - cmake -DCMAKE_BUILD_TYPE=Release -DPACKAGE_TESTS=ON -DCMAKE_CXX_COMPILER=mpicxx ..
     - cmake --build .
     - cd test
     - ctest
