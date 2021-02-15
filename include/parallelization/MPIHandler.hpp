@@ -31,13 +31,13 @@ namespace E3D::Parallel {
         /**
          *  @brief set the requester ID member variable
          */
-        inline void updateRequesterID(const std::vector<std::vector<E3D::Parser::GhostCell>>) {};
+         inline void updateRequesterID(const std::vector<std::vector<E3D::Parser::GhostCell>>) {};
 
         /**
          * @brief sort requester ID in destination partition increasing order -> this member function populate
          * _senderID private member variable from _requesterID
          */
-        void sortInterface();
+         void sortInterface();
 
         /**
          * @brief : send flowfield variables to neighbor partitions via point to point communication
@@ -49,7 +49,7 @@ namespace E3D::Parallel {
           * @brief Compute and broadcast maximum Residual through collective communication
           * TODO add appropriate arguments to the function
           */
-          void updateRMS();
+         void updateRMS();
 
 
           inline int getRankID() const {return _rankID;}
