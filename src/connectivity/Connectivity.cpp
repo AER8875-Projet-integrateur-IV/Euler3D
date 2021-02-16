@@ -8,12 +8,11 @@ void Connectivity::SolveElement2node(const std::vector<E3D::Parser::Element> &el
     int counter = 0;
     for (int ielem = 0; ielem < _nElem; ielem++) {
         E3D::Parser::Element elem = elemVector[ielem];
-        for (int const &node : elem.getElemNodes()) {
-            counter++;
-        }
+        counter += elem.getElemNodes().size();
         _element2nodeStart[ielem + 1] = counter;
     }
     _element2node.resize(counter);
+    printf("%2d",counter);
     //_nNode = counter;
 
     //construire element2nodeStart
@@ -26,6 +25,7 @@ void Connectivity::SolveElement2node(const std::vector<E3D::Parser::Element> &el
 
         }
     }
+
 
 
 }
@@ -117,7 +117,7 @@ void Connectivity::SolveElement2Element(const std::vector<int> &VTK, int Boundar
 
     for (int ielem = 0; ielem < _nElem; ielem++) {
         int startI = _element2nodeStart[ielem];
-        int endI = _element2nodeStart[ielem + 1];
+        //int endI = _element2nodeStart[ielem + 1];
         int ilhelp;
 
 
@@ -171,14 +171,14 @@ void Connectivity::SolveElement2Element(const std::vector<int> &VTK, int Boundar
                 int jelem = _node2element[j];
                 if (jelem != ielem) {
                     int startJ = _element2nodeStart[jelem];
-                    int endJ = _element2nodeStart[jelem + 1];
+                    //int endJ = _element2nodeStart[jelem + 1];
                     int nLocaleFacesJ = _nFacefElement[jelem];
 
                     for (int jface = 0; jface < nLocaleFacesJ; jface++) {
                         int nNodeForFaceJ = _nNodefFace[jelem][jface];
                         if (nLocalNodefFaceI == nNodeForFaceJ) {
                             int count = 0;
-                            std::vector<int> nodeIndice = GetNodeIndices(jface, jelem, nLocaleFacesJ, VTK[jelem]);
+                            std::vector<int> nodeIndice = GetNodeIndices(jface, nLocaleFacesJ, VTK[jelem]);
                             for (int JlocalNode = 0; JlocalNode < nNodeForFaceJ; JlocalNode++) {
                                 int pointIndex = startJ + nodeIndice[JlocalNode];
 
@@ -253,7 +253,7 @@ void Connectivity::SolveElement2Element(const std::vector<int> &VTK, int Boundar
         int endI = _element2faceStart[ielem + 1];
         for (int j = startI; j < endI; j++) {
             if (_element2face[j] == iface) {
-                std::vector<int> face2nodeIndice = GetNodeIndices(j - startI, ielem, endI - startI, VTK[ielem]);
+                std::vector<int> face2nodeIndice = GetNodeIndices(j - startI, endI - startI, VTK[ielem]);
                 _face2nodeStart[iface + 1] = _face2nodeStart[iface] + face2nodeIndice.size();
                 for (size_t inode = 0; inode < face2nodeIndice.size(); inode++) {
                     _face2node[_face2nodeStart[iface] + inode] = _element2node[_element2nodeStart[ielem] +
@@ -266,7 +266,7 @@ void Connectivity::SolveElement2Element(const std::vector<int> &VTK, int Boundar
 
 }
 
-const std::vector<int> Connectivity::GetNodeIndices(int face, int jelem, int nLocalFacefElement, int VTK) {
+const std::vector<int> Connectivity::GetNodeIndices(int face,  int nLocalFacefElement, int VTK) {
     // enlever la redondance entre le VTKjelem et jelem
     int VTKjelem = VTK;
     std::vector<int> indiceNodes;

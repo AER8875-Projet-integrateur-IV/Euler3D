@@ -11,7 +11,7 @@ public:
   void SolveElement2node(const std::vector<E3D::Parser::Element> &elemVector);
   void SolveNode2element();
   void SolveElement2Element(const std::vector<int> &VTK, int BoundaryFaces);
-  const std::vector<int> GetNodeIndices(int face, int jelem, int nLocalFacefElement, int VTK);
+  const std::vector<int> GetNodeIndices(int face,  int nLocalFacefElement, int VTK);
   void ComputeVTKLinkedLists(const std::vector<int> &VTK);
 
   int _nElem;
