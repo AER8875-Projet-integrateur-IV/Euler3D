@@ -21,8 +21,7 @@ matrix:
         - MATRIX_EVAL="CC=gcc-9 && CXX=g++-9"
       cache:
         directories:
-          - openmpi
-          - openmpi-4.0.1
+          - mpich
       before_install:
         - chmod +x ./build_mpi.sh
         - ./build_mpi.sh
