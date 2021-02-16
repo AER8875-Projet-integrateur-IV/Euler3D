@@ -28,6 +28,7 @@ matrix:
         - ./build_mpi.sh
 
 script:
+    - export MPI_CXX='which mpicxx'
     - g++ -v && cmake --version
     - mkdir build
     - cd build
