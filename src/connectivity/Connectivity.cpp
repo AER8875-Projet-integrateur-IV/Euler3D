@@ -1,4 +1,5 @@
 #include "connectivity/Connectivity.hpp"
+#include <stdlib.h>
 
 
 void Connectivity::SolveElement2node(const std::vector<E3D::Parser::Element> &elemVector) {
@@ -12,9 +13,7 @@ void Connectivity::SolveElement2node(const std::vector<E3D::Parser::Element> &el
         _element2nodeStart[ielem + 1] = counter;
     }
     _element2node.resize(counter);
-    printf("%2d",counter);
-    //_nNode = counter;
-
+    
     //construire element2nodeStart
     for (int ielem = 0; ielem < _nElem; ielem++) {
         int localindex = 0;
@@ -25,8 +24,6 @@ void Connectivity::SolveElement2node(const std::vector<E3D::Parser::Element> &el
 
         }
     }
-
-
 
 }
 
@@ -57,7 +54,9 @@ void Connectivity::SolveNode2element() {
     }
 
     int j;
-    int store[_nNode] = {0};
+    std::vector<int> store;
+    store.resize(_nNode);
+    //int store[_nNode] = {0};
     for (int ielem = 0; ielem < _nElem; ielem++) {
         startI = _element2nodeStart[ielem];
         endI = _element2nodeStart[ielem + 1];
@@ -100,15 +99,15 @@ void Connectivity::SolveElement2Element(const std::vector<int> &VTK, int Boundar
 
 
     //creating lhelp_indice vector
-    std::vector<std::vector<int>> _lhelp_indice{{0, 2, 1, 0, 1, 3, 1, 2, 3, 2, 0, 3},
-                                                {0, 3, 2, 1, 0, 1, 5, 4, 1, 2, 6, 5, 2, 3, 7, 6, 3, 0, 4, 7, 4, 5, 6, 7},
-                                                {0, 1, 2, 0, 2, 5, 3, 0, 3, 4, 1, 1, 4, 5, 2, 3, 5, 4},
-                                                {0, 3, 2, 1, 0, 1, 4, 1, 2, 4, 2, 3, 4, 3, 0, 4}};
+    // std::vector<std::vector<int>> _lhelp_indice{{0, 2, 1, 0, 1, 3, 1, 2, 3, 2, 0, 3},
+    //                                             {0, 3, 2, 1, 0, 1, 5, 4, 1, 2, 6, 5, 2, 3, 7, 6, 3, 0, 4, 7, 4, 5, 6, 7},
+    //                                             {0, 1, 2, 0, 2, 5, 3, 0, 3, 4, 1, 1, 4, 5, 2, 3, 5, 4},
+    //                                             {0, 3, 2, 1, 0, 1, 4, 1, 2, 4, 2, 3, 4, 3, 0, 4}};
 
-    std::vector<std::vector<int>> _lhelp_indiceStart{{0, 3, 6, 9,  12},
-                                                     {0, 4, 8, 12, 16, 20, 24},
-                                                     {0, 3, 7, 11, 15, 18},
-                                                     {0, 4, 7, 10, 13, 16}};
+    // std::vector<std::vector<int>> _lhelp_indiceStart{{0, 3, 6, 9,  12},
+    //                                                  {0, 4, 8, 12, 16, 20, 24},
+    //                                                  {0, 3, 7, 11, 15, 18},
+    //                                                  {0, 4, 7, 10, 13, 16}};
 
 
     int nLocalFacefElement;
@@ -150,14 +149,21 @@ void Connectivity::SolveElement2Element(const std::vector<int> &VTK, int Boundar
 
         } else {
             std::cout << "VTK not recognised!" << '\n';
+            nLocalFacefElement = -1;
+            ilhelp = -1;
+            exit(EXIT_FAILURE);
         }
 
 
         // ---------- commence la connectivity element2element et face ---------------
         for (int iface = 0; iface < nLocalFacefElement; iface++) {
             int nLocalNodefFaceI = _nNodefFace[ielem][iface];
-            int lhelp[nLocalNodefFaceI] = {0};
-            int lpoint[_nNode] = {0};
+            std::vector<int> lhelp;
+            lhelp.resize(nLocalNodefFaceI);
+            //int lhelp[nLocalNodefFaceI] = {0};
+            std::vector<int> lpoint;
+            lpoint.resize(_nNode);
+            //int lpoint[_nNode] = {0};
             for (int inode = 0; inode < nLocalNodefFaceI; inode++) {
                 lhelp[inode] = _element2node[startI + _lhelp_indice[ilhelp][_lhelp_indiceStart[ilhelp][iface] + inode]];
                 lpoint[lhelp[inode]] = 1;
@@ -178,7 +184,7 @@ void Connectivity::SolveElement2Element(const std::vector<int> &VTK, int Boundar
                         int nNodeForFaceJ = _nNodefFace[jelem][jface];
                         if (nLocalNodefFaceI == nNodeForFaceJ) {
                             int count = 0;
-                            std::vector<int> nodeIndice = GetNodeIndices(jface, nLocaleFacesJ, VTK[jelem]);
+                            std::vector<int> nodeIndice = GetNodeIndices(jface, VTK[jelem]);
                             for (int JlocalNode = 0; JlocalNode < nNodeForFaceJ; JlocalNode++) {
                                 int pointIndex = startJ + nodeIndice[JlocalNode];
 
@@ -253,7 +259,7 @@ void Connectivity::SolveElement2Element(const std::vector<int> &VTK, int Boundar
         int endI = _element2faceStart[ielem + 1];
         for (int j = startI; j < endI; j++) {
             if (_element2face[j] == iface) {
-                std::vector<int> face2nodeIndice = GetNodeIndices(j - startI, endI - startI, VTK[ielem]);
+                std::vector<int> face2nodeIndice = GetNodeIndices(j - startI, VTK[ielem]);
                 _face2nodeStart[iface + 1] = _face2nodeStart[iface] + face2nodeIndice.size();
                 for (size_t inode = 0; inode < face2nodeIndice.size(); inode++) {
                     _face2node[_face2nodeStart[iface] + inode] = _element2node[_element2nodeStart[ielem] +
@@ -266,54 +272,52 @@ void Connectivity::SolveElement2Element(const std::vector<int> &VTK, int Boundar
 
 }
 
-const std::vector<int> Connectivity::GetNodeIndices(int face,  int nLocalFacefElement, int VTK) {
+const std::vector<int> Connectivity::GetNodeIndices(int face, int VTK) {
     // enlever la redondance entre le VTKjelem et jelem
     int VTKjelem = VTK;
     std::vector<int> indiceNodes;
     if (VTKjelem == 10) {
-        int lhelp_indice[12] = {0, 2, 1, 0, 1, 3, 1, 2, 3, 2, 0, 3};
-        int lhelp_indiceStart[nLocalFacefElement + 1] = {0, 3, 6, 9, 12};
-        int start = lhelp_indiceStart[face];
-        int end = lhelp_indiceStart[face + 1];
+        int lhelp_indice10[12] = {0, 2, 1, 0, 1, 3, 1, 2, 3, 2, 0, 3};
+        //int lhelp_indiceStart[nLocalFacefElement + 1] = {0, 3, 6, 9, 12};
+        int start = _lhelp_indiceStart[0][face];
+        int end = _lhelp_indiceStart[0][face + 1];
         indiceNodes.resize(end - start);
         for (int i = start; i < end; i++) {
-            indiceNodes[i - start] = lhelp_indice[i];
+            indiceNodes[i - start] = lhelp_indice10[i];
             //printf("%d ", indiceNodes[i-start]);
         }
     } else if (VTKjelem == 12) {
-        int lhelp_indice[24] = {0, 3, 2, 1, 0, 1, 5, 4, 1, 2, 6, 5, 2, 3, 7, 6, 3, 0, 4, 7, 4, 5, 6, 7};
-        int lhelp_indiceStart[nLocalFacefElement + 1] = {0, 4, 8, 12, 16, 20, 24};
-        int start = lhelp_indiceStart[face];
-        int end = lhelp_indiceStart[face + 1];
+        int lhelp_indice12[24] = {0, 3, 2, 1, 0, 1, 5, 4, 1, 2, 6, 5, 2, 3, 7, 6, 3, 0, 4, 7, 4, 5, 6, 7};
+        //int lhelp_indiceStart[nLocalFacefElement + 1] = {0, 4, 8, 12, 16, 20, 24};
+        int start = _lhelp_indiceStart[1][face];
+        int end = _lhelp_indiceStart[1][face + 1];
         indiceNodes.resize(end - start);
         for (int i = start; i < end; i++) {
-            indiceNodes[i - start] = lhelp_indice[i];
+            indiceNodes[i - start] = lhelp_indice12[i];
             //printf("%d ", indiceNodes[i-start]);
         }
 
     } else if (VTKjelem == 13) {
-        int lhelp_indice[18] = {0, 1, 2, 0, 2, 5, 3, 0, 3, 4, 1, 1, 4, 5, 2, 3, 5, 4};
-        int lhelp_indiceStart[nLocalFacefElement + 1] = {0, 3, 7, 11, 15, 18};
-        int start = lhelp_indiceStart[face];
-        int end = lhelp_indiceStart[face + 1];
+        int lhelp_indice13[18] = {0, 1, 2, 0, 2, 5, 3, 0, 3, 4, 1, 1, 4, 5, 2, 3, 5, 4};
+        //int lhelp_indiceStart[nLocalFacefElement + 1] = {0, 3, 7, 11, 15, 18};
+        int start = _lhelp_indiceStart[2][face];
+        int end = _lhelp_indiceStart[2][face + 1];
         indiceNodes.resize(end - start);
 
         for (int i = start; i < end; i++) {
-            indiceNodes[i - start] = lhelp_indice[i];
+            indiceNodes[i - start] = lhelp_indice13[i];
             //printf("%d ", indiceNodes[i-start]);
         }
     } else if (VTKjelem == 14) {
 
-        int lhelp_indice[16] = {0, 3, 2, 1, 0, 1, 4, 1, 2, 4, 2, 3, 4, 3, 0, 4};
-
-        int lhelp_indiceStart[nLocalFacefElement + 1] = {0, 4, 7, 10, 13, 16};
-
-        int start = lhelp_indiceStart[face];
-        int end = lhelp_indiceStart[face + 1];
+        int lhelp_indice14[16] = {0, 3, 2, 1, 0, 1, 4, 1, 2, 4, 2, 3, 4, 3, 0, 4};
+        //int lhelp_indiceStart[nLocalFacefElement + 1] = {0, 4, 7, 10, 13, 16};
+        int start = _lhelp_indiceStart[3][face];
+        int end = _lhelp_indiceStart[3][face + 1];
         indiceNodes.resize(end - start);
 
         for (int i = start; i < end; i++) {
-            indiceNodes[i - start] = lhelp_indice[i];
+            indiceNodes[i - start] = lhelp_indice14[i];
             //printf("%d ", indiceNodes[i-start]);
         }
 
