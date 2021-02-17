@@ -28,5 +28,3 @@ option(PACKAGE_TESTS "Build the tests" OFF)
 IF(PACKAGE_TESTS)
     ADD_SUBDIRECTORY(test)
 ENDIF()
-
-option(COMPILE_ON_TRAVIS "Building on travis" OFF)

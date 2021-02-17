@@ -10,10 +10,6 @@ target_link_libraries(E3D_PRE PUBLIC Parser Mesh)
 ADD_EXECUTABLE(E3D_Solver Solver.cpp)
 target_include_directories(E3D_Solver PUBLIC ../include)
 
-IF(COMPILE_ON_TRAVIS)
-    target_include_directories(E3D_Solver PUBLIC ${PROJECT_SOURCE_DIR}/mpich/include)
-ENDIF()
-
 
 target_link_libraries(E3D_Solver PUBLIC Parser Mesh Parallel_tools)
 

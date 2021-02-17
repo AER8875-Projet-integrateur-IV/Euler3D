@@ -1,6 +1,4 @@
 add_library(Parallel_tools MPIHandler.cpp)
-IF(COMPILE_ON_TRAVIS)
-    TARGET_INCLUDE_DIRECTORIES(Parallel_tools PUBLIC ${PROJECT_SOURCE_DIR}/mpich/include)
-ENDIF()
-
+find_package(MPI REQUIRED)
+target_link_libraries(Parallel_tools  PUBLIC MPI::MPI_CXX)
 TARGET_INCLUDE_DIRECTORIES(Parallel_tools PUBLIC ${PROJECT_SOURCE_DIR}/include)
