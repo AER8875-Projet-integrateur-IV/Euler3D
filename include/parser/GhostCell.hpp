@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <ostream>
 
 namespace E3D::Parser {
     struct GhostCell {
