@@ -9,6 +9,8 @@ int main(int argc, char* argv[]){
         exit(EXIT_FAILURE);
     }
 
+    std::cout << "hi" << "\n";
+
     std::string configFile = argv[1];
     E3D::Parser::SimConfig config(configFile);
     config.printInfo();
