@@ -1,3 +1,6 @@
 add_library(Parallel_tools MPIHandler.cpp)
+IF(COMPILE_WITH_TRAVIS)
+    TARGET_INCLUDE_DIRECTORIES(Parallel_tools PUBLIC ${PROJECT_SOURCE_DIR}/mpich/include)
+ENDIF()
 
 TARGET_INCLUDE_DIRECTORIES(Parallel_tools PUBLIC ${PROJECT_SOURCE_DIR}/include)
