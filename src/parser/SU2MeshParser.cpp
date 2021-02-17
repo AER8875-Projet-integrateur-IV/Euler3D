@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <sstream>
 #include <iomanip>
-
+#include <array>
 
 #include "parser/SU2MeshParser.hpp"
 
