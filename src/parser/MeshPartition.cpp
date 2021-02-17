@@ -6,6 +6,7 @@
 #include <sstream>
 #include <iostream>
 #include <mpi.h>
+#include <array>
 #include "parser/MeshPartition.hpp"
 
 
