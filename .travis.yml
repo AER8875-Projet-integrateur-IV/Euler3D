@@ -31,7 +31,7 @@ script:
     - g++ -v && cmake --version
     - mkdir build
     - cd build
-    - cmake -DCMAKE_BUILD_TYPE=Release -DPACKAGE_TESTS=ON -DMPI_CXX_COMPILER=/home/travis/build/AER8875-Projet-integrateur-IV/Euler3D/mpich/bin/mpicxx ..
+    - cmake -DCMAKE_BUILD_TYPE=Release -DPACKAGE_TESTS=ON -DMPI_CXX_COMPILER=/home/travis/build/AER8875-Projet-integrateur-IV/Euler3D/mpich/bin/mpicxx -DCOMPILE_ON_TRAVIS=ON ..
     - cmake --build .
     - cd test
     - ctest

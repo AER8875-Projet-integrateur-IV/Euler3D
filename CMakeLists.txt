@@ -25,10 +25,8 @@ ADD_SUBDIRECTORY(src)
 #include tests
 option(PACKAGE_TESTS "Build the tests" OFF)
 
-#include MPI
-
-
-
 IF(PACKAGE_TESTS)
     ADD_SUBDIRECTORY(test)
 ENDIF()
+
+option(COMPILE_ON_TRAVIS "Building on travis" OFF)
