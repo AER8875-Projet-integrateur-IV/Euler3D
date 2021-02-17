@@ -17,7 +17,7 @@ matrix:
           packages:
             - g++-9
       env: 
-        - COMPILER=mpicxx
+        - COMPILER=g++-9
         - MATRIX_EVAL="CC=gcc-9 && CXX=g++-9"
       cache:
         directories:
