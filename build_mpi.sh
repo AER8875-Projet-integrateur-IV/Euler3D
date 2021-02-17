@@ -18,7 +18,8 @@ else
           --enable-fortran=no \
           --enable-fast=all \
           --enable-g=none \
-          --enable-timing=none
+          --enable-timing=none \
+          --with-device=ch3
   make -j4
   make install
   cd -
