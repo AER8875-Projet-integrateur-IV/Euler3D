@@ -81,8 +81,5 @@ namespace E3D::Parallel {
         int _poolSize=0;                           /** @brief Number of processes in the communicator */
         int _nAdjacentPartition=0;                 /** @brief number of partitions physically connected to this partitions */
 
-
-
-
     };
 }
