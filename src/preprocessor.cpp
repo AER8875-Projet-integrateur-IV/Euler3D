@@ -1,5 +1,9 @@
 #include <iostream>
+#include <memory>
 #include "mesh/Mesh.hpp"
+#include "utils/Logger.hpp"
+#include "spdlog/logger.h"
+#include "spdlog/stopwatch.h"
 /**
  * @brief Entry point for the Euler3D software
  * @param argc : Number of command line parameters
@@ -8,20 +12,23 @@
 */
 
 int main(int argc, char *argv[]) {
+    
+    spdlog::stopwatch globalsw;  
+    E3D::Logger logger("log.txt");
+    auto logObject = E3D::Logger::Getspdlog();  
 
-    std::cout << "\n\nEuler 3D Pre-processor." << std::endl;
-
+    logObject->info("Euler 3D Pre-processor.\n");    
     if (argc != 2) {
         std::cerr << "Usage : EES2D_APP <meshFileName.su2> " << std::endl;
         exit(EXIT_FAILURE);
     }
 
     std::string fileName = argv[1];
-
+    spdlog::stopwatch meshsw;  
     E3D::Mesh mesh(fileName);
+
     mesh.solveConnectivity();
-
-
-
+    logObject->debug("Mesh parser run time {}", meshsw); 
+    logObject->debug("Total run time {}", globalsw);     
     return 0;
 }
