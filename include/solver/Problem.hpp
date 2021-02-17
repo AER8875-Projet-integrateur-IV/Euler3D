@@ -27,7 +27,7 @@ namespace E3D::Solver
 
     // Return rhoE of problem
     inline std::vector<double> GetrhoE() const {return this->_rhoE; }
-    
+
   private:
 
     std::vector<double> _rho;
