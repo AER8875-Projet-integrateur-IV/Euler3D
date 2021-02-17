@@ -1,5 +1,7 @@
 #include <iostream>
 #include "parser/SimConfig.hpp"
+#include "solver/Problem.hpp"
+
 int main(int argc, char* argv[]){
 
     std::cout << "\n\nEuler 3D Solver." << std::endl;
@@ -8,11 +10,13 @@ int main(int argc, char* argv[]){
         std::cerr << "Usage : E3D_Solver <configFile.e3d> " << std::endl;
         exit(EXIT_FAILURE);
     }
-
-    std::cout << "hi" << "\n";
-
+    
     std::string configFile = argv[1];
     E3D::Parser::SimConfig config(configFile);
     config.printInfo();
+
+    // Initialize problem
+    E3D::Solver::Problem flowfield;
+    flowfield.PrintTest();
     return 0;
 }
