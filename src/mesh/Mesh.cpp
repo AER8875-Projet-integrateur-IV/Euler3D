@@ -36,5 +36,54 @@ void Mesh::solveConnectivity() {
     face2node = std::make_unique<std::vector<int>>(connectivityObj._face2node);
     face2nodeStart = std::make_unique<std::vector<int>>(connectivityObj._face2nodeStart);
 
-
+    //printing linked lists
+    // printf("Element2nodeStart = ");
+    // for (size_t i = 0; i < connectivityObj._element2nodeStart.size(); i++) {
+    //   printf("%2d ", connectivityObj._element2nodeStart[i] );
+    // }
+    // printf("\n Element2node = ");
+    // for (size_t i = 0; i < connectivityObj._element2node.size(); i++) {
+    //   printf("%2d ", connectivityObj._element2node[i] );
+    // }
+    //
+    // printf("\n node2elementStart = ");
+    // for (size_t i = 0; i < connectivityObj._node2elementStart.size(); i++) {
+    //   printf("%2d ", connectivityObj._node2elementStart[i] );
+    // }
+    // printf("\n node2element = ");
+    // for (size_t i = 0; i < connectivityObj._node2element.size(); i++) {
+    //   printf("%2d ", connectivityObj._node2element[i] );
+    // }
+    //
+    // printf("\n element2elementStart = ");
+    // for (size_t i = 0; i < connectivityObj._element2elementStart.size(); i++) {
+    //   printf("%2d ", connectivityObj._element2elementStart[i] );
+    // }
+    // printf("\n element2element = ");
+    // for (size_t i = 0; i < connectivityObj._element2element.size(); i++) {
+    //   printf("%2d ", connectivityObj._element2element[i] );
+    // }
+    //
+    // printf("\n element2faceStart = ");
+    // for (size_t i = 0; i < connectivityObj._element2faceStart.size(); i++) {
+    //   printf("%2d ", connectivityObj._element2faceStart[i] );
+    // }
+    // printf("\n element2face = ");
+    // for (size_t i = 0; i < connectivityObj._element2face.size(); i++) {
+    //   printf("%2d ", connectivityObj._element2face[i] );
+    // }
+    //
+    // printf("\n face2element = ");
+    // for (size_t i = 0; i < connectivityObj._face2element.size(); i++) {
+    //   printf("%2d ", connectivityObj._face2element[i] );
+    // }
+    //
+    // printf("\n face2nodeStart = ");
+    // for (size_t i = 0; i < connectivityObj._face2nodeStart.size(); i++) {
+    //   printf("%2d ", connectivityObj._face2nodeStart[i] );
+    // }
+    // printf("\n face2node = ");
+    // for (size_t i = 0; i < connectivityObj._face2node.size(); i++) {
+    //   printf("%2d ", connectivityObj._face2node[i] );
+    // }
 }
