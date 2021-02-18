@@ -1,6 +1,6 @@
 #include <iostream>
 #include "parser/SimConfig.hpp"
-#include "solver/Problem.hpp"
+#include "solver/FlowField.hpp"
 
 int main(int argc, char* argv[]){
 
@@ -16,7 +16,7 @@ int main(int argc, char* argv[]){
     config.printInfo();
 
     // Initialize problem
-    E3D::Solver::Problem flowfield;
+    E3D::Solver::FlowField flowfield;
     flowfield.PrintTest();
     return 0;
 }

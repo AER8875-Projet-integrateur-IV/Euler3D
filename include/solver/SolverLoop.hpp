@@ -1,7 +1,7 @@
 #pragma once
 
 #include <vector>
-#include "solver/Problem.hpp"
+#include "solver/FlowField.hpp"
 
 namespace E3D::Solver{
   class SolverLoop{
@@ -23,7 +23,7 @@ namespace E3D::Solver{
     std::vector<double> _localRes;
     std::vector<double> _convFlux;
     std::vector<double> _err;
-    E3D::Solver::Problem flowfield;
+    E3D::Solver::FlowField flowfield;
 
     // Update boundary conditions around mesh
     void UpdateBC();
@@ -35,7 +35,7 @@ namespace E3D::Solver{
     void DeltaW();
 
     // Update "W" using "deltaW"
-    void UpdateW(std::vector<double> deltaW, Problem &);
+    void UpdateW(std::vector<double> deltaW, FlowField &);
 
     // Calculate drag coefficient
     void CalcGrad();

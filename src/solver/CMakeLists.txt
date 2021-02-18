@@ -1,4 +1,4 @@
 
-add_library(Solver Problem.cpp SolverLoop.cpp UpdateBC.cpp)
+add_library(Solver FlowField.cpp SolverLoop.cpp UpdateBC.cpp)
 TARGET_INCLUDE_DIRECTORIES(Solver PUBLIC ${PROJECT_SOURCE_DIR}/include)
 

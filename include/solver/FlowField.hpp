@@ -5,11 +5,11 @@
 
 namespace E3D::Solver
 {
-  class Problem {
+  class FlowField {
 
   public:
 
-    Problem();
+    FlowField();
 
     void PrintTest();
 

@@ -1,12 +1,12 @@
-#include "solver/Problem.hpp"
+#include "solver/FlowField.hpp"
 #include <iostream>
 
 using namespace E3D::Solver;
 
-Problem::Problem(){
+FlowField::FlowField(){
     
 }
 
-void Problem::PrintTest() {
+void FlowField::PrintTest() {
     std::cout << "hi" << "\n";
 }
