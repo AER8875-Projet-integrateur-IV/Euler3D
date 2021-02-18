@@ -20,15 +20,15 @@ TEST_CASE("Connectivity class test", "[connectivity]") {
 
     SECTION("node2element linked list") {
 
-        const std::vector<int> node2element0 = mesh.Getnode2element(0);
+        const std::vector<int> &node2element0 = mesh.Getnode2element(0);
         std::vector<int> correctnode2element0 = {0};
         REQUIRE(node2element0 == correctnode2element0);
 
-        const std::vector<int> node2element13 = mesh.Getnode2element(13);
+        const std::vector<int> &node2element13 = mesh.Getnode2element(13);
         std::vector<int> correctnode2element13 = {0,1,2,3,4,5,6,7};
         REQUIRE(node2element13 == correctnode2element13);
 
-        const std::vector<int> node2element20 = mesh.Getnode2element(20);
+        const std::vector<int> &node2element20 = mesh.Getnode2element(20);
         std::vector<int> correctnode2element20 = {5};
         REQUIRE(node2element20 == correctnode2element20);
 
