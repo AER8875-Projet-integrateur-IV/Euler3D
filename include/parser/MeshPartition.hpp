@@ -26,6 +26,7 @@ namespace E3D::Parser {
 
         inline int getAdjacentPartitionsCount() const { return _nbAdjacentPartitions; }
 
+        inline int getrankID() const {return _rankID;}
 
     private:
         /**
@@ -41,6 +42,8 @@ namespace E3D::Parser {
         int _nbAdjacentPartitions;
         int _nbMpiBoundaryElements = 0;
         const Parallel::MPIHandler &_e3d_mpi;
+		int _rankID;
+
     };
 
 

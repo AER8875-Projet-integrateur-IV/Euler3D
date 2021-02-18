@@ -6,6 +6,7 @@ set(TEST_SOURCE
     CatchMain.cpp
         Test_Catch.cpp
         Test_Parser.cpp
+        Test_Connectivity.cpp
 )
 # Add subdirectories 
 
@@ -19,7 +20,7 @@ message(STATUS "Tests are included")
 # link Catch2 library
 add_subdirectory(extern/Catch2)
 add_executable(tests ${TEST_SOURCE})
-target_link_libraries(tests Catch2::Catch2 Parser Parallel_tools)
+target_link_libraries(tests Catch2::Catch2 Parser Parallel_tools Connectivity)
 
 
 IF(COMPILE_ON_TRAVIS)
