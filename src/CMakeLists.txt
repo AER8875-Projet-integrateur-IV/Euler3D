@@ -9,9 +9,9 @@ set(release_flags -W -Wall -pedantic -O3 )
 
 
 
-ADD_EXECUTABLE(E3D_POST postprocess.cpp)
-target_include_directories(Euler3D_APP PUBLIC ../include ../extern)
-target_link_libraries(Euler3D_APP PUBLIC Parser Mesh Utils Post)
+ADD_EXECUTABLE(E3D_POST postprocessor.cpp)
+target_include_directories(E3D_POST PUBLIC ../include ../extern)
+target_link_libraries(E3D_POST PUBLIC Parser Mesh Utils Post)
 
 TARGET_COMPILE_OPTIONS(E3D_POST PUBLIC "$<$<CONFIG:DEBUG>:${debug_flags}>" )
 TARGET_COMPILE_OPTIONS(E3D_POST  PUBLIC "$<$<CONFIG:DEBUG>:${release_flags}>" )
