@@ -174,7 +174,7 @@ namespace E3D {
 
 
 		//getter connectivityObj
-		inline const int GetnFace() const {
+		inline int GetnFace() const {
 			return nFace;
 		}
 		// get specific node2element
