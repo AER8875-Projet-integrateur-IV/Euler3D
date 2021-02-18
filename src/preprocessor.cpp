@@ -26,6 +26,8 @@ int main(int argc, char *argv[]) {
     std::string fileName = argv[1];
     spdlog::stopwatch meshsw;  
     E3D::Mesh mesh(fileName);
+
+    mesh.solveConnectivity();
     logObject->debug("Mesh parser run time {}", meshsw); 
     logObject->debug("Total run time {}", globalsw);     
     return 0;
