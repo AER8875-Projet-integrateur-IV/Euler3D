@@ -55,8 +55,8 @@ namespace E3D {
 
         /**
          * @brief Get the Boundary Condition Vector object
-         * 
-         * @return const E3D::Parser::BC_Structure 
+         *
+         * @return const E3D::Parser::BC_Structure
          */
         inline const E3D::Parser::BC_Structure& GetBoundaryConditionVector() const {
             return _parser.GetBoundaryElems();
@@ -100,6 +100,24 @@ namespace E3D {
         // ------------------ Connectivity Info ----------------------
 
         void solveConnectivity();
+
+        //getter connectivityObj
+        inline const int GetnFace() const {
+            return nFace;
+        }
+        // get specific node2element
+        //modifier pour ne pas creer un nouveau vecteur a chaque fois
+        inline const std::vector<int> &Getnode2element(int i) const {
+          int starti = node2elementStart.get()[0][i];
+          int endi = node2elementStart.get()[0][i+1];
+          std::vector<int> elements(endi-starti,0);
+          int j = 0;
+          for (int i = starti; i < endi; i++) {
+            elements[j] = node2element.get()[0][i];
+            j++;
+          }
+            return elements;
+        }
 
 
     private:
