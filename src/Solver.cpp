@@ -16,7 +16,7 @@ int main(int argc, char *argv[]) {
     if (e3d_mpi.getRankID() == 0) {
 
         if (argc != 2) {
-            std::cerr << "Usage : E3D_Solver <configFile.e3d> " << std::endl;
+            std::cerr << "Usage : mpiexec -np <num of processes> ./E3D_Solveur <configFile.e3d> " << std::endl;
             exit(EXIT_FAILURE);
         }
     }
