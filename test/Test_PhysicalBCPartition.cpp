@@ -7,7 +7,7 @@
  * 
  */
 #include <catch2/catch.hpp>
-#include "partition/Partition.hpp"
+#include "partition/PhysicalBCPartition.hpp"
 #include <vector>
 
 TEST_CASE("FindContainedElements", "[partition]") {
@@ -19,7 +19,7 @@ TEST_CASE("FindContainedElements", "[partition]") {
     SECTION("no match") {
         std::vector<int> subSet{4,5};
         
-        E3D::Partition::Partition::FindContainedElements(subSet, globalSet, index);
+        E3D::Partition::PhysicalBCPartition::FindContainedElements(subSet, globalSet, index);
 
         REQUIRE(index == std::vector<int>());
     }
@@ -27,14 +27,14 @@ TEST_CASE("FindContainedElements", "[partition]") {
     SECTION("Partial match") {
         std::vector<int> subSet{4,2};
         
-        E3D::Partition::Partition::FindContainedElements(subSet, globalSet, index);
+        E3D::Partition::PhysicalBCPartition::FindContainedElements(subSet, globalSet, index);
 
         REQUIRE(index == std::vector<int>());
     }
     SECTION("full match") {
         std::vector<int> subSet{3,2};
         
-        E3D::Partition::Partition::FindContainedElements(subSet, globalSet, index);
+        E3D::Partition::PhysicalBCPartition::FindContainedElements(subSet, globalSet, index);
 
         REQUIRE(index == std::vector<int>{2,1});
     }

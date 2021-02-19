@@ -8,7 +8,7 @@ set(TEST_SOURCE
     Test_Parser.cpp
     Test_SU2Writer.cpp
     Test_SU2Mesh.cpp
-    Test_Partition.cpp
+    Test_PhysicalBCPartition.cpp
 )
 # Add subdirectories 
 

@@ -1,5 +1,6 @@
 #include "partition/Partition.hpp"
 #include "partition/SU2Writer.hpp"
+#include "partition/PhysicalBCPartition.hpp"
 #include <metis.h>
 #include <algorithm>    
 #include <utility>
@@ -25,6 +26,14 @@ void SU2Mesh::AddMarkerElement(const std::string& tag, int VTKid, int* elem2Node
         Markers[tag].push_back(elem);
     }
 }
+
+void SU2Mesh::SetLocal2GlobalConnectivy(const std::vector<int> &localNode2Global,
+                                const std::vector<int> &localNode2GlobalStart){
+    int startID = localNode2GlobalStart[this->ID];
+    _localNode2globalPtr = localNode2Global.data() + startID;
+}
+
+
 
 Partition::Partition(Mesh *meshGlobal, int &nPart)
 {
@@ -249,113 +258,12 @@ void Partition::SolveBorder()
     return;
 }
 
-void Partition::PartitionPhysicalBorder(){
-    std::vector<int> localMarkerNodes;
-    for(auto const &Marker : _m_meshGlobal->GetBoundaryConditionVector()){
-        const std::string &tag = Marker.first;
-        const std::vector<E3D::Parser::Element> &elemVector = Marker.second;
-        
-        
-        // Find a match for each border element of the global mesh
-        for(auto const &elem : elemVector){
-            const std::vector<int> &markerNodes = elem.getElemNodes();
-            int failedMatch = 0;
-            // Look for a match in each partition
-            for (int partI = 0; partI < _m_nPart; partI++)
-            {
-                this->FindMarkerInPartition(partI, markerNodes, localMarkerNodes);
-                if(localMarkerNodes.empty()){
-                    // No match has been found in this partition
-                    failedMatch++;
-                } else{
-                    // A match has been found
-                    int VTKid = elem.getVtkID();
-                    E3D::Partition::SU2Mesh &part = _m_part[partI];
-                    part.AddMarkerElement(tag, VTKid, localMarkerNodes.data(), localMarkerNodes.size());
-                }
-            }
-            if(failedMatch == _m_nPart){
-                throw std::runtime_error("Marker could not be found in a subpartition");
-            }
-        }
-    }
-}
 
-void Partition::FindMarkerInPartition(int partID,
-    const std::vector<int> &markerNodes, std::vector<int>& localMarkerNodes){
-    // This function could be optimised if needed
-
-    localMarkerNodes = std::vector<int>();
-    localMarkerNodes.reserve(markerNodes.size());
-
-    E3D::Partition::SU2Mesh &part =_m_part[partID];
-    // Go over every element in the partition, if all nodes in
-    // markerNodes are found in a element, elem is part of the 
-    // current partition
-    for (int elemI = 0; elemI < part.NELEM; elemI++)
-    {
-        int start = part.elem2nodeStart[elemI];
-        int end = part.elem2nodeStart[elemI+1];
-        int size = end-start;
-        std::vector<int> globalPartNode;
-        globalPartNode.reserve(size);
-        std::vector<int> localPartNode;
-        localPartNode.reserve(size);
-        
-        // Build local node vector
-        for (int i = start; i < end; i++)
-        {
-            localPartNode.push_back(part.elem2node[i]);
-        }
-        // Build global node vector
-        for (int localID : localPartNode)
-        {     
-            globalPartNode.push_back(this->Local2GlobalNode(localID, partID));
-        }
-        
-        std::vector<int> matchIndex;
-        FindContainedElements(markerNodes, globalPartNode, matchIndex);
-        
-        if (matchIndex.size() == markerNodes.size())
-        {
-            for(int index : matchIndex){
-                localMarkerNodes.push_back(localPartNode[index]);
-            }
-
-            // a match has been found
-            return;
-        }
-    }
-    // No match has been found
-}
-
-void Partition::FindContainedElements(const std::vector<int>& subSet, const std::vector<int>& globalSet, std::vector<int>& indexVector){
-    const int *findStart = globalSet.data();
-    const int *findEnd = findStart+globalSet.size();
-
-    // This vector contains the index (taken from globalSet) of matching values
-    indexVector = std::vector<int>();
-    indexVector.reserve(subSet.size());
-
-    for(const int &value : subSet){
-        const int* p = std::find(findStart, findEnd, value);
-        if (p == findEnd){
-            // value not found in globalSet
-            break;
-        } else{
-            // value is part of globalSet
-            // save the index
-            indexVector.push_back(p-findStart);
-        }        
-    }
-    // All elements were found    
-}
-
-int Partition::Local2GlobalNode(int localNodeID, int partID){
-    int start = _m_localNode2GlobalStart[partID];
-    int globalID = _m_localNode2Global[start+localNodeID];
-    return globalID; 
-}
+// int Partition::Local2GlobalNode(int localNodeID, int partID){
+//     int start = _m_localNode2GlobalStart[partID];
+//     int globalID = _m_localNode2Global[start+localNodeID];
+//     return globalID; 
+// }
 
 void Partition::Write(const std::string &SU2OuputPath) {
 	std::cout << std::string(24, '#') << "  Partitionning  " << std::string(24, '#') << "\n\n"
@@ -369,7 +277,10 @@ void Partition::Write(const std::string &SU2OuputPath) {
 	SolveElem2Part();
     SolvePart2Elem();
     SolveElem2Node();
-    PartitionPhysicalBorder();
+    for(auto &part:_m_part){
+        part.SetLocal2GlobalConnectivy(_m_localNode2Global, _m_localNode2GlobalStart);
+    }
+    PhysicalBCPartition::Solve(_m_meshGlobal->GetBoundaryConditionVector(), _m_part);
     WriteTecplot("test.dat");
 
     // Define name of output
@@ -388,7 +299,7 @@ void Partition::Write(const std::string &SU2OuputPath) {
     std::cout << std::string(58, '#') << std::endl;
 }
 
-void Partition::WriteSU2(E3D::Partition::SU2Mesh const &partition, const std::string &path) {
+void Partition::WriteSU2(E3D::Partition::SU2Mesh &partition, const std::string &path) {
 	// vector Node
 	std::vector<E3D::Parser::Node> const &globNodeVector = _m_meshGlobal->GetNodeVector();
 
@@ -397,7 +308,7 @@ void Partition::WriteSU2(E3D::Partition::SU2Mesh const &partition, const std::st
     
     for (int i = 0; i < partition.NPOIN; i++)
     {
-        int nodeGlobI = Local2GlobalNode(i, partition.ID);
+        int nodeGlobI = partition.LocalNode2global(i);
         nodeVector.push_back(globNodeVector[nodeGlobI]);
     }
 

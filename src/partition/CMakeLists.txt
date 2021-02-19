@@ -15,7 +15,7 @@ set(NAME_LIBRARY Partition)
 #      set(SOURCE Partition.cpp SU2Writer.cpp)
 #      set(NAME_LIBRARY SolverEuler.cpp)
 
-set(SOURCE Partition.cpp SU2Writer.cpp)
+set(SOURCE Partition.cpp SU2Writer.cpp PhysicalBCPartition)
 
 
 #   3. Add the command add_subdirectory(NameOfThisDirectory) to the CMakeLists.txt
