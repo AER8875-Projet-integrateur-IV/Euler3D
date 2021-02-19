@@ -30,6 +30,11 @@ namespace E3D::Parser {
          * @brief Default ctor, Executes private member functions to parse data from mesh file.
          */
         SU2MeshParser(const std::string &fileName);
+        
+        /**
+         * @brief prints class statistics
+         */
+        void printInfo();
 
         // Getters
 
@@ -111,7 +116,7 @@ namespace E3D::Parser {
          */
         inline const std::vector<int>& GetInteriorElementVtkID() const {return this->_InteriorElementsVtkID;}
 
-    private:
+    protected:
 
         std::string _filename;                   /** @brief SU2 mesh file path and name */
         std::ifstream _ifilestream;              /** @brief Input file stream */
