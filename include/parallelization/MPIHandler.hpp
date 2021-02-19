@@ -15,6 +15,8 @@ namespace E3D::Parallel {
 
         /**
          *  @brief : ctor initializes MPI and populate rank,size
+         *  parameters argc and argv are required by MPI_init function but they are
+         *  used in this class
          */
         MPIHandler(int argc, char *argv[]);
 
