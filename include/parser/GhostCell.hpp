@@ -6,7 +6,7 @@
 namespace E3D::Parser {
     struct GhostCell {
 
-        GhostCell(int thisParElemID, int OtherParElemID, int faceVtkID, std::vector<int> faceNodes)
+        GhostCell(int thisParElemID, int OtherParElemID, int faceVtkID, std::vector<int>& faceNodes)
                 : _faceNodeIDs(faceNodes),
                   _faceVtkID(faceVtkID),
                   _thisPartitionElementID(thisParElemID),
