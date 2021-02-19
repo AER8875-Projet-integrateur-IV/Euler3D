@@ -68,7 +68,7 @@ void PhysicalBCPartition::FindMarkerInPartition(SU2Mesh &part,
         // Build global node vector
         for (int localID : localPartNode)
         {     
-            globalPartNode.push_back(part.LocalNode2global(localID));
+            globalPartNode.push_back(part.LocalNode2global(localID-1));
         }
         
         std::vector<int> matchIndex;
