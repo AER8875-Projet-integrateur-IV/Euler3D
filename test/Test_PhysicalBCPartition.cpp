@@ -41,7 +41,12 @@ TEST_CASE("FindContainedElements", "[partition]") {
 
 }
 
-TEST_CASE("Solve physical border conditions in 2D", "[partition]"){
+/**
+ * @details Test the partitionning of physical border conditions for a 2D test
+ *      case. The case is graphically represented in docs/test/PhysicalBCPartition.svg
+ * 
+ */
+TEST_CASE("Solve physical border conditions in 2D", "[partition],[PhysicalBC]"){
     // build localNode2Global
     std::vector<int> localNode2Global{1, 2, 4, 5,       // red 
                                       2, 3, 5, 6,       // blue
@@ -82,14 +87,14 @@ TEST_CASE("Solve physical border conditions in 2D", "[partition]"){
     std::pair<std::string,std::vector<E3D::Parser::Element>> south;
     south.first = "south";
     south.second = std::vector<E3D::Parser::Element>{
-            E3D::Parser::Element(3, std::vector<int>{8,9}),
-            E3D::Parser::Element(3, std::vector<int>{7,8}),
-            E3D::Parser::Element(3, std::vector<int>{4,7}),
-            E3D::Parser::Element(3, std::vector<int>{1,4})};
+            E3D::Parser::Element(3, std::vector<int>{9,8}),
+            E3D::Parser::Element(3, std::vector<int>{8,7}),
+            E3D::Parser::Element(3, std::vector<int>{7,4}),
+            E3D::Parser::Element(3, std::vector<int>{4,1})};
 
     std::pair<std::string,std::vector<E3D::Parser::Element>> north;
-    south.first = "north";
-    south.second = std::vector<E3D::Parser::Element>{
+    north.first = "north";
+    north.second = std::vector<E3D::Parser::Element>{
             E3D::Parser::Element(3, std::vector<int>{9,6}),
             E3D::Parser::Element(3, std::vector<int>{6,3}),
             E3D::Parser::Element(3, std::vector<int>{3,2}),
@@ -100,4 +105,34 @@ TEST_CASE("Solve physical border conditions in 2D", "[partition]"){
     // Run partitionning
     E3D::Partition::PhysicalBCPartition::Solve(BC, parts);
 
+    SECTION("Red partition") {
+        std::vector<E3D::Parser::Element> northExp{E3D::Parser::Element(3,std::vector<int>{2,1})};
+        std::vector<E3D::Parser::Element> southExp{E3D::Parser::Element(3,std::vector<int>{3,1})};
+        std::vector<E3D::Parser::Element> northSol = parts[0].Markers["north"];
+        std::vector<E3D::Parser::Element> southSol = parts[0].Markers["south"];
+        int size = parts[0].Markers.size();
+        REQUIRE(northSol == northExp);
+        REQUIRE(southSol == southExp);
+        REQUIRE(size==2);
+    }    
+
+    SECTION("Blue partition") {
+        std::vector<E3D::Parser::Element> northExp{E3D::Parser::Element(3,std::vector<int>{4,2}),
+                                                    E3D::Parser::Element(3,std::vector<int>{2,1})};
+        std::vector<E3D::Parser::Element> northSol = parts[1].Markers["north"];
+        REQUIRE(northSol == northExp);
+        REQUIRE(parts[1].Markers.size()==1);
+    }    
+
+    SECTION("Red partition") {
+        std::vector<E3D::Parser::Element> northExp{E3D::Parser::Element(3,std::vector<int>{6,3})};
+        std::vector<E3D::Parser::Element> southExp{E3D::Parser::Element(3,std::vector<int>{6,5}),
+                                                    E3D::Parser::Element(3,std::vector<int>{5,4}),
+                                                    E3D::Parser::Element(3,std::vector<int>{4,1})};
+        std::vector<E3D::Parser::Element> northSol = parts[2].Markers["north"];
+        std::vector<E3D::Parser::Element> southSol = parts[2].Markers["south"];        
+        REQUIRE(northSol == northExp);
+        REQUIRE(southSol == southExp);
+        REQUIRE(parts[2].Markers.size()==2);
+    }    
 }
