@@ -10,7 +10,7 @@ namespace E3D::Parser {
 
     class SimConfig {
     public :
-        SimConfig(const std::string& filename, const int rankID, const int poolSize);
+        SimConfig(const std::string& filename);
 
         void parseConfigFile();
 

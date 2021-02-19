@@ -11,8 +11,7 @@
 #include <regex>
 using namespace E3D::Parser;
 
-SimConfig::SimConfig(const std::string &filename, const int rankID, const int poolSize)
-: _configFileStream(filename), _configFile(filename) {
+SimConfig::SimConfig(const std::string &filename) : _configFileStream(filename), _configFile(filename) {
 
     if (!_configFileStream) {
         std::cerr << "Error while opening configuration file ! " << "\n";
@@ -20,15 +19,7 @@ SimConfig::SimConfig(const std::string &filename, const int rankID, const int po
     }
 
     parseConfigFile();
-    if(rankID==0){
-        if (_nbPartition != poolSize) {
-            printf("Number of mesh files and MPI processes are not equal !\n");
-            printf("Number of partition = %i | Number of MPI processes : %i \n", _nbPartition,
-                   poolSize);
-            exit(EXIT_FAILURE);
-        }
-        printInfo();
-    }
+
 }
 
 void SimConfig::parseConfigFile() {
@@ -173,4 +164,6 @@ void SimConfig::printInfo() {
               << _aoa
               << "\n";
 
+    // Print end of config file parsing section
+    std::cout << "\n\n" << std::string(63, '#') << std::endl;
 }

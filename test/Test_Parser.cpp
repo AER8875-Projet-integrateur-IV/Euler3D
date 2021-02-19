@@ -2,7 +2,6 @@
 #include "parser/SU2MeshParser.hpp"
 #include <iostream>
 #include "parser/SimConfig.hpp"
-#include "parser/MeshPartition.hpp"
 
 TEST_CASE("SU2MeshParser class test", "[parser]") {
 
@@ -102,7 +101,7 @@ TEST_CASE("SU2MeshParser class test", "[parser]") {
 
         // Testing Interior VTKID vector
         REQUIRE(parser.GetInteriorElementVtkID().front() == 12);
-        REQUIRE(parser.GetInteriorElementVtkID()[50] == 12);
+        REQUIRE(parser.GetInteriorElementVtkID()[50] == 12 );
         REQUIRE(parser.GetInteriorElementVtkID().back() == 12);
 
         // Testing Interior face Count vector
@@ -138,7 +137,7 @@ TEST_CASE("SU2MeshParser class test", "[parser]") {
 
 TEST_CASE("SimConfig class test", "[parser]") {
     std::string ConfigFileName = "../../test/ConfigFiles/ConfigFIle_test.e3d";
-    E3D::Parser::SimConfig config(ConfigFileName, 1, 1);
+    E3D::Parser::SimConfig config(ConfigFileName);
 
     // Testing mesh partitions file name
     std::vector<std::string> partitionFiles = {"../../test/mesh/StructuredBlock_8_p0.par",
@@ -149,7 +148,7 @@ TEST_CASE("SimConfig class test", "[parser]") {
 
     REQUIRE(config.getNumberPartitions() == 4);
 
-    for (int i = 0; i < config.getNumberPartitions(); i++) {
+    for (int i=0 ; i< config.getNumberPartitions(); i++){
         REQUIRE(parsedPartitionFiles[i] == partitionFiles[i]);
     }
 
@@ -169,34 +168,11 @@ TEST_CASE("SimConfig class test", "[parser]") {
     REQUIRE(config.getCFL() == 3);
     REQUIRE(config.getMinResidual() == 1e-10);
     REQUIRE(config.getTecplotFile() == "output.dat");
-}
 
-TEST_CASE("MeshPartition class test", "[parser]") {
-    char* a="aaa";
-    E3D::Parallel::MPIHandler e3d_mpi(1, &a);
-    std::string configFile = "../../test/ConfigFiles/ConfigFIle_test_meshPartition.e3d";
-    E3D::Parser::SimConfig config(configFile, e3d_mpi.getRankID(), e3d_mpi.getPoolSize());
-
-    // Parsing Partitions (mesh files)
-    E3D::Parser::MeshPartition localmesh(config.getPartitionedMeshFiles()[e3d_mpi.getRankID()],
-                                         e3d_mpi);
+    //
 
 
-    REQUIRE(localmesh.getAdjacentPartitionsCount() == 2);
-    REQUIRE(localmesh.getAdjacentPartitionsID()[0] == 1 );
-    REQUIRE(localmesh.getAdjacentPartitionsID()[1] == 2 );
-    REQUIRE(localmesh.getMpiBoundaryElemsCount() == 4);
 
 
-    const auto& MPIghostcell = localmesh.getMpiBoundaryElems();
-    REQUIRE(MPIghostcell.size() == 2);
-    REQUIRE(MPIghostcell.front().first == 1);
-    REQUIRE(MPIghostcell.back().first == 2);
-    REQUIRE(MPIghostcell.front().second.size() == 2);
-    REQUIRE(MPIghostcell.front().second[0].getthisPartitionElementID() == 0);
-    REQUIRE(MPIghostcell.front().second[1].getAdjacentPartitionElementID() == 1);
-
-    REQUIRE(MPIghostcell.back().second.size() == 2);
-    REQUIRE(MPIghostcell.back().second[1].getfaceNodeIDs().back() == 10);
 
 }

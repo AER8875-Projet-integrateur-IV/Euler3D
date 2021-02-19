@@ -40,10 +40,8 @@ MARKER_ELEMS= 6
  
 NINTERNAL_MARKER= 2
 INTERNAL_MARKER= 1
-NELEM_MPI= 2
 0   0   9   1   0   4   5
 1   1   9   5   4   8   9   
 INTERNAL_MARKER= 2
-NELEM_MPI= 2
 0   0   9   0   3   7   4
 1   1   9   4   7   11  8

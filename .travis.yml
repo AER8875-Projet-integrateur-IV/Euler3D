@@ -1,0 +1,32 @@
+language: cpp
+dist: bionic
+os : linux
+
+# Can interfere with MPI projects
+before_install:
+  - test -n $CC  && unset CC
+  - test -n $CXX && unset CXX
+before_install:
+    - eval "${MATRIX_EVAL}"
+matrix:
+    - compiler: g++
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-9
+      env: 
+        - COMPILER=g++-9
+        - MATRIX_EVAL="CC=gcc-9 && CXX=g++-9"
+      
+script:
+    - g++ -v && cmake --version
+    - mkdir build
+    - cd build
+    - cmake -DCMAKE_BUILD_TYPE=Release -DPACKAGE_TESTS=ON ..
+    - cmake --build .
+    - cd test
+    - ctest
+  
+  

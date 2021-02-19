@@ -116,7 +116,7 @@ namespace E3D::Parser {
          */
         inline const std::vector<int>& GetInteriorElementVtkID() const {return this->_InteriorElementsVtkID;}
 
-    protected:
+    private:
 
         std::string _filename;                   /** @brief SU2 mesh file path and name */
         std::ifstream _ifilestream;              /** @brief Input file stream */
