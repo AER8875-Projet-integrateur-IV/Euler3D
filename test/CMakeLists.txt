@@ -8,7 +8,8 @@ set(TEST_SOURCE
     Test_Parser.cpp
     Test_SU2Writer.cpp
     Test_SU2Mesh.cpp
-    Test_Partition.cpp
+    Test_Element.cpp
+    Test_PhysicalBCPartition.cpp
 )
 # Add subdirectories 
 
@@ -21,11 +22,21 @@ message(STATUS "Tests are included")
 # link Catch2 library
 add_subdirectory(extern/Catch2)
 add_executable(tests ${TEST_SOURCE})
+
 target_link_libraries(tests Catch2::Catch2 
-                            Parser
+                            Parser 
+                            Parallel_tools
                             Partition)
+
+
+IF(COMPILE_ON_TRAVIS)
+    TARGET_INCLUDE_DIRECTORIES(tests PUBLIC ${PROJECT_SOURCE_DIR}/mpich/include)
+ENDIF()
+
+target_link_libraries(tests MPI::MPI_CXX)
 TARGET_INCLUDE_DIRECTORIES(tests PUBLIC ${PROJECT_SOURCE_DIR}/include)
 TARGET_INCLUDE_DIRECTORIES(tests PUBLIC ${PROJECT_SOURCE_DIR}/extern)
+find_package(MPI REQUIRED)
 
 # add Catch2 cmake scripts to module path to allow automatic
 # test discovery

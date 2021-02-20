@@ -41,9 +41,6 @@ namespace E3D::Partition
         // E3D::Parser::BC_Structure Markers;
         std::unordered_map<std::string, std::vector<E3D::Parser::Element>> Markers;
 
-        // Coordonnées des noeuds
-        // std::vector<int> nodeGlob;
-
         /**
          * @brief Add an element to Markers member variable
          * 
@@ -53,6 +50,31 @@ namespace E3D::Partition
          * @param nNode number of nodes in the elem2Node array
          */
         void AddMarkerElement(const std::string& tag, int VTKid, int* elem2Node, int nNode);
+        
+        /**
+         * @brief obatin the global node ID from the local ID
+         * 
+         * @param localID 
+         * @return int 
+         */
+        inline int LocalNode2global(int localID){
+            return _localNode2globalPtr[localID];
+        }
+
+        /**
+         * @brief Set the Local 2 Global Connectivy used in LocalNode2global function
+         * 
+         * @details This function will only save a reference to the correct
+         *      location in localNode2Global. The input vector must stay const
+         * 
+         * @param localNode2Global 
+         * @param localNode2GlobalStart 
+         */
+        void SetLocal2GlobalConnectivy(const std::vector<int> &localNode2Global,
+                                       const std::vector<int> &localNode2GlobalStart);
+
+    private:
+        const int* _localNode2globalPtr;
     };
 
     class Partition
@@ -121,12 +143,6 @@ namespace E3D::Partition
          * limites initiales présentes dans le maillage global.
          */
         void SolveBorder();
-        /**
-         * @brief Partition the physical border conditions to their respective
-         * subpartition
-         * 
-         */
-        void PartitionPhysicalBorder();   
 
         /**
          * Écrit la partition dans un fichier Tecplot
@@ -142,7 +158,7 @@ namespace E3D::Partition
          * @param partition SU2Mesh object to be written to file
          * @param path Save path
          */
-		void WriteSU2(E3D::Partition::SU2Mesh const &partition, const std::string &path);
+		void WriteSU2(E3D::Partition::SU2Mesh &partition, const std::string &path);
 
 	public:
 		/** 
@@ -176,31 +192,6 @@ namespace E3D::Partition
          */
 		int Local2GlobalNode(int localNodeID, int partID);
 
-		/**
-         * @brief Check all partition element for a match with a marker from the
-         *      global mesh
-         * 
-         * @param partID partition ID to check for match
-         * @param markerNodes Global node IDs from the marker element
-         * @param localMarkerNodes Will be overwritten with the local node IDs
-         *      from the partition matching the markerNodes vector
-         */
-        void FindMarkerInPartition(int partID, const std::vector<int> &markerNodes, std::vector<int>& localMarkerNodes); 
 
-        /**
-         * @brief Check if all values in subSet can be found in globalSet
-         * 
-         * @details Check if all values in subset are found in global. If all 
-         *      values are found, indexVector will be overwritten with the
-         *      index of the matches found in globalSet. If not all values are
-         *      found, indexVector will be overwritten with an empty vector.
-         * @param subSet vector of values to be looken for in globalSet must be
-         *      smaller or equal size to globalSet
-         * @param globalSet vector of values that will be used to extract the 
-         *      index of matches
-         * @param indexVector Stores the index of matches found if all values in
-         *      subSet are found in globalSet
-         */
-        static void FindContainedElements(const std::vector<int>& subSet, const std::vector<int>& globalSet, std::vector<int>& indexVector);
     };
 }// namespace E3D::Partition

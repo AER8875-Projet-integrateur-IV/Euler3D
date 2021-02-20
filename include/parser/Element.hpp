@@ -42,6 +42,12 @@ namespace E3D::Parser {
             return out;
         }
 
+        bool operator==(const E3D::Parser::Element& other) const
+        {
+            return (this->_vtkType == other.getVtkID() && 
+                    this->_ElemPoints == other.getElemNodes());
+        }
+
     private:
         int _vtkType;
         std::vector<int> _ElemPoints;
