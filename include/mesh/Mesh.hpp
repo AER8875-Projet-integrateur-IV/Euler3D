@@ -3,13 +3,16 @@
 
 #include <memory>
 #include <string>
+
 #include <type_traits>
 
+#include <memory>
 
-#include "connectivity/Connectivity.hpp"
 #include "parser/Element.hpp"
 #include "parser/MeshPartition.hpp"
 #include "parser/SU2MeshParser.hpp"
+#include "connectivity/Connectivity.hpp"
+
 
 namespace E3D {
 
@@ -162,54 +165,111 @@ namespace E3D {
          * @param tagID BC position in mesh file (first [0], second [1] ...)
          * @return int holding the number of element in this BC
          */
-		inline int GetNumberOfElementsInTag(int tagID) const {
-			return _parser.GetTags()[tagID].second;
-		}
 
-		inline const std::vector<int> &GetInteriorVTKID() const {
-			return _parser.GetInteriorElementVtkID();
-		}
+        inline int GetNumberOfElementsInTag(int tagID) const {
+            return _parser.GetTags()[tagID].second;
+        }
 
-		// ------------------ Connectivity Info ----------------------
+        inline const std::vector<int> &GetInteriorVTKID() const {
+            return _parser.GetInteriorElementVtkID();
+        }
 
+        // ------------------ Connectivity Info ----------------------
 
-		//getter connectivityObj
-		inline int GetnFace() const {
-			return nFace;
-		}
-		// get specific node2element
-		//modifier pour ne pas creer un nouveau vecteur a chaque fois
-		inline const std::vector<int> &Getnode2element(int i) const {
-			int starti = node2elementStart.get()[0][i];
-			int endi = node2elementStart.get()[0][i + 1];
-			std::vector<int> elements(endi - starti, 0);
-			int j = 0;
-			for (int i = starti; i < endi; i++) {
-				elements[j] = node2element.get()[0][i];
-				j++;
-			}
-			return elements;
-		}
+        void solveConnectivity();
 
+        inline int GetnFace() const {
+            return nFace;
+        }
 
-	private:
-		T _parser;
-		std::vector<int> _connectivity;
+        inline int GetnElemTot() const {
+            return nElemTot;
+        }
 
+        /**
+         * @brief get element IDs associated to a node ID
+         * 
+         * @param nodeID 
+         * @param nElem Number of elements arround nodeID
+         * @return int* 
+         */
+        inline int* GetNode2ElementID(int nodeID, int &nElem) const {
+          int starti = node2elementStart.get()[0][nodeID];
+          int endi = node2elementStart.get()[0][nodeID+1];
+          nElem = endi-starti;
+          return node2element.get()[0].data()+starti;
+        }
 
-		// variable calculees et assignees par connectivity
-		int nFace;
-		int nElemTot;
-		std::unique_ptr<std::vector<int>> node2element;
-		std::unique_ptr<std::vector<int>> node2elementStart;
-		std::unique_ptr<std::vector<int>> element2element;
-		std::unique_ptr<std::vector<int>> element2elementStart;
-		std::unique_ptr<std::vector<int>> element2face;
-		std::unique_ptr<std::vector<int>> element2faceStart;
-		std::unique_ptr<std::vector<int>> face2element;
-		std::unique_ptr<std::vector<int>> face2nodeStart;
-		std::unique_ptr<std::vector<int>> face2node;
-		Connectivity connectivityObj;
-	};
+        /**
+         * @brief get element IDs associated to an other element ID
+         * 
+         * @param elemID 
+         * @param nElem Number of elements arround elemID
+         * @return int* 
+         */
+        inline int* GetElement2ElementID(int elemID, int &nElem) const {
+          int starti = element2elementStart.get()[0][elemID];
+          int endi = element2elementStart.get()[0][elemID+1];
+          nElem = endi-starti;
+          return element2element.get()[0].data()+starti;
+        }        
 
-}// namespace E3D
+        /**
+         * @brief get face IDs associated to an element ID
+         * 
+         * @param elemID 
+         * @param nElem Number of faces arround elemID
+         * @return int*  
+         */
+        inline int* GetElement2FaceID(int elemID, int &nElem) const {
+          int starti = element2faceStart.get()[0][elemID];
+          int endi = element2faceStart.get()[0][elemID+1];
+          nElem = endi-starti;
+          return element2face.get()[0].data()+starti;
+        }    
+
+        /**
+         * @brief get node IDs associated to a face ID
+         * 
+         * @param faceID 
+         * @param nNode Number of nodes arround faceID
+         * @return int*  
+         */
+        inline int* GetFace2NodeID(int faceID, int &nNode) const {
+          int starti = face2nodeStart.get()[0][faceID];
+          int endi = face2nodeStart.get()[0][faceID+1];
+          nNode = endi-starti;
+          return face2node.get()[0].data()+starti;
+        }   
+
+        /**
+         * @brief get element IDs associated to a face ID
+         * 
+         * @param faceID 
+         * @return int*  
+         */
+        inline const int* GetFace2ElementID(int faceID) const {
+          int starti = faceID*2;
+          return face2node.get()[0].data()+starti;
+        }  
+
+    private:
+        T _parser;
+        std::vector<int> _connectivity;
+        // variable calculees et assignees par connectivity
+        int nFace;
+        int nElemTot;
+        std::unique_ptr<std::vector<int>>  node2element;
+        std::unique_ptr<std::vector<int>>  node2elementStart;
+        std::unique_ptr<std::vector<int>>  element2element;
+        std::unique_ptr<std::vector<int>>  element2elementStart;
+        std::unique_ptr<std::vector<int>>  element2face;
+        std::unique_ptr<std::vector<int>>  element2faceStart ;
+        std::unique_ptr<std::vector<int>>  face2element;
+        std::unique_ptr<std::vector<int>>  face2nodeStart;
+        std::unique_ptr<std::vector<int>>  face2node;
+        Connectivity connectivityObj;
+    };
+
+}
+
