@@ -6,8 +6,9 @@ set(TEST_SOURCE
     CatchMain.cpp
         Test_Catch.cpp
         Test_Parser.cpp
+        Test_Connectivity.cpp
 )
-# Add subdirectories 
+# Add subdirectories
 
 # add_subdirectory(parser)
 
@@ -19,8 +20,15 @@ message(STATUS "Tests are included")
 # link Catch2 library
 add_subdirectory(extern/Catch2)
 add_executable(tests ${TEST_SOURCE})
-target_link_libraries(tests Catch2::Catch2 Parser)
+
+target_link_libraries(tests Catch2::Catch2 Parser Mesh Parallel_tools Connectivity)
+
+
+target_link_libraries(tests MPI::MPI_CXX)
+
 TARGET_INCLUDE_DIRECTORIES(tests PUBLIC ${PROJECT_SOURCE_DIR}/include)
+find_package(MPI REQUIRED)
+
 
 # add Catch2 cmake scripts to module path to allow automatic
 # test discovery
