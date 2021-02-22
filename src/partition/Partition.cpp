@@ -114,7 +114,7 @@ void Partition::SolvePart2Elem() {
 		_m_Part2ElemStart[part]++;
 	}
 	// // Réorganisation du vecteur d'indexation
-	for (int iPart = _m_nPart + 1; iPart > 0; iPart--) {
+	for (int iPart = _m_nPart; iPart > 0; iPart--) {
 		_m_Part2ElemStart[iPart] = _m_Part2ElemStart[iPart - 1];
 	}
 	_m_Part2ElemStart[0] = 0;
@@ -201,11 +201,13 @@ void Partition::SolveBorder() {
 		for (int iElemLoc = 0; iElemLoc < finE - debutE; iElemLoc++) {
 			int iElemGlob = _m_Part2Elem[debutE + iElemLoc];
 			// Parcours des voisins de iElemGlob
-			int debutV = _m_meshGlobal->GetElement2ElementStart()[iElemGlob];
-			int finV = _m_meshGlobal->GetElement2ElementStart()[iElemGlob + 1];
-			for (int elemGlobj = debutV; elemGlobj < finV; elemGlobj++) {
+			int size;
+			int* elem2elem = _m_meshGlobal->GetElement2ElementID(iElemGlob, size);
+			// int debutV = _m_meshGlobal->GetElement2ElementStart()[iElemGlob];
+			// int finV = _m_meshGlobal->GetElement2ElementStart()[iElemGlob + 1];
+			for (int elemGlobj = 0; elemGlobj < size; elemGlobj++) {
 				// Récupération de l'élément voisin
-				int jElemGlob = _m_meshGlobal->GetElement2Element()[elemGlobj];
+				int jElemGlob = elem2elem[elemGlobj];
 				if (jElemGlob < NELEM)// Element interne du maillage global
 				{
 					// Vérifier si l'élément est dans la partition
@@ -233,13 +235,6 @@ void Partition::SolveBorder() {
 	}
 	return;
 }
-
-// int Partition::Local2GlobalNode(int localNodeID, int partID){
-//     int start = _m_localNode2GlobalStart[partID];
-//     int globalID = _m_localNode2Global[start+localNodeID];
-//     return globalID;
-// }
-
 
 void Partition::Write(const std::string &SU2OuputPath) {
 	std::cout << std::string(24, '#') << "  Partitionning  " << std::string(24, '#') << "\n\n"
