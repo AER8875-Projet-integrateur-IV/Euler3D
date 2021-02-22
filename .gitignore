@@ -5,6 +5,7 @@ cmake-build-minsizerel
 cmake-build-release
 cmake-build-relwithdebinfo
 .idea
+ONERAM6_582K.su2
 #general build folders
 bin
 build

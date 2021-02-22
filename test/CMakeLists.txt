@@ -10,8 +10,9 @@ set(TEST_SOURCE
     Test_SU2Mesh.cpp
     Test_Element.cpp
     Test_PhysicalBCPartition.cpp
+    Test_Connectivity.cpp
 )
-# Add subdirectories 
+# Add subdirectories
 
 
 ###############################################
@@ -24,16 +25,16 @@ add_subdirectory(extern/Catch2)
 add_executable(tests ${TEST_SOURCE})
 
 target_link_libraries(tests Catch2::Catch2 
+                            Mesh
                             Parser 
+                            Connectivity
                             Parallel_tools
                             Partition)
 
 
-IF(COMPILE_ON_TRAVIS)
-    TARGET_INCLUDE_DIRECTORIES(tests PUBLIC ${PROJECT_SOURCE_DIR}/mpich/include)
-ENDIF()
 
 target_link_libraries(tests MPI::MPI_CXX)
+
 TARGET_INCLUDE_DIRECTORIES(tests PUBLIC ${PROJECT_SOURCE_DIR}/include)
 TARGET_INCLUDE_DIRECTORIES(tests PUBLIC ${PROJECT_SOURCE_DIR}/extern)
 find_package(MPI REQUIRED)

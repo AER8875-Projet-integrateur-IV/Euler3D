@@ -29,6 +29,8 @@ int main(int argc, char *argv[]) {
 
     spdlog::stopwatch meshsw;  
     E3D::Mesh mesh(fileName);
+
+    mesh.solveConnectivity();
     logObject->debug("Mesh parser run time {}", meshsw); 
     
     int nPart = 5;
