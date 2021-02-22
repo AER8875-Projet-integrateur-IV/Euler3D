@@ -6,6 +6,7 @@
 #include "mesh/Mesh.hpp"
 #include "parallelization/MPIHandler.hpp"
 #include "parser/SimConfig.hpp"
+#include "mesh/Metrics.hpp"
 using namespace E3D;
 
 int main(int argc, char *argv[]) {
@@ -37,7 +38,7 @@ int main(int argc, char *argv[]) {
 
         printf("Connectivity took %.5f seconds to solve.\n", endConnectivityTimer-startConnectivityTimer);
 	}
-
+    Metrics localMeshMetrics(localmesh,e3d_mpi);
 
 	e3d_mpi.finalize();
 
