@@ -176,8 +176,6 @@ namespace E3D {
 
         // ------------------ Connectivity Info ----------------------
 
-        void solveConnectivity();
-
         inline int GetnFace() const {
             return nFace;
         }
