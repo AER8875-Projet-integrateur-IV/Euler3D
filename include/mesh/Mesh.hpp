@@ -1,8 +1,11 @@
 #pragma once
 
 #include <string>
+#include <memory>
 #include "parser/Element.hpp"
 #include "parser/SU2MeshParser.hpp"
+#include "connectivity/Connectivity.hpp"
+
 
 namespace E3D {
 
@@ -52,8 +55,8 @@ namespace E3D {
 
         /**
          * @brief Get the Boundary Condition Vector object
-         * 
-         * @return const E3D::Parser::BC_Structure 
+         *
+         * @return const E3D::Parser::BC_Structure
          */
         inline const E3D::Parser::BC_Structure& GetBoundaryConditionVector() const {
             return _parser.GetBoundaryElems();
@@ -90,12 +93,105 @@ namespace E3D {
             return _parser.GetTags()[tagID].second;
         }
 
+        inline const std::vector<int> &GetInteriorVTKID() const {
+            return _parser.GetInteriorElementVtkID();
+        }
+
         // ------------------ Connectivity Info ----------------------
 
+        void solveConnectivity();
+
+        inline int GetnFace() const {
+            return nFace;
+        }
+
+        inline int GetnElemTot() const {
+            return nElemTot;
+        }
+
+        /**
+         * @brief get element IDs associated to a node ID
+         * 
+         * @param nodeID 
+         * @param nElem Number of elements arround nodeID
+         * @return int* 
+         */
+        inline int* GetNode2ElementID(int nodeID, int &nElem) const {
+          int starti = node2elementStart.get()[0][nodeID];
+          int endi = node2elementStart.get()[0][nodeID+1];
+          nElem = endi-starti;
+          return node2element.get()[0].data()+starti;
+        }
+
+        /**
+         * @brief get element IDs associated to an other element ID
+         * 
+         * @param elemID 
+         * @param nElem Number of elements arround elemID
+         * @return int* 
+         */
+        inline int* GetElement2ElementID(int elemID, int &nElem) const {
+          int starti = element2elementStart.get()[0][elemID];
+          int endi = element2elementStart.get()[0][elemID+1];
+          nElem = endi-starti;
+          return element2element.get()[0].data()+starti;
+        }        
+
+        /**
+         * @brief get face IDs associated to an element ID
+         * 
+         * @param elemID 
+         * @param nElem Number of faces arround elemID
+         * @return int*  
+         */
+        inline int* GetElement2FaceID(int elemID, int &nElem) const {
+          int starti = element2faceStart.get()[0][elemID];
+          int endi = element2faceStart.get()[0][elemID+1];
+          nElem = endi-starti;
+          return element2face.get()[0].data()+starti;
+        }    
+
+        /**
+         * @brief get node IDs associated to a face ID
+         * 
+         * @param faceID 
+         * @param nNode Number of nodes arround faceID
+         * @return int*  
+         */
+        inline int* GetFace2NodeID(int faceID, int &nNode) const {
+          int starti = face2nodeStart.get()[0][faceID];
+          int endi = face2nodeStart.get()[0][faceID+1];
+          nNode = endi-starti;
+          return face2node.get()[0].data()+starti;
+        }   
+
+        /**
+         * @brief get element IDs associated to a face ID
+         * 
+         * @param faceID 
+         * @return int*  
+         */
+        inline const int* GetFace2ElementID(int faceID) const {
+          int starti = faceID*2;
+          return face2node.get()[0].data()+starti;
+        }  
 
     private:
         Parser::SU2MeshParser _parser;
         std::vector<int> _connectivity;
+        // variable calculees et assignees par connectivity
+        int nFace;
+        int nElemTot;
+        std::unique_ptr<std::vector<int>>  node2element;
+        std::unique_ptr<std::vector<int>>  node2elementStart;
+        std::unique_ptr<std::vector<int>>  element2element;
+        std::unique_ptr<std::vector<int>>  element2elementStart;
+        std::unique_ptr<std::vector<int>>  element2face;
+        std::unique_ptr<std::vector<int>>  element2faceStart ;
+        std::unique_ptr<std::vector<int>>  face2element;
+        std::unique_ptr<std::vector<int>>  face2nodeStart;
+        std::unique_ptr<std::vector<int>>  face2node;
+        Connectivity connectivityObj;
     };
 
 }
