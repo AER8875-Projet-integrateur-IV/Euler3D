@@ -6,12 +6,6 @@
 #include "parallelization/MPIHandler.hpp"
 #include "parser/MeshPartition.hpp"
 #include "parser/SimConfig.hpp"
-<<<<<<< HEAD
-#include "solver/SolverLoop.hpp"
-
-int main(int argc, char* argv[]){
-=======
->>>>>>> c61d077ea18a1bc8325086394072324464a6c7a8
 
 using namespace E3D;
 
@@ -26,15 +20,6 @@ int main(int argc, char *argv[]) {
             exit(EXIT_FAILURE);
         }
     }
-<<<<<<< HEAD
-    
-    std::string configFile = argv[1];
-    E3D::Parser::SimConfig config(configFile);
-    config.printInfo();
-
-    // Initialize problem
-    E3D::Solver::SolverLoop simulation;
-=======
     MPI_Barrier(MPI_COMM_WORLD);
 
     // Parsing Config file
@@ -52,6 +37,5 @@ int main(int argc, char *argv[]) {
     e3d_mpi.finalize();
 
 
->>>>>>> c61d077ea18a1bc8325086394072324464a6c7a8
     return 0;
 }
