@@ -3,6 +3,7 @@
 #include <vector>
 #include "solver/FlowField.hpp"
 #include "solver/UpdateBC.hpp"
+#include "parser/SimConfig.hpp"
 
 namespace E3D::Solver{
   class SolverLoop{
