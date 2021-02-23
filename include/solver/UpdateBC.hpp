@@ -2,6 +2,7 @@
 #include "solver/FlowField.hpp"
 #include "parser/SimConfig.hpp"
 #include <cmath>
+#include <vector>
 
 namespace E3D::Solver {
     
@@ -11,7 +12,7 @@ namespace E3D::Solver {
     void UpdateProcess(int elemID);
 
     // Farfield Supersonic Inflow
-    void FarfieldSupersonicInflow(E3D::Parser::SimConfig &sim, E3D::Solver::W& Winf);
+    std::vector<double> FarfieldSupersonicInflow(E3D::Solver::W& Winf);
 
     // Farfield Supersonic Outflow
     void FarfieldSupersonicOutflow(E3D::Parser::SimConfig &sim);
@@ -27,5 +28,4 @@ namespace E3D::Solver {
 
     // Number of ghost cells around one element
     FlowField Fc(E3D::Parser::SimConfig &sim);
-    int nbGhostCells = 0;
 }

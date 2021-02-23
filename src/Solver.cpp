@@ -42,7 +42,8 @@ int main(int argc, char *argv[]) {
     Solver::FlowField SimResults(config);
     SimResults.PrintTest();
 
-    Solver::SolverLoop MainLoop();
+    Solver::SolverLoop MainLoop(SimResults);
+    // MainLoop.Run();
 
     return 0;
 }

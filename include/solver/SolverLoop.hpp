@@ -10,6 +10,7 @@ namespace E3D::Solver{
   public:
 
     SolverLoop(E3D::Solver::FlowField& FieldResults);
+    ~SolverLoop();
 
     inline const std::vector<double> GetdeltaW() const {return this->_deltaW; }
     inline const std::vector<double> GetdeltaT() const {return this->_deltaT; }
@@ -21,7 +22,7 @@ namespace E3D::Solver{
 
     // Variables
     E3D::Solver::W* m_W; // Array containing all the W for every element including ghost cells
-
+    E3D::Solver::W Winf;
 
   private:
     std::vector<double> _deltaW;

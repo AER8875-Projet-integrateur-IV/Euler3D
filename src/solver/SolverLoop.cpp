@@ -10,7 +10,18 @@ SolverLoop::SolverLoop(E3D::Solver::FlowField &FieldResults){
 
     // Initialize W array
     int nElemTotal = 10;
-    m_W = new W[nElemTotal];   
+    m_W = new W[nElemTotal];
+}
+
+SolverLoop::~SolverLoop(){
+    delete[] m_W;
+}
+
+// Run the solver
+void Run(){
+
+    // Update boundary conditions
+    // E3D::Solver::SolverLoop UpdateBC();
 }
 
 // Update boundary conditions at every iterations.
@@ -25,6 +36,8 @@ void SolverLoop::UpdateBC(){
         if (nElemBC = 0)
         {
             /* Insert multiple "if" "else" condition to know what is the BC */
+            // std::vector<double> W_BC = E3D::Solver::FarfieldSupersonicInflow(Winf);
+            // std::cout << W_BC[0] << "\n";
         }
         else if (nElemBC != 0)
         {
