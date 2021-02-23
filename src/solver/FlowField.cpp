@@ -8,6 +8,6 @@ FlowField::FlowField(E3D::Parser::SimConfig &config){
 }
 
 void FlowField::PrintTest() {
-    std::cout << "hi" << "\n";
+    std::cout << "hello" << "\n";
 }
 
