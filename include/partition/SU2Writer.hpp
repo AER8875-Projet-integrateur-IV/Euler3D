@@ -7,23 +7,21 @@
  * 
  */
 #pragma once
-#include <fstream>
 #include "mesh/Mesh.hpp"
 #include "partition/Partition.hpp"
+#include <fstream>
 
-namespace E3D::Partition
-{    
-    const int CONNEC_ELEMENT2NODE = 0;
-    const int CONNEC_MARKER = 1;
+namespace E3D::Partition {
+	const int CONNEC_ELEMENT2NODE = 0;
+	const int CONNEC_MARKER = 1;
 
-    class SU2Writer
-    {
-    private:
-        std::ofstream _m_file;
-        int _m_doublePrecision;
+	class SU2Writer {
+	private:
+		std::ofstream _m_file;
+		int _m_doublePrecision;
 
-    public:
-        /**
+	public:
+		/**
          * @brief Construct a new SU2Writer object
          * 
          * @param path path to the output file
@@ -35,26 +33,28 @@ namespace E3D::Partition
          * @brief Destroy the SU2Writer object
          * 
          */
-        ~SU2Writer();
+		~SU2Writer();
 
-        /**
+		/**
          * @brief Write the whole mesh to file
          * 
          * @param mesh mesh object to be written to file
          */
-        void Write(std::vector<E3D::Parser::Element>& interiorElemVector,
-                    int nDim, std::vector<E3D::Parser::Node>& nodeVector,
-                    E3D::Parser::BC_Structure &bc);
+		void Write(std::vector<E3D::Parser::Element> &interiorElemVector,
+		           int nDim, std::vector<E3D::Parser::Node> &nodeVector,
+		           E3D::Parser::BC_Structure &bc, int nAdjPart,
+		           std::vector<int> &Ninterface_elem,
+		           std::vector<std::vector<int>> &interface_elem);
 
-        /**
+		/**
          * @brief Write the volume elements 2 node connectivity to file
          * 
          * @param elemVector Vector of elements from which the connectivity data
          *                  will be extracted 
          */
-        void WriteElement2Node(std::vector<E3D::Parser::Element>& elemVector);
+		void WriteElement2Node(std::vector<E3D::Parser::Element> &elemVector);
 
-        /**
+		/**
          * @brief Write element 2 node connectivity for a vector of elements
          * 
          * @param elemVector Vector of elements from which the connectivity data
@@ -64,9 +64,9 @@ namespace E3D::Partition
          *                  include E3D::Partition::CONNEC_ELEMENT2NODE or
          *                  E3D::Partition::CONNEC_MARKER
          */
-        void WriteConnec(const std::vector<E3D::Parser::Element>& elemVector, int type);
+		void WriteConnec(const std::vector<E3D::Parser::Element> &elemVector, int type);
 
-        /**
+		/**
          * @brief Write the coordinates of all the node in the input mesh object
          * 
          * @param nDim Number of dimensions in the mesh
@@ -79,9 +79,9 @@ namespace E3D::Partition
          * 
          * @param markers Border condition data as defined in SU2MeshParser.hpp
          */
-        void WriteMarker(E3D::Parser::BC_Structure &markers);
+		void WriteMarker(E3D::Parser::BC_Structure &markers);
 
-        /**
+		/**
          * @brief Write to a file the inter-partition connectivity for the internal 
          *        Border Conditions
          * @details Write the inter-partition connectivity in a non SU2 format,
@@ -93,7 +93,9 @@ namespace E3D::Partition
          *  1       2
          *  2       54
          *  3       34
-         */ 
-        void WriteInternalMarker();
-    };
-}
+         */
+		void WriteInternalMarker(int nAdjPart,
+		                         std::vector<int> &Ninterface_elem,
+		                         std::vector<std::vector<int>> &interface_elem);
+	};
+}// namespace E3D::Partition

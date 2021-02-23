@@ -202,7 +202,7 @@ void Partition::SolveBorder() {
 			int iElemGlob = _m_Part2Elem[debutE + iElemLoc];
 			// Parcours des voisins de iElemGlob
 			int size;
-			int* elem2elem = _m_meshGlobal->GetElement2ElementID(iElemGlob, size);
+			int *elem2elem = _m_meshGlobal->GetElement2ElementID(iElemGlob, size);
 			// int debutV = _m_meshGlobal->GetElement2ElementStart()[iElemGlob];
 			// int finV = _m_meshGlobal->GetElement2ElementStart()[iElemGlob + 1];
 			for (int elemGlobj = 0; elemGlobj < size; elemGlobj++) {
@@ -248,6 +248,7 @@ void Partition::Write(const std::string &SU2OuputPath) {
 	SolveElem2Part();
 	SolvePart2Elem();
 	SolveElem2Node();
+	SolveBorder();
 	for (auto &part : _m_part) {
 		part.SetLocal2GlobalConnectivy(_m_localNode2Global, _m_localNode2GlobalStart);
 	}
@@ -309,8 +310,14 @@ void Partition::WriteSU2(E3D::Partition::SU2Mesh &partition, const std::string &
 		bc.push_back(marker);
 	}
 
+	// Internal Boundary
+	int nAdjPart = 0;
+	for (int iPart = 0; iPart < _m_nPart; iPart++) {
+		nAdjPart += partition.Ninterface[iPart];
+	}
+
 	SU2Writer writer(path);
-	writer.Write(elemVector, partition.NDIM, nodeVector, bc);
+	writer.Write(elemVector, partition.NDIM, nodeVector, bc, nAdjPart, partition.Ninterface_elem, partition.interface_elem);
 }
 
 void Partition::WriteTecplot(const std::string &fileName) {
