@@ -33,17 +33,62 @@ E3D::Metrics::Metrics(const Mesh<Parser::MeshPartition> &localMesh, const Parall
 
 void Metrics::computeFaceMetrics() {
 	const int nFaces = _localMesh.GetnFace();
+	//Temporary Variables
+
+	int temp_nNodesSurrFace;                                    // Number of nodes surrounding face
+	std::vector<Vector3<double>> temp_LocalNodesCoords;         // Hold looped face Node Coordinates
+	double temp_area;                                           // Hold area of the looped face
+	Vector3<double> temp_centroid;                              // hold centroid of looped face
+	Vector3<double> temp_Normal;                                // Hold normal vector of looped face
 
 	//Iterate over all faces
 	for (int iface = 0; iface < nFaces; iface++) {
 
+		// Clear node coordinates for every new face
+		temp_LocalNodesCoords.clear();
+
 		// Search for nodes connected
+		int* p_NodeID = _localMesh.GetFace2NodeID(iface,temp_nNodesSurrFace);
 
-		// Compute face Center
+		// Reserve depending on number of nodes surrounding face
+		temp_LocalNodesCoords.reserve(temp_nNodesSurrFace);
 
-		// Compute face Surface
+		// populate LocalNodesCoords variable
+		for(int localNodeID=0;localNodeID<temp_nNodesSurrFace;localNodeID++){
 
-		// Compute face normal
+			E3D::Parser::Node temp_coords = _localMesh.GetNodeCoord(p_NodeID[localNodeID]);
+			temp_LocalNodesCoords.emplace_back(temp_coords.getX(),temp_coords.getY(),temp_coords.getZ());
+		}
+
+		// if triangle
+		if (temp_nNodesSurrFace == 3){
+
+			//Compute face center
+            temp_centroid = (temp_LocalNodesCoords[0] + temp_LocalNodesCoords[1] + temp_LocalNodesCoords[2]) * 0.3333333 ;// Multiplication cheaper than divison
+
+			// Compute face Area
+			// TODO Change formulation from 2D TO 3D
+			temp_area =  0.5 * std::abs((temp_LocalNodesCoords[0].x - temp_LocalNodesCoords[1].x) * (temp_LocalNodesCoords[0].y + temp_LocalNodesCoords[1].y) +
+                                        (temp_LocalNodesCoords[1].x - temp_LocalNodesCoords[2].x) * (temp_LocalNodesCoords[1].y + temp_LocalNodesCoords[2].y) +
+                                        (temp_LocalNodesCoords[2].x - temp_LocalNodesCoords[0].x) * (temp_LocalNodesCoords[2].y + temp_LocalNodesCoords[0].y));
+
+			// compute face normal vector
+
+
+
+		}
+
+		// if Quad
+		else if (temp_nNodesSurrFace == 4){
+
+			// Compute face center
+            temp_centroid = (temp_LocalNodesCoords[0] + temp_LocalNodesCoords[1] + temp_LocalNodesCoords[2] + temp_LocalNodesCoords[4]) * 0.25 ;
+
+			// Compute face Area
+
+			//Compute face normal Vector
+		}
+
 	}
 }
 

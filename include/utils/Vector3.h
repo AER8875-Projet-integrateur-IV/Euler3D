@@ -23,7 +23,7 @@ namespace E3D {
         T x, y, z;
 
 		Vector3() : x(0), y(0), z(0) {}
-		Vector3(T x, T y, T z) : x(x), y(y), z(0) {}
+		Vector3(T x, T y, T z) : x(x), y(y), z(z) {}
 
         //Copy constructor
 		Vector3(const Vector3 &v) : x(v.x), y(v.y), z(v.z) {}
