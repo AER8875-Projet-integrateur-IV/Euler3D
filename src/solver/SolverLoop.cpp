@@ -6,7 +6,11 @@ SolverLoop::SolverLoop(){
 
     std::cout << "\n"
             << "Starting solving process"
-            << "\n";    
+            << "\n";
+
+    // Initialize W array
+    int nElemTotal = 10;
+    m_W = new W[nElemTotal];   
 }
 
 // Update boundary conditions at every iterations.

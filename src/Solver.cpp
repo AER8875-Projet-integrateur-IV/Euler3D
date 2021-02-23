@@ -7,6 +7,7 @@
 #include "parser/MeshPartition.hpp"
 #include "parser/SimConfig.hpp"
 #include "solver/FlowField.hpp"
+#include "solver/SolverLoop.hpp"
 
 using namespace E3D;
 
@@ -38,8 +39,10 @@ int main(int argc, char *argv[]) {
     e3d_mpi.finalize();
 
     // Solver related features
-    Solver::FlowField Simulation(config);
-    Simulation.PrintTest();
+    Solver::FlowField SimResults(config);
+    SimResults.PrintTest();
+
+    Solver::SolverLoop MainLoop();
 
     return 0;
 }

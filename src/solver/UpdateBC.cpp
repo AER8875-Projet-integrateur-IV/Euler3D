@@ -22,9 +22,5 @@ void UpdateProcess(int elemID){
 }
 
 void FarfieldSupersonicInflow(E3D::Parser::SimConfig &sim, E3D::Solver::W &Winf){
-    E3D::Solver::W WGhostCells = Winf;
-
-    double E = sim.getPressure()/((sim.getGamma()-1)*sim.getDensity())+((sim.getVelocity()*cos(sim.getAoA())*sim.getVelocity()*cos(sim.getAoA())+sim.getVelocity()*sin(sim.getAoA())*sim.getVelocity()*sin(sim.getAoA()))/2);
-    std::cout << E << "\n";
-    
+    E3D::Solver::W WGhostCells = Winf;    
 }

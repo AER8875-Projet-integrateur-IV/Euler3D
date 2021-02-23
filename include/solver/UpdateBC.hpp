@@ -11,7 +11,19 @@ namespace E3D::Solver {
     void UpdateProcess(int elemID);
 
     // Farfield Supersonic Inflow
-    void FarfieldSupersonicInflow(E3D::Parser::SimConfig &sim);
+    void FarfieldSupersonicInflow(E3D::Parser::SimConfig &sim, E3D::Solver::W& Winf);
+
+    // Farfield Supersonic Outflow
+    void FarfieldSupersonicOutflow(E3D::Parser::SimConfig &sim);
+
+    // Farfield Subsonic Inflow
+    void FarfieldSubsonicInflow(E3D::Parser::SimConfig &sim);
+
+    // Farfield Subsonic Outflow
+    void FarfieldSubsonicOutflow(E3D::Parser::SimConfig &sim);
+
+    // Wall
+    void Wall(E3D::Parser::SimConfig &sim);
 
     // Number of ghost cells around one element
     FlowField Fc(E3D::Parser::SimConfig &sim);

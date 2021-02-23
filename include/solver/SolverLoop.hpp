@@ -19,6 +19,10 @@ namespace E3D::Solver{
 
     void Run();
 
+    // Variables
+    E3D::Solver::W* m_W; // Array containing all the W for every element including ghost cells
+
+
   private:
     std::vector<double> _deltaW;
     std::vector<double> _deltaT;
