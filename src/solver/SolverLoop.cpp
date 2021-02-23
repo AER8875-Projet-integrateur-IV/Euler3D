@@ -2,7 +2,7 @@
 
 using namespace E3D::Solver;
 
-SolverLoop::SolverLoop(){
+SolverLoop::SolverLoop(E3D::Solver::FlowField &FieldResults){
 
     std::cout << "\n"
             << "Starting solving process"

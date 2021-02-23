@@ -9,7 +9,7 @@ namespace E3D::Solver{
   class SolverLoop{
   public:
 
-    SolverLoop();
+    SolverLoop(E3D::Solver::FlowField& FieldResults);
 
     inline const std::vector<double> GetdeltaW() const {return this->_deltaW; }
     inline const std::vector<double> GetdeltaT() const {return this->_deltaT; }
