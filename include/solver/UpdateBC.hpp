@@ -14,6 +14,6 @@ namespace E3D::Solver {
     void FarfieldSupersonicInflow(E3D::Parser::SimConfig &sim);
 
     // Number of ghost cells around one element
-    FlowField Fc;
+    FlowField Fc(E3D::Parser::SimConfig &sim);
     int nbGhostCells = 0;
 }

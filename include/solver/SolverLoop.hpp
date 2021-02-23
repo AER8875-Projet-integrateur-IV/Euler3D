@@ -2,6 +2,7 @@
 
 #include <vector>
 #include "solver/FlowField.hpp"
+#include "solver/UpdateBC.hpp"
 
 namespace E3D::Solver{
   class SolverLoop{
@@ -23,7 +24,7 @@ namespace E3D::Solver{
     std::vector<double> _localRes;
     std::vector<double> _convFlux;
     std::vector<double> _err;
-    E3D::Solver::FlowField flowfield;
+    // E3D::Solver::FlowField flowfield;
 
     // Update boundary conditions around mesh
     void UpdateBC();

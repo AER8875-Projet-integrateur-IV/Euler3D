@@ -18,9 +18,11 @@ int FindGhostCells(int elemID, int nbFace){
 
 void UpdateProcess(int elemID){
     // Add if condition to know if ghost cell is physical or if needs MPI communication
+    
 }
 
 void FarfieldSupersonicInflow(E3D::Parser::SimConfig &sim){
     double E = sim.getPressure()/((sim.getGamma()-1)*sim.getDensity())+((sim.getVelocity()*cos(sim.getAoA())*sim.getVelocity()*cos(sim.getAoA())+sim.getVelocity()*sin(sim.getAoA())*sim.getVelocity()*sin(sim.getAoA()))/2);
+    std::cout << E << "\n";
     
 }

@@ -2,14 +2,24 @@
 
 #include <iostream>
 #include <vector>
+#include "parser/SimConfig.hpp"
 
 namespace E3D::Solver
 {
+  struct W {
+    W() : rho(0), rhoU(0), rhoV(0), rhoW(0), rhoE(0) {}
+    double rho;
+    double rhoU;
+    double rhoV;
+    double rhoW;
+    double rhoE;
+  };
+
   class FlowField {
 
   public:
 
-    FlowField();
+    FlowField(E3D::Parser::SimConfig& config);
 
     void PrintTest();
 
