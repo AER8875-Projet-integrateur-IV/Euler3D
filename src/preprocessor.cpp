@@ -27,6 +27,7 @@ int main(int argc, char *argv[]) {
     spdlog::stopwatch meshsw;  
     E3D::Mesh<E3D::Parser::SU2MeshParser> mesh (fileName);
 
+
     mesh.solveConnectivity();
     logObject->debug("Mesh parser run time {}", meshsw); 
     logObject->debug("Total run time {}", globalsw);     
