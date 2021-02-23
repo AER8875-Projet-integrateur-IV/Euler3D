@@ -26,29 +26,15 @@ namespace E3D {
 
 	private:
 		/**
-		 * @brief Compute normal vector of faces and populates member variable FaceNormals
+		 * @brief Compute face metrics by populating member variables _FaceNormals, _FaceCenters and _faceSurfaces
 		 */
-		void computeFaceNormal();
+		void computeFaceMetrics();
 
-		/**
-		 * @brief Compute face surfaces (m^2) and populates member variable FaceSurfaces
-		 */
-		void computeFaceSurfaces();
+        /**
+         * @brief Compute cell metrics by populating member variables _CellVolumes and _CellCentroids
+         */
+		void computeCellMetrics();
 
-		/**
-		 * Compute face center coordinates and populates member variabe FaceCenters
-		 */
-		void computeFaceCenters();
-
-		/**
-        * Compute Element centroid coordinates and populates member variabe CellCentroids
-        */
-		void computeCellCentroids();
-
-		/**
-		 * Compute element volume (m^3) and populates member variable cellVolumes
-		 */
-		void computeCellVolumes();
 
 		const Mesh<Parser::MeshPartition> &_localMesh;
 		std::vector<Vector3<double>> _faceNormals;
