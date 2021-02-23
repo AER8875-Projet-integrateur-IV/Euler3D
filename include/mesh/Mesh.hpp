@@ -57,7 +57,13 @@ namespace E3D {
 
 			connectivityObj.ComputeVTKLinkedLists(GetInteriorVTKID());
 			connectivityObj.SolveNode2element();
-			connectivityObj.SolveElement2Element(GetInteriorVTKID(), GetMeshBoundaryElemCount());
+            if constexpr (std::is_same_v<T, E3D::Parser::MeshPartition>) {
+				int NelemMPI = _parser.getMpiBoundaryElemsCount();
+				connectivityObj.SolveElement2Element(GetInteriorVTKID(), GetMeshBoundaryElemCount() + NelemMPI);
+			}
+			else {
+                connectivityObj.SolveElement2Element(GetInteriorVTKID(), GetMeshBoundaryElemCount());
+			}
 
 
 			// Filling private member variables related to connectivity
@@ -74,6 +80,8 @@ namespace E3D {
 			// IF type of the parser == MeshPartition, print info and do MPI operations
 
 			if constexpr (std::is_same_v<T, E3D::Parser::MeshPartition>) {
+
+
 
 				int totalnumFaces = 0;
 				MPI_Reduce(&connectivityObj._nFace, &totalnumFaces, 1, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
@@ -177,11 +185,11 @@ namespace E3D {
         // ------------------ Connectivity Info ----------------------
 
         inline int GetnFace() const {
-            return nFace;
+            return connectivityObj._nFace;
         }
 
         inline int GetnElemTot() const {
-            return nElemTot;
+            return connectivityObj._nElem;
         }
 
         /**
@@ -255,8 +263,6 @@ namespace E3D {
         T _parser;
         std::vector<int> _connectivity;
         // variable calculees et assignees par connectivity
-        int nFace;
-        int nElemTot;
         std::unique_ptr<std::vector<int>>  node2element;
         std::unique_ptr<std::vector<int>>  node2elementStart;
         std::unique_ptr<std::vector<int>>  element2element;
