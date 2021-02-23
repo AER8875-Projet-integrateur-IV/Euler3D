@@ -10,30 +10,46 @@ E3D::Metrics::Metrics(const Mesh<Parser::MeshPartition> &localMesh, const Parall
 
 	if (e3d_mpi.getRankID() == 0) {
 		std::cout << "\n\n"
-		          << std::string(24, '#') << "  Geometrical Quantites  " << std::string(24, '#') << "\n\n";
-	}
+		          << std::string(24, '#') << "  Geometrical Quantities  " << std::string(24, '#') << "\n\n";
+    }
+
 	double startMetricsTimer = MPI_Wtime();
 
 	int nElem = _localMesh.GetMeshInteriorElemCount();
+	int nFace = _localMesh.GetnFace();
 
 	//Reserve space to avoid copying
-	_faceCenters.reserve(nElem);
-	_faceNormals.reserve(nElem);
+	_faceCenters.reserve(nFace);
+	_faceNormals.reserve(nFace);
 	_cellCentroids.reserve(nElem);
-	_faceSurfaces.reserve(nElem);
+	_faceSurfaces.reserve(nFace);
 	_cellVolumes.reserve(nElem);
 
+	computeFaceMetrics();
 
 	double endMetricsTimer = MPI_Wtime();
 	MPI_Barrier(MPI_COMM_WORLD);
 	if (e3d_mpi.getRankID() == 0) {
 		printf("Computing Metrics took %.5f seconds .\n", endMetricsTimer - startMetricsTimer);
+		for (auto& area : _faceSurfaces){
+			std::cout << area << "\n";
+		}
 	}
 }
+
+// Compute area of a triangle with given to vectors
+double computeTriangleArea(Vector3<double> A, Vector3<double> B) {
+    double lengthProduct = A.length()*B.length();
+    double sinTheta = std::sqrt(1-std::pow(Vector3<double>::dot(A,B)/lengthProduct,2));
+    return 0.5*(lengthProduct)*sinTheta;
+
+}
+
 
 void Metrics::computeFaceMetrics() {
 	const int nFaces = _localMesh.GetnFace();
 	//Temporary Variables
+	std::cout << "Here";
 
 	int temp_nNodesSurrFace;                                    // Number of nodes surrounding face
 	std::vector<Vector3<double>> temp_LocalNodesCoords;         // Hold looped face Node Coordinates
@@ -67,13 +83,13 @@ void Metrics::computeFaceMetrics() {
             temp_centroid = (temp_LocalNodesCoords[0] + temp_LocalNodesCoords[1] + temp_LocalNodesCoords[2]) * 0.3333333 ;// Multiplication cheaper than divison
 
 			// Compute face Area
-			// TODO Change formulation from 2D TO 3D
-			temp_area =  0.5 * std::abs((temp_LocalNodesCoords[0].x - temp_LocalNodesCoords[1].x) * (temp_LocalNodesCoords[0].y + temp_LocalNodesCoords[1].y) +
-                                        (temp_LocalNodesCoords[1].x - temp_LocalNodesCoords[2].x) * (temp_LocalNodesCoords[1].y + temp_LocalNodesCoords[2].y) +
-                                        (temp_LocalNodesCoords[2].x - temp_LocalNodesCoords[0].x) * (temp_LocalNodesCoords[2].y + temp_LocalNodesCoords[0].y));
+
+			Vector3<double> AB = temp_LocalNodesCoords[1] - temp_LocalNodesCoords[0];
+			Vector3<double> AC = temp_LocalNodesCoords[2] - temp_LocalNodesCoords[0];
+			temp_area = computeTriangleArea(AB,AC);
 
 			// compute face normal vector
-
+            temp_Normal = Vector3<double>::crossProduct(AB,AC);
 
 
 		}
@@ -85,9 +101,20 @@ void Metrics::computeFaceMetrics() {
             temp_centroid = (temp_LocalNodesCoords[0] + temp_LocalNodesCoords[1] + temp_LocalNodesCoords[2] + temp_LocalNodesCoords[4]) * 0.25 ;
 
 			// Compute face Area
+            Vector3<double> AB = temp_LocalNodesCoords[1] - temp_LocalNodesCoords[0];
+            Vector3<double> AC = temp_LocalNodesCoords[2] - temp_LocalNodesCoords[0];
+            Vector3<double> AD = temp_LocalNodesCoords[3] - temp_LocalNodesCoords[0];
+
+			temp_area = computeTriangleArea(AB,AC) + computeTriangleArea(AC,AD);
 
 			//Compute face normal Vector
+			temp_Normal = Vector3<double>::crossProduct(AB,AC);         // Normal of one of both triangles == Normal of the quad (if planar surface)
+
+
 		}
+		_faceSurfaces.push_back(temp_area);
+		_faceCenters.push_back(temp_centroid);
+		_faceNormals.push_back(temp_Normal);
 
 	}
 }
@@ -95,10 +122,21 @@ void Metrics::computeFaceMetrics() {
 void Metrics::computeCellMetrics() {
 	const int nElem = _localMesh.GetMeshInteriorElemCount();
 
+    int temp_nNodesSurrCell;                                    // Number of nodes surrounding Cell
+    std::vector<Vector3<double>> temp_LocalNodesCoords;         // Hold looped face Node Coordinates
+    double temp_volume;                                         // Hold Volume of the looped Cell
+    Vector3<double> temp_centroid;                              // hold centroid of looped Cell
+
 	//Iterate over all Volume Elements
 	for (int iElem = 0; iElem < nElem; iElem++) {
 
 		// Search for nodes connected
+
+        // Clear node coordinates for every new face
+        temp_LocalNodesCoords.clear();
+
+        // Search for nodes connected
+
 
 		// Compute cell Centroid
 

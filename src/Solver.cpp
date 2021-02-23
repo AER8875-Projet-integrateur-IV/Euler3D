@@ -4,9 +4,9 @@
 #include <mpi.h>
 
 #include "mesh/Mesh.hpp"
+#include "mesh/Metrics.hpp"
 #include "parallelization/MPIHandler.hpp"
 #include "parser/SimConfig.hpp"
-#include "mesh/Metrics.hpp"
 using namespace E3D;
 
 int main(int argc, char *argv[]) {
@@ -36,9 +36,10 @@ int main(int argc, char *argv[]) {
 	if (e3d_mpi.getRankID() == 0) {
 		double endConnectivityTimer = MPI_Wtime();
 
-        printf("Connectivity took %.5f seconds to solve.\n", endConnectivityTimer-startConnectivityTimer);
+		printf("Connectivity took %.5f seconds to solve.\n", endConnectivityTimer - startConnectivityTimer);
 	}
-    Metrics localMeshMetrics(localmesh,e3d_mpi);
+	Metrics localMeshMetrics(localmesh, e3d_mpi);
+	MPI_Barrier(MPI_COMM_WORLD);
 
 	e3d_mpi.finalize();
 
