@@ -129,6 +129,7 @@ void Partition::SolveElem2Node() {
 	_m_localNode2GlobalStart.push_back(0);
 	_m_nNodePerPart.reserve(_m_nPart);
 	_m_globalElem2Local.assign(NELEM, 0);
+	_m_globalNode2Local.resize(_m_nPart * _m_meshGlobal->GetMeshNodeCount());
 	// Constructuction de la connectivité element vers noeuds de chaque partition
 	for (int iPart = 0; iPart < _m_nPart; iPart++) {
 		// Initialisation du maillage de la partition
@@ -153,6 +154,7 @@ void Partition::SolveElem2Node() {
 				int nodeGlob = _m_elem2Node[iNode];
 				// Identification du noeud local
 				int nodeLoc = Global2Local(iPart, nodeGlob);
+				_m_globalNode2Local[iPart * _m_meshGlobal->GetMeshNodeCount() + nodeGlob] = nodeLoc;
 				// Ajout du noeud local à la connectivité du maillage de la partition
 				iMesh.elem2node.push_back(nodeLoc);
 			}
@@ -184,6 +186,10 @@ int Partition::Global2Local(int &iPart, int &nodeGlobal) {
 	return nLocalNode;
 }
 
+int Partition::globalNode2Local(int GlobNode, int iPart) {
+	return _m_globalNode2Local[_m_meshGlobal->GetMeshNodeCount() * iPart + GlobNode];
+}
+
 void Partition::SolveBorder() {
 	// Initialsation
 	int NELEM = _m_meshGlobal->GetMeshInteriorElemCount();
@@ -191,7 +197,10 @@ void Partition::SolveBorder() {
 		_m_part[iPart].Ninterface.assign(_m_nPart, 0);
 		_m_part[iPart].Ninterface_elem.assign(_m_nPart, 0);
 		_m_part[iPart].interface_elem.resize(_m_nPart);
-		//_m_part[iPart].interface_elemStart.resize(_m_nPart, std::vector<int>(1, 0));
+		_m_part[iPart].interface_elemStart.resize(_m_nPart);
+		for (int jPart = 0; jPart < _m_nPart; jPart++) {
+			_m_part[iPart].interface_elemStart[jPart].push_back(0);
+		}
 	}
 	// Calcul des interfaces entre les partitions
 	for (int iPart = 0; iPart < _m_nPart; iPart++) {
@@ -225,6 +234,33 @@ void Partition::SolveBorder() {
 
 						_m_part[jPart].interface_elem[iPart].push_back(_m_globalElem2Local[jElemGlob]);
 						_m_part[jPart].interface_elem[iPart].push_back(iElemLoc);
+
+						// Face frontière
+						int nFaces;
+						int idVTK(7);// Polygon
+						int *faces = _m_meshGlobal->GetElement2FaceID(iElemGlob, nFaces);
+						for (int iFace = 0; iFace < nFaces; iFace++) {
+							int *elem = _m_meshGlobal->GetFace2ElementID(faces[iFace]);
+							if ((elem[0] == jElemGlob) || (elem[1] == jElemGlob)) {
+								int nNode;
+								int *nodes = _m_meshGlobal->GetFace2NodeID(faces[iFace], nNode);
+								_m_part[iPart].interface_elemStart[jPart].push_back(_m_part[iPart].interface_elemStart[jPart].back() + 3 + nNode);
+								_m_part[jPart].interface_elemStart[iPart].push_back(_m_part[jPart].interface_elemStart[iPart].back() + 3 + nNode);
+								if (nNode == 4) {// Quad
+									idVTK = 9;
+								} else if (nNode == 3) {// Triangle
+									idVTK = 5;
+								}
+								_m_part[iPart].interface_elem[jPart].push_back(idVTK);
+								_m_part[jPart].interface_elem[iPart].push_back(idVTK);
+								for (int iNode = 0; iNode < nNode; iNode++) {
+
+									_m_part[iPart].interface_elem[jPart].push_back(globalNode2Local(nodes[iNode], iPart));
+									_m_part[jPart].interface_elem[iPart].push_back(globalNode2Local(nodes[iNode], jPart));
+								}
+								break;
+							}
+						}
 					}
 				} else// Condition Limite du maillage global
 				{
@@ -317,7 +353,7 @@ void Partition::WriteSU2(E3D::Partition::SU2Mesh &partition, const std::string &
 	}
 
 	SU2Writer writer(path);
-	writer.Write(elemVector, partition.NDIM, nodeVector, bc, nAdjPart, partition.Ninterface_elem, partition.interface_elem);
+	writer.Write(elemVector, partition.NDIM, nodeVector, bc, nAdjPart, partition.Ninterface_elem, partition.interface_elem, partition.interface_elemStart);
 }
 
 void Partition::WriteTecplot(const std::string &fileName) {

@@ -30,7 +30,8 @@ void SU2Writer::Write(std::vector<E3D::Parser::Element> &interiorElemVector,
                       int nDim, std::vector<E3D::Parser::Node> &nodeVector,
                       E3D::Parser::BC_Structure &bc, int nAdjPart,
                       std::vector<int> &Ninterface_elem,
-                      std::vector<std::vector<int>> &interface_elem) {
+                      std::vector<std::vector<int>> &interface_elem,
+                      std::vector<std::vector<int>> &interface_elemStart) {
 	_m_file << "%\n"
 	        << "% Problem dimension\n"
 	        << "%\n"
@@ -38,7 +39,7 @@ void SU2Writer::Write(std::vector<E3D::Parser::Element> &interiorElemVector,
 	this->WriteElement2Node(interiorElemVector);
 	this->WriteCoord(nodeVector);
 	this->WriteMarker(bc);
-	this->WriteInternalMarker(nAdjPart, Ninterface_elem, interface_elem);
+	this->WriteInternalMarker(nAdjPart, Ninterface_elem, interface_elem, interface_elemStart);
 }
 
 void SU2Writer::WriteElement2Node(std::vector<E3D::Parser::Element> &elemVector) {
@@ -101,7 +102,8 @@ void SU2Writer::WriteMarker(E3D::Parser::BC_Structure &markers) {
 
 void SU2Writer::WriteInternalMarker(int nAdjPart,
                                     std::vector<int> &Ninterface_elem,
-                                    std::vector<std::vector<int>> &interface_elem) {
+                                    std::vector<std::vector<int>> &interface_elem,
+                                    std::vector<std::vector<int>> &interface_elemStart) {
 	_m_file << "%\n"
 	        << "% Internal Boundary elements\n"
 	        << "%\n";
@@ -111,8 +113,10 @@ void SU2Writer::WriteInternalMarker(int nAdjPart,
 			_m_file << "INTERNAL_MARKER= " << iPart << "\n";
 			_m_file << "NELEM_MPI= " << Ninterface_elem[iPart] << "\n";
 			for (int iIntElem = 0; iIntElem < Ninterface_elem[iPart]; iIntElem++) {
-				_m_file << std::setw(10) << interface_elem[iPart][2 * iIntElem];
-				_m_file << std::setw(10) << interface_elem[iPart][2 * iIntElem + 1] << "\n";
+				for (int i = interface_elemStart[iPart][iIntElem]; i < interface_elemStart[iPart][iIntElem + 1]; i++) {
+					_m_file << std::setw(10) << interface_elem[iPart][i];
+				}
+				_m_file << "\n";
 			}
 		}
 	}

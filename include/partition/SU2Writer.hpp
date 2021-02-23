@@ -44,7 +44,8 @@ namespace E3D::Partition {
 		           int nDim, std::vector<E3D::Parser::Node> &nodeVector,
 		           E3D::Parser::BC_Structure &bc, int nAdjPart,
 		           std::vector<int> &Ninterface_elem,
-		           std::vector<std::vector<int>> &interface_elem);
+		           std::vector<std::vector<int>> &interface_elem,
+		           std::vector<std::vector<int>> &interface_elemStart);
 
 		/**
          * @brief Write the volume elements 2 node connectivity to file
@@ -96,6 +97,7 @@ namespace E3D::Partition {
          */
 		void WriteInternalMarker(int nAdjPart,
 		                         std::vector<int> &Ninterface_elem,
-		                         std::vector<std::vector<int>> &interface_elem);
+		                         std::vector<std::vector<int>> &interface_elem,
+		                         std::vector<std::vector<int>> &interface_elemStart);
 	};
 }// namespace E3D::Partition
