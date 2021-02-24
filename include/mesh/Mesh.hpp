@@ -179,6 +179,8 @@ namespace E3D {
     private:
         Parser::SU2MeshParser _parser;
         std::vector<int> _connectivity;
+        int nFace;
+        int nElemTot;
         // variable calculees et assignees par connectivity
         std::unique_ptr<std::vector<int>>  node2element;
         std::unique_ptr<std::vector<int>>  node2elementStart;
