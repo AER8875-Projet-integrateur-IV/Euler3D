@@ -1,6 +1,7 @@
 #pragma once
 #include "solver/FlowField.hpp"
 #include "parser/SimConfig.hpp"
+#include "solver/W.hpp"
 #include <cmath>
 #include <vector>
 

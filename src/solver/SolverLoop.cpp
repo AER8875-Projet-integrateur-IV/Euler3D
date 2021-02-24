@@ -13,6 +13,7 @@ E3D::SolverLoop::SolverLoop(FlowField &FieldResults){
     m_W.reserve(nElemTotal);
 
     // Initialize Winf object
+        // Will have to be changed to match the initialization variables
     Winf.rho = 1;
     Winf.rhoE = 2;
     Winf.rhoU = 3;

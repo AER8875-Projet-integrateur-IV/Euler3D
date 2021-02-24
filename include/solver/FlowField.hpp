@@ -7,14 +7,6 @@
 
 namespace E3D
 {
-  struct W {
-    W() : rho(0), rhoU(0), rhoV(0), rhoW(0), rhoE(0) {}
-    double rho;
-    double rhoU;
-    double rhoV;
-    double rhoW;
-    double rhoE;
-  };
 
   class FlowField {
 
