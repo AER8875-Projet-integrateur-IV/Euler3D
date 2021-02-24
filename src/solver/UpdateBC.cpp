@@ -24,16 +24,12 @@ void E3D::BC::UpdateProcess(int elemID){
 }
 
 E3D::W E3D::BC::FarfieldSupersonicInflow(E3D::W &Winf){
-    std::array<double,5> W_BC;
-    W_BC[0] = Winf.rho;
-    W_BC[1] = Winf.rhoU;
-    W_BC[2] = Winf.rhoV;
-    W_BC[3] = Winf.rhoW;
-    W_BC[4] = Winf.rhoE;
+
+    E3D::W W_BC;
+    W_BC = Winf;
 
     //return W_BC;
-	E3D::W A;
-	return A ;
+	return W_BC;
 }
 
 std::vector<double> E3D::BC::FarfieldSupersonicOutflow(E3D::W &W_elem){

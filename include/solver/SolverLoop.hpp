@@ -4,6 +4,7 @@
 #include "solver/FlowField.hpp"
 #include "solver/UpdateBC.hpp"
 #include "parser/SimConfig.hpp"
+#include <iostream>
 
 namespace E3D {
   class SolverLoop{

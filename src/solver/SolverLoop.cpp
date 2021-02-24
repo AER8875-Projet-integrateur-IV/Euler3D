@@ -12,6 +12,13 @@ E3D::SolverLoop::SolverLoop(FlowField &FieldResults){
     std::vector<E3D::W> m_W;
     m_W.reserve(nElemTotal);
 
+    // Initialize Winf object
+    Winf.rho = 1;
+    Winf.rhoE = 2;
+    Winf.rhoU = 3;
+    Winf.rhoV = 4;
+    Winf.rhoW = 5;
+
 }
 
 // Update boundary conditions at every iterations.
@@ -27,7 +34,6 @@ void E3D::SolverLoop::BC_Update(){
         {
             /* Insert multiple "if" "else" condition to know what is the BC */
             E3D::W W_BC = E3D::BC::FarfieldSupersonicInflow(Winf);
-            // std::cout << W_BC[0] << "\n";
         }
         else if (nElemBC != 0)
         {

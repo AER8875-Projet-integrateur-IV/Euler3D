@@ -37,10 +37,10 @@ int main(int argc, char *argv[]) {
 
     // Solver related features
     FlowField SimResults(config);
-    SimResults.PrintTest();
+    // SimResults.PrintTest();
 
     SolverLoop MainLoop(SimResults);
-    // MainLoop.Run();
+    MainLoop.Run();
 
 
     e3d_mpi.finalize();
