@@ -32,9 +32,6 @@ E3D::Metrics::Metrics(const Mesh<Parser::MeshPartition> &localMesh, const Parall
 	MPI_Barrier(MPI_COMM_WORLD);
 	if (e3d_mpi.getRankID() == 0) {
 		printf("Computing Metrics took %.5f seconds .\n", endMetricsTimer - startMetricsTimer);
-		for (auto &area : _cellVolumes) {
-			std::cout << area << "\n";
-		}
 	}
 }
 
@@ -122,9 +119,7 @@ void Metrics::computeFaceMetrics() {
 void Metrics::computeCellMetrics() {
 	const int nElem = _localMesh.GetMeshInteriorElemCount();
 
-	int temp_nNodesSurrCell;                           // Number of nodes surrounding Cell
 	std::vector<Vector3<double>> temp_LocalNodesCoords;// Hold looped face Node Coordinates
-	double temp_volume;                                // Hold Volume of the looped Cell
 	Vector3<double> temp_centroid;                     // hold centroid of looped Cell
 
 
@@ -137,7 +132,6 @@ void Metrics::computeCellMetrics() {
 		temp_LocalNodesCoords.clear();
 
 		// Search for nodes connected
-		int temp_vtkID = _localMesh.GetInteriorVTKID()[iElem];
 		std::vector<int> temp_localNodes = _localMesh.GetInteriorElement(iElem).getElemNodes();
 
 		temp_LocalNodesCoords.reserve(temp_localNodes.size());
@@ -157,7 +151,6 @@ void Metrics::computeCellMetrics() {
 		Vector3<double> centroid_numerator(0, 0, 0);// Formulas for the computation of faces and centroids
 		double centroid_denominator = 0;            // are taken from Blazek's CFD Principles and Applications Pages 129 and 130
 		double temp_volume = 0;
-		double temp_area = 0;
 
 		Vector3<double> cellCenter = std::accumulate(temp_LocalNodesCoords.begin(),
 		                                             temp_LocalNodesCoords.end(),
@@ -188,13 +181,13 @@ void Metrics::computeCellMetrics() {
 
 
             // Compute Cell Volume
-			temp_area += Vector3<double>::dot(faceCenter, faceNormalVector) * 0.33333333;
+			temp_volume += Vector3<double>::dot(faceCenter, faceNormalVector) * 0.33333333;
 
 		}
 
 		temp_centroid = centroid_numerator / centroid_denominator;
 
 		_cellCentroids.push_back(temp_centroid);
-		_cellVolumes.push_back(temp_area);
+		_cellVolumes.push_back(temp_volume);
 	}
 }
