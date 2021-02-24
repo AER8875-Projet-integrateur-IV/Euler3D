@@ -5,7 +5,7 @@
 
     // Function to find the number of ghost cells around on element
         // Needs the element's ID 
-int FindGhostCells(int elemID, int nbFace){
+int E3D::BC::FindGhostsCells(int elemID, int nbFace){
     int nbGhostCells = 0;
     
     for (int i = 0; i < nbFace; i++){
@@ -18,12 +18,12 @@ int FindGhostCells(int elemID, int nbFace){
     return nbGhostCells;
 };
 
-void UpdateProcess(int elemID){
+void E3D::BC::UpdateProcess(int elemID){
     // Add if condition to know if ghost cell is physical or if needs MPI communication
     
 }
 
- E3D::Solver::W FarfieldSupersonicInflow(E3D::Solver::W &Winf){
+E3D::W E3D::BC::FarfieldSupersonicInflow(E3D::W &Winf){
     std::array<double,5> W_BC;
     W_BC[0] = Winf.rho;
     W_BC[1] = Winf.rhoU;
@@ -32,11 +32,11 @@ void UpdateProcess(int elemID){
     W_BC[4] = Winf.rhoE;
 
     //return W_BC;
-	E3D::Solver::W A;
+	E3D::W A;
 	return A ;
 }
 
-std::vector<double> FarfieldSupersonicOutflow(E3D::Solver::W &W_elem){
+std::vector<double> E3D::BC::FarfieldSupersonicOutflow(E3D::W &W_elem){
     std::array<double,5> W_BC;
     W_BC[0] = W_elem.rho;
     W_BC[1] = W_elem.rhoU;
@@ -45,7 +45,7 @@ std::vector<double> FarfieldSupersonicOutflow(E3D::Solver::W &W_elem){
     W_BC[4] = W_elem.rhoE;
 }
 
-std::vector<double> FarfieldSubsonicInflow(E3D::Parser::SimConfig& sim, E3D::Solver::W& W_elem, E3D::Solver::W& Winf){
+std::vector<double> E3D::BC::FarfieldSubsonicInflow(E3D::Parser::SimConfig& sim, E3D::W& W_elem, E3D::W& Winf){
     double nx = 1;
     double ny = 1;
     double nz = 1;

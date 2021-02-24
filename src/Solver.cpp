@@ -36,10 +36,10 @@ int main(int argc, char *argv[]) {
     MPI_Barrier(MPI_COMM_WORLD);
 
     // Solver related features
-    Solver::FlowField SimResults(config);
+    FlowField SimResults(config);
     SimResults.PrintTest();
 
-    Solver::SolverLoop MainLoop(SimResults);
+    SolverLoop MainLoop(SimResults);
     // MainLoop.Run();
 
 

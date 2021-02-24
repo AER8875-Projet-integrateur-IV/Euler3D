@@ -5,7 +5,7 @@
 #include "parser/SimConfig.hpp"
 //#include "solver/SolverLoop.hpp"
 
-namespace E3D::Solver
+namespace E3D
 {
   struct W {
     W() : rho(0), rhoU(0), rhoV(0), rhoW(0), rhoE(0) {}

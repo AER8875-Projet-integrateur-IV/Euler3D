@@ -12,7 +12,7 @@ add_subdirectory(connectivity)
 
 ADD_EXECUTABLE(E3D_PRE preprocessor.cpp )
 target_include_directories(E3D_PRE PUBLIC ../include ../extern)
-target_link_libraries(E3D_PRE PUBLIC Parser Mesh Utils Connectivity)
+target_link_libraries(E3D_PRE PUBLIC Parser Mesh Solver Utils Connectivity)
 
 ADD_EXECUTABLE(E3D_Solver Solver.cpp)
 target_include_directories(E3D_Solver PUBLIC ../include)

@@ -5,11 +5,11 @@
 #include "solver/UpdateBC.hpp"
 #include "parser/SimConfig.hpp"
 
-namespace E3D::Solver{
+namespace E3D {
   class SolverLoop{
   public:
 
-    SolverLoop(E3D::Solver::FlowField& FieldResults);
+    SolverLoop(E3D::FlowField& FieldResults);
 
     inline const std::vector<double> GetdeltaW() const {return this->_deltaW; }
     inline const std::vector<double> GetdeltaT() const {return this->_deltaT; }
@@ -33,8 +33,8 @@ namespace E3D::Solver{
     // E3D::Solver::FlowField flowfield;
 
       // Variables
-      E3D::Solver::W m_W; // Array containing all the W for every element including ghost cells
-      E3D::Solver::W Winf;
+      E3D::W m_W; // Array containing all the W for every element including ghost cells
+      E3D::W Winf;
 
     // Calculate variables errors using "root mean square" method
     void RMS();

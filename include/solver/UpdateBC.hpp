@@ -4,7 +4,7 @@
 #include <cmath>
 #include <vector>
 
-namespace E3D::Solver::BC {
+namespace E3D::BC {
     
     int FindGhostsCells(int elemID, int nbFace);    // Looping over the faces of the element and finding the ghosts cells
 
@@ -12,13 +12,13 @@ namespace E3D::Solver::BC {
     void UpdateProcess(int elemID);
 
     // Farfield Supersonic Inflow
-    Solver::W FarfieldSupersonicInflow(E3D::Solver::W& Winf);
+    E3D::W FarfieldSupersonicInflow(E3D::W& Winf);
 
     // Farfield Supersonic Outflow
-    std::vector<double> FarfieldSupersonicOutflow(E3D::Solver::W& W_elem);
+    std::vector<double> FarfieldSupersonicOutflow(E3D::W& W_elem);
 
     // Farfield Subsonic Inflow
-    std::vector<double> FarfieldSubsonicInflow(E3D::Parser::SimConfig& sim, E3D::Solver::W& W_elem, E3D::Solver::W& Winf);    // Will also need to include the metrics
+    std::vector<double> FarfieldSubsonicInflow(E3D::Parser::SimConfig& sim, E3D::W& W_elem, E3D::W& Winf);    // Will also need to include the metrics
 
     // Farfield Subsonic Outflow
     void FarfieldSubsonicOutflow(E3D::Parser::SimConfig &sim);
