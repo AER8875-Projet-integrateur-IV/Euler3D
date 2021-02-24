@@ -8,8 +8,7 @@ set(TEST_SOURCE
     Test_Catch.cpp
     Test_Parser.cpp
     Test_Connectivity.cpp
-
-)
+        )
 # Add subdirectories
 
 # add_subdirectory(parser)

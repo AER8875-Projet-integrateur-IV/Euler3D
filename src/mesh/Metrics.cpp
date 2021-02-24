@@ -3,6 +3,7 @@
 //
 #include "mesh/Metrics.hpp"
 #include <numeric>
+#include <cmath>
 
 using namespace E3D;
 E3D::Metrics::Metrics(const Mesh<Parser::MeshPartition> &localMesh, const Parallel::MPIHandler &e3d_mpi)
@@ -29,9 +30,18 @@ E3D::Metrics::Metrics(const Mesh<Parser::MeshPartition> &localMesh, const Parall
 	computeCellMetrics();
 
 	double endMetricsTimer = MPI_Wtime();
+
+
+    double domainVolume=0;
+
+    double PartitionVolume = std::accumulate(_cellVolumes.begin(),_cellVolumes.end(),0.0);
+    MPI_Reduce(&PartitionVolume,&domainVolume,1,MPI_DOUBLE_PRECISION,MPI_SUM,0,MPI_COMM_WORLD);
+
 	MPI_Barrier(MPI_COMM_WORLD);
 	if (e3d_mpi.getRankID() == 0) {
+        printf("Total Domain Volume : %.3f \n", domainVolume);
 		printf("Computing Metrics took %.5f seconds .\n", endMetricsTimer - startMetricsTimer);
+
 	}
 }
 
