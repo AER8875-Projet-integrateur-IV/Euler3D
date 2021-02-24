@@ -10,7 +10,6 @@ namespace E3D::Solver{
   public:
 
     SolverLoop(E3D::Solver::FlowField& FieldResults);
-    ~SolverLoop();
 
     inline const std::vector<double> GetdeltaW() const {return this->_deltaW; }
     inline const std::vector<double> GetdeltaT() const {return this->_deltaT; }
@@ -20,8 +19,11 @@ namespace E3D::Solver{
 
     void Run();
 
+    // Update boundary conditions around mesh
+    void BC_Update();
+
     // Variables
-    E3D::Solver::W* m_W; // Array containing all the W for every element including ghost cells
+    E3D::Solver::W m_W; // Array containing all the W for every element including ghost cells
     E3D::Solver::W Winf;
 
   private:
@@ -31,9 +33,6 @@ namespace E3D::Solver{
     std::vector<double> _convFlux;
     std::vector<double> _err;
     // E3D::Solver::FlowField flowfield;
-
-    // Update boundary conditions around mesh
-    void UpdateBC();
 
     // Calculate variables errors using "root mean square" method
     void RMS();

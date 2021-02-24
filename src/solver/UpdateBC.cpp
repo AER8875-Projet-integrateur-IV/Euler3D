@@ -42,3 +42,9 @@ std::vector<double> FarfieldSupersonicOutflow(E3D::Solver::W &W_elem){
     W_BC[3] = W_elem.rhoW;
     W_BC[4] = W_elem.rhoE;
 }
+
+std::vector<double> FarfieldSubsonicInflow(E3D::Parser::SimConfig& sim, E3D::Solver::W& W_elem, E3D::Solver::W& Winf){
+    double nx = 1;
+    double ny = 1;
+    double nz = 1;
+}

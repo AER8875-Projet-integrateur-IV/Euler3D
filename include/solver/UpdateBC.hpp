@@ -18,7 +18,7 @@ namespace E3D::Solver {
     std::vector<double> FarfieldSupersonicOutflow(E3D::Solver::W& W_elem);
 
     // Farfield Subsonic Inflow
-    void FarfieldSubsonicInflow(E3D::Parser::SimConfig &sim);
+    std::vector<double> FarfieldSubsonicInflow(E3D::Parser::SimConfig& sim, E3D::Solver::W& W_elem, E3D::Solver::W& Winf);    // Will also need to include the metrics
 
     // Farfield Subsonic Outflow
     void FarfieldSubsonicOutflow(E3D::Parser::SimConfig &sim);
