@@ -26,8 +26,6 @@ void Mesh::solveConnectivity() {
 
 
     // Filling private member variables related to connectivity
-    nFace = connectivityObj._nFace;
-    nElemTot = connectivityObj._nElem;
     node2element = std::make_unique<std::vector<int>>(connectivityObj._node2element);
     node2elementStart = std::make_unique<std::vector<int>>(connectivityObj._node2elementStart);
     element2element = std::make_unique<std::vector<int>>(connectivityObj._element2element);
