@@ -35,15 +35,16 @@ int main(int argc, char *argv[]) {
 
     MPI_Barrier(MPI_COMM_WORLD);
 
-
-    e3d_mpi.finalize();
-
     // Solver related features
     Solver::FlowField SimResults(config);
     SimResults.PrintTest();
 
     Solver::SolverLoop MainLoop(SimResults);
     // MainLoop.Run();
+
+
+    e3d_mpi.finalize();
+
 
     return 0;
 }
