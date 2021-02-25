@@ -40,7 +40,7 @@ namespace E3D {
 		std::vector<Vector3<double>> _faceNormals;
 		std::vector<Vector3<double>> _faceCenters;
 		std::vector<Vector3<double>> _cellCentroids;
-        std::vector<Vector3<double>> _faceUnitNormals;
+        	std::vector<Vector3<double>> _faceUnitNormals;
 		std::vector<double> _faceSurfaces;
 		std::vector<double> _cellVolumes;
 
