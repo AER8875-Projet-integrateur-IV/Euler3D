@@ -29,7 +29,7 @@ E3D::Metrics::Metrics(const Mesh<Parser::MeshPartition> &localMesh, const Parall
 	computeFaceMetrics();
 	computeCellMetrics();
 
-	double endMetricsTimer = MPI_Wtime();
+
 
 
     double domainVolume=0;
@@ -39,6 +39,7 @@ E3D::Metrics::Metrics(const Mesh<Parser::MeshPartition> &localMesh, const Parall
 
 	MPI_Barrier(MPI_COMM_WORLD);
 	if (e3d_mpi.getRankID() == 0) {
+        double endMetricsTimer = MPI_Wtime();
         printf("Total Domain Volume : %.3f \n", domainVolume);
 		printf("Computing Metrics took %.5f seconds .\n", endMetricsTimer - startMetricsTimer);
 

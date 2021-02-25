@@ -98,7 +98,9 @@ namespace E3D {
 
 		// ------------------ Mesh parsing Info ----------------------
 
-		// CONSTANTES
+
+		inline int GetMpiElemsCount() const {return _parser.getMpiBoundaryElemsCount();}
+
 		inline int GetMeshDim() const { return _parser.GetnDim(); }
 
 		inline int GetMeshInteriorElemCount() const { return _parser.GetVolumeElemCount(); }
@@ -108,6 +110,9 @@ namespace E3D {
 		inline int GetMeshBConditionCount() const { return _parser.GetMarkersCount(); }
 
 		inline int GetMeshNodeCount() const { return _parser.GetPointsCount(); }
+
+
+
 
 
 		/**
@@ -181,6 +186,8 @@ namespace E3D {
         inline const std::vector<int> &GetInteriorVTKID() const {
             return _parser.GetInteriorElementVtkID();
         }
+
+
 
         // ------------------ Connectivity Info ----------------------
 
