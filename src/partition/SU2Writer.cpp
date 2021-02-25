@@ -107,7 +107,7 @@ void SU2Writer::WriteInternalMarker(int nAdjPart,
 	_m_file << "%\n"
 	        << "% Internal Boundary elements\n"
 	        << "%\n";
-	_m_file << "NINTERNAL_MARK= " << nAdjPart << "\n";
+	_m_file << "NINTERNAL_MARKER= " << nAdjPart << "\n";
 	for (int iPart = 0; iPart < Ninterface_elem.size(); iPart++) {
 		if (Ninterface_elem[iPart] > 0) {
 			_m_file << "INTERNAL_MARKER= " << iPart << "\n";
