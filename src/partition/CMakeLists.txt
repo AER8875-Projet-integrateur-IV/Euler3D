@@ -21,7 +21,7 @@ set(SOURCE Partition.cpp SU2Writer.cpp PhysicalBCPartition)
 #   3. Add the command add_subdirectory(NameOfThisDirectory) to the CMakeLists.txt
 #      in the parent folder
 
-set(DEPENDANCIES Mesh Parser metis)
+set(DEPENDANCIES Utils Mesh Parser metis)
 
 #   4. Add the command add_subdirectory(NameOfThisDirectory) to the CMakeLists.txt
 #      in the parent folder

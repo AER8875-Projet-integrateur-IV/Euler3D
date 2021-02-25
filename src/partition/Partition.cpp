@@ -6,6 +6,9 @@
 #include <metis.h>
 #include <regex>
 #include <utility>
+#include "spdlog/logger.h"
+#include "spdlog/stopwatch.h"
+#include "utils/Logger.hpp"
 
 using namespace E3D::Partition;
 
@@ -272,39 +275,44 @@ void Partition::SolveBorder() {
 	return;
 }
 
-void Partition::Write(const std::string &SU2OuputPath) {
-	std::cout << std::string(24, '#') << "  Partitionning  " << std::string(24, '#') << "\n\n"
+void Partition::Write(const std::vector<std::string> &SU2OuputPath) {
+	std::shared_ptr<spdlog::logger> logger = E3D::Logger::Getspdlog();
+	
+	std::cout << std::string(24, '#') << "  Partitionning  " << std::string(24, '#') << "\n"
 	          << std::endl;
+	
 	std::cout << std::setw(30)
 	          << "Number of Partitions : "
 	          << std::setw(6)
 	          << _m_nPart
 	          << "\n";
-
+	
+	spdlog::stopwatch METISsw;
 	SolveElem2Part();
+	logger->debug("METIS and set-up run time {}", METISsw);
+	
+	spdlog::stopwatch connecsw;
 	SolvePart2Elem();
 	SolveElem2Node();
+	logger->debug("Partition connectivity run time {}", connecsw);
+
+	spdlog::stopwatch internalMarkersw;
 	SolveBorder();
+	logger->debug("Internal markers partitionning run time {}", internalMarkersw);
+
 	for (auto &part : _m_part) {
 		part.SetLocal2GlobalConnectivy(_m_localNode2Global, _m_localNode2GlobalStart);
 	}
+
+	spdlog::stopwatch physicalMarkersw;
 	PhysicalBCPartition::Solve(_m_meshGlobal->GetBoundaryConditionVector(), _m_part);
-	WriteTecplot("test.dat");
-
-	// Define name of output
-	std::cout << std::setw(30)
-	          << "OutputPath : "
-	          << std::setw(6)
-	          << SU2OuputPath
-	          << "\n";
-
+	logger->debug("Physical markers partitionning run time {}", physicalMarkersw);
 
 	for (int i = 0; i < _m_nPart; i++) {
 		SU2Mesh &part = _m_part[i];
-		std::string path = std::regex_replace(SU2OuputPath, std::regex("#"), std::to_string(i));
+		std::string path = SU2OuputPath[i];
 		this->WriteSU2(part, path);
 	}
-	std::cout << std::string(58, '#') << std::endl;
 }
 
 void Partition::WriteSU2(E3D::Partition::SU2Mesh &partition, const std::string &path) {

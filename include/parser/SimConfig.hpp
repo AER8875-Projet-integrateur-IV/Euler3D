@@ -11,6 +11,7 @@ namespace E3D::Parser {
     class SimConfig {
     public :
         SimConfig(const std::string& filename, const int rankID, const int poolSize);
+        SimConfig(const std::string &filename);
 
         void parseConfigFile();
 
@@ -110,14 +111,25 @@ namespace E3D::Parser {
 
         inline int getNumberPartitions() const                                               { return _nbPartition; }
 
+        inline std::string getInitialMeshFile() const                                        { return _initialMeshFile; }
+
+        inline std::string getPreLog() const                                                 { return _preProcessorLog; }
+
+        inline std::string getSolverLog() const                                              { return _solverLog; }
+
+        inline std::string getPostLog() const                                                { return _postProcessorLog; }
 
     private:
 
 
         std::ifstream _configFileStream;
+        std::string _initialMeshFile;
         std::vector<std::string> _meshFiles;
         std::string _tecplotFile;
         std::string _configFile;
+        std::string _preProcessorLog;
+        std::string _solverLog;
+        std::string _postProcessorLog;
         double _aoa;
         double _mach;
         double _velocity;

@@ -3,6 +3,7 @@
 #include "spdlog/logger.h"
 #include "spdlog/stopwatch.h"
 #include "utils/Logger.hpp"
+#include "parser/SimConfig.hpp"
 #include <iostream>
 #include <memory>
 /**
@@ -20,25 +21,31 @@ int main(int argc, char *argv[]) {
 		exit(EXIT_FAILURE);
 	}
 
+	// Parsing Config file
+    std::string configFile = argv[1];
+    E3D::Parser::SimConfig config(configFile);
+
 	spdlog::stopwatch globalsw;
-	E3D::Logger logger("log.txt");
+	E3D::Logger logger(config.getPreLog());
+
 	auto logObject = E3D::Logger::Getspdlog();
 	logObject->info("Euler 3D Pre-processor.\n");
 
 	std::string fileName = argv[1];
 
 	spdlog::stopwatch meshsw;
-	E3D::Mesh mesh(fileName);
-
-	mesh.solveConnectivity();
+	E3D::Mesh mesh(config.getInitialMeshFile());
 	logObject->debug("Mesh parser run time {}", meshsw);
+	
+	mesh.solveConnectivity();
+	
 
-	int nPart = 5;
-	std::string SU2OuputPath = "mesh_partition_#.su2";
+	int nPart = config.getNumberPartitions();
+	const std::vector<std::string> &SU2OuputPath = config.getPartitionedMeshFiles();
 	E3D::Partition::Partition part(&mesh, nPart);
 	part.Write(SU2OuputPath);
 
 
-	logObject->debug("Total run time {}", globalsw);
+	logObject->debug("Total run time {} s", globalsw);
 	return 0;
 }

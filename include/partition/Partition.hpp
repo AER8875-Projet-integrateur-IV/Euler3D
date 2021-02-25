@@ -186,7 +186,7 @@ namespace E3D::Partition {
          * @param SU2OuputPath Save path for the partitions, the # symbol will
          *      be replaced by the partition ID
          */
-		void Write(const std::string &SU2OuputPath = "part#.part");
+		void Write(const std::vector<std::string> &SU2OuputPath);
 
 		/**
          * @brief Find the global node ID from a local node ID and part ID
