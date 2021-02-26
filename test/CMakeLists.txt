@@ -12,6 +12,7 @@ set(TEST_SOURCE
     Test_PhysicalBCPartition.cpp
     Test_Connectivity.cpp
 )
+
 # Add subdirectories
 
 
@@ -24,12 +25,14 @@ message(STATUS "Tests are included")
 add_subdirectory(extern/Catch2)
 add_executable(tests ${TEST_SOURCE})
 
+
 target_link_libraries(tests Catch2::Catch2 
                             Mesh
                             Parser 
                             Connectivity
                             Parallel_tools
                             Partition)
+
 
 
 
