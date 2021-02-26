@@ -174,7 +174,7 @@ namespace E3D::Partition {
          * @param[in]   nPart           number of mesh partitions required
          *
          */
-		Partition(Mesh<SU2MeshParser> *meshGlobal, int &nPart);
+		Partition(Mesh<E3D::Parser::SU2MeshParser> *meshGlobal, int &nPart);
 		/**
          * Destructeur de la classe
          *
