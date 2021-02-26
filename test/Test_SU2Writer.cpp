@@ -3,7 +3,6 @@
 #include "parser/SU2MeshParser.hpp"
 #include <iostream>
 #include <cstdio>
-#include <filesystem>
 #include <string>
 #include <vector>
 #include <boost/range/adaptor/indexed.hpp>
