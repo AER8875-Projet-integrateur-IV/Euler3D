@@ -15,7 +15,11 @@ namespace E3D::Parser {
          * @param ElemPoints Points surrounding the element
          */
         Element(int vtkType, std::vector<int> ElemPoints) : _vtkType(vtkType), _ElemPoints(ElemPoints) {};
-
+        /**
+         * @brief Construct a new empty Element object
+         * 
+         */
+        Element(){};
         /**
          * @brief getter for vtk id of the element
          * @return vtk ID
@@ -36,6 +40,12 @@ namespace E3D::Parser {
                 out << nodeID << " ";
             }
             return out;
+        }
+
+        bool operator==(const E3D::Parser::Element& other) const
+        {
+            return (this->_vtkType == other.getVtkID() && 
+                    this->_ElemPoints == other.getElemNodes());
         }
 
     private:
@@ -59,7 +69,11 @@ namespace E3D::Parser {
          * @param z Z coordinate (3rd column in su2 file)
          */
         Node(std::vector<double> xyz_coord) : _x(xyz_coord[0]), _y(xyz_coord[1]), _z(xyz_coord[2]) {};
-
+        /**
+         * @brief Construct a new empty Node object
+         * 
+         */
+        Node(){};
         /**
          * @brief Getter for node x coordinate
          * @return x coordinate

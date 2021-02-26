@@ -31,6 +31,17 @@ SimConfig::SimConfig(const std::string &filename, const int rankID, const int po
     }
 }
 
+SimConfig::SimConfig(const std::string &filename)
+: _configFileStream(filename), _configFile(filename) {
+
+    if (!_configFileStream) {
+        std::cerr << "Error while opening configuration file ! " << "\n";
+        exit(EXIT_FAILURE);
+    }
+
+    parseConfigFile();
+}
+
 void SimConfig::parseConfigFile() {
 
     std::string line;
@@ -45,6 +56,8 @@ void SimConfig::parseConfigFile() {
 
                 if (line[0] == '#') {
                     continue;
+                } else if (line.find("INITIAL_MESH=") != std::string::npos) {
+                    ss1.seekg(14) >> _initialMeshFile;
                 } else if (line.find("PARTITION_FILES=") != std::string::npos) {
 
                     // Parse number of patition and go next line
@@ -67,7 +80,8 @@ void SimConfig::parseConfigFile() {
                     }
                     _meshFiles = partitionMeshes;
 
-
+                } else if (line.find("PRE_LOG=") != std::string::npos) {
+                    ss1.seekg(9) >> _preProcessorLog;
                 } else if (line.find("SPEED_OPTION") != std::string::npos) {
                     int speedChoice;
                     ss1.seekg(13) >> speedChoice;
@@ -118,8 +132,12 @@ void SimConfig::parseConfigFile() {
                     ss1.seekg(13) >> _minResidual;
                 } else if (line.find("MAX_ITER") != std::string::npos) {
                     ss1.seekg(9) >> _maxIter;
+                } else if (line.find("SOLVER_LOG=") != std::string::npos) {
+                    ss1.seekg(11) >> _solverLog;
                 } else if (line.find("OUTPUT_FILE") != std::string::npos) {
                     ss1.seekg(13) >> _tecplotFile;
+                } else if (line.find("POST_LOG=") != std::string::npos) {
+                    ss1.seekg(9) >> _solverLog;
                 }
 
             }
