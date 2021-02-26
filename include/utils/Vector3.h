@@ -22,7 +22,7 @@ namespace E3D {
 	public:
 		T x, y, z;
 
-		Vector3() : x(0), y(0), z(0) {}
+		Vector3() : x(0.0), y(0.0), z(0.0) {}
 		Vector3(T x, T y, T z) : x(x), y(y), z(z) {}
 
 		//Copy constructor
@@ -66,11 +66,11 @@ namespace E3D {
 			return Vector3(x - v.x, y - v.y, z - v.z);
 		}
 
-		static double dot(Vector3& v1, Vector3& v2) {
+		static T dot(Vector3& v1, Vector3& v2) {
 			return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
 		}
 
-		static Vector3<double> crossProduct(Vector3& A, Vector3& B){
+		static Vector3<T> crossProduct(Vector3& A, Vector3& B){
 		        return Vector3(A.y * B.z - A.z * B.y,
 		                       A.z * B.x - A.x * B.z,
 		                       A.x * B.y - A.y * B.x);
@@ -78,16 +78,16 @@ namespace E3D {
 
 
 		Vector3
-		operator+(double s) {
+		operator+(T s) {
 			return Vector3(x + s, y + s, z + s);
 		}
-		Vector3 operator-(double s) {
+		Vector3 operator-(T s) {
 			return Vector3(x - s, y - s, z - s);
 		}
-		Vector3 operator*(double s) {
+		Vector3 operator*(T s) {
 			return Vector3(x * s, y * s, z * s);
 		}
-		Vector3 operator/(double s) {
+		Vector3 operator/(T s) {
 			return Vector3(x / s, y / s, z / s);
 		}
 
