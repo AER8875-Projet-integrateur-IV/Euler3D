@@ -80,7 +80,7 @@ namespace E3D::Partition {
 
 	class Partition {
 	private:
-		E3D::Mesh *_m_meshGlobal;//   Mesh object to be partitionned, connectivity must already be solved
+		E3D::Mesh<E3D::Parser::SU2MeshParser> *_m_meshGlobal;//   Mesh object to be partitionned, connectivity must already be solved
 
 		int _m_nPart;                      //   Nombre de partitions
 		std::vector<idx_t> _m_elem2Part;//   i position holds the partition number for global element number i (0 based)
