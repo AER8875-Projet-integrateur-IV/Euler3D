@@ -8,7 +8,9 @@ TEST_CASE("Connectivity class test", "[connectivity]") {
 
     // Initialize SU2MeshParser class for testing
     std::string filename = "../../test/mesh/StructuredBlock_8.su2";
-    E3D::Mesh mesh(filename);
+
+    E3D::Mesh<E3D::Parser::SU2MeshParser> mesh(filename);
+
 
     mesh.solveConnectivity();
 
@@ -19,6 +21,7 @@ TEST_CASE("Connectivity class test", "[connectivity]") {
     }
 
     SECTION("node2element linked list") {
+
         int size;
         int* ptr;
 
@@ -35,6 +38,7 @@ TEST_CASE("Connectivity class test", "[connectivity]") {
 
         ptr = mesh.GetNode2ElementID(20,size);
         std::vector<int> node2element20(ptr, ptr+size);
+      
         std::vector<int> correctnode2element20 = {5};
         REQUIRE(node2element20 == correctnode2element20);
 

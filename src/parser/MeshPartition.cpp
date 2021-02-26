@@ -15,6 +15,10 @@ using namespace E3D::Parser;
 MeshPartition::MeshPartition(const std::string &fileName, const Parallel::MPIHandler& e3d_mpi)
         : SU2MeshParser(fileName), _e3d_mpi(e3d_mpi) {
 
+	_rankID = _e3d_mpi.getRankID();
+
+    double startParserTimer = MPI_Wtime();
+
     if(_e3d_mpi.getRankID()==0){
         std::cout << "\n\n"<< std::string(24, '#') << "  MeshPartition  " << std::string(24, '#') << "\n\n";
     }
@@ -23,7 +27,9 @@ MeshPartition::MeshPartition(const std::string &fileName, const Parallel::MPIHan
 
     MPI_Barrier(MPI_COMM_WORLD);
     if(_e3d_mpi.getRankID()==0){
+        double endParserTimer = MPI_Wtime();
         printf("All processes parsed mesh files !\n");
+		printf("Mesh Partitions took %.5f seconds to parse.\n", endParserTimer-startParserTimer);
     }
 
     _ifilestream.close();
@@ -125,20 +131,7 @@ void MeshPartition::printAllPartitionsInfo() {
         printf("Total Number of Nodes (including duplicates) : %d \n", sumMeshStats[3]);
 
     }
-    MPI_Barrier(MPI_COMM_WORLD);
-    for(int i=0;i<_e3d_mpi.getPoolSize();i++){
-        if(_e3d_mpi.getRankID()==i){
-            std::cout << "\n" << "------- For Partition " << "#" << i << "\n";
-            for(auto& pair : _MpiBoundaryElements){
-                auto& [parititonID, gCells] = pair;
-                std::cout << "Adjacent Partition ID : " << parititonID << "\n";
-                for(auto& gCell : gCells){
-                    std::cout << gCell << "\n";
 
-                }
-            }
-        }
-        MPI_Barrier(MPI_COMM_WORLD);
-    }
+    MPI_Barrier(MPI_COMM_WORLD);
 
 }
