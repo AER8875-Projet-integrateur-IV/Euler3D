@@ -37,7 +37,7 @@ void SU2Mesh::SetLocal2GlobalConnectivy(const std::vector<int> &localNode2Global
 }
 
 
-Partition::Partition(Mesh *meshGlobal, int &nPart) {
+Partition::Partition(Mesh<E3D::Parser::SU2MeshParser> *meshGlobal, int &nPart) {
 	_m_meshGlobal = meshGlobal;
 	_m_nPart = nPart;
 
