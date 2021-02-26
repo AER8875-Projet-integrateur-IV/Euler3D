@@ -32,6 +32,7 @@ jobs:
         git clone https://github.com/KarypisLab/GKlib.git --depth 1
         cd GKlib
         make config
+        make
         sudo make install
 
     - name: install METIS
@@ -42,6 +43,7 @@ jobs:
         git clone https://github.com/KarypisLab/METIS.git --depth 1
         cd METIS
         make config
+        make
         sudo make install
 
     - name: Create Build Environment
