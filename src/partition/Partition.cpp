@@ -50,9 +50,9 @@ Partition::~Partition() {
 
 void Partition::SolveElem2Part() {
 	// Initialisation
-	long int NELEM = _m_meshGlobal->GetMeshInteriorElemCount();
-	long int NPOIN = _m_meshGlobal->GetMeshNodeCount();
-	long int npart(_m_nPart);// METIS utilise le type long
+	idx_t NELEM = _m_meshGlobal->GetMeshInteriorElemCount();
+	idx_t NPOIN = _m_meshGlobal->GetMeshNodeCount();
+	idx_t npart(_m_nPart);// METIS utilise le type long
 	_m_elem2Part.resize(NELEM);
 
 	// Connectivité elem2node du mmaillage global
@@ -71,9 +71,9 @@ void Partition::SolveElem2Part() {
 	}
 
 	// Paramètres utiles pour appeler METIS
-	std::vector<long> node2Part(NPOIN);// vecteur qui va contenir la partition de chaque noeud
-	long int objval;
-	long int ncommon;
+	std::vector<idx_t> node2Part(NPOIN);// vecteur qui va contenir la partition de chaque noeud
+	idx_t objval;
+	idx_t ncommon;
 	if (_m_meshGlobal->GetMeshDim() == 2) {
 		ncommon = 2;
 	} else if (_m_meshGlobal->GetMeshDim() == 3) {

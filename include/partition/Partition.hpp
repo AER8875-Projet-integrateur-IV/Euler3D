@@ -14,6 +14,7 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include <metis.h>
 
 #include "mesh/Mesh.hpp"
 #include "parser/Element.hpp"
@@ -82,7 +83,7 @@ namespace E3D::Partition {
 		E3D::Mesh *_m_meshGlobal;//   Mesh object to be partitionned, connectivity must already be solved
 
 		int _m_nPart;                      //   Nombre de partitions
-		std::vector<long int> _m_elem2Part;//   i position holds the partition number for global element number i (0 based)
+		std::vector<idx_t> _m_elem2Part;//   i position holds the partition number for global element number i (0 based)
 		std::vector<int> _m_Part2Elem;     //   contain the global element indexes for each partition in continuous blocks
 		std::vector<int> _m_Part2ElemStart;//   contain the start index of each block associated to a partition in _m_Part2Elem
 
@@ -104,8 +105,8 @@ namespace E3D::Partition {
 		std::vector<SU2Mesh> _m_part;
 
 		// Connectivité element noeud pour l'appel de METIS
-		std::vector<long int> _m_elem2Node;
-		std::vector<long int> _m_elem2NodeStart;
+		std::vector<idx_t> _m_elem2Node;
+		std::vector<idx_t> _m_elem2NodeStart;
 
 		/**
          * Résolution de la connectivité Element vers Partition
