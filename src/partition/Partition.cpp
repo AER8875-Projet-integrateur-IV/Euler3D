@@ -40,12 +40,6 @@ void SU2Mesh::SetLocal2GlobalConnectivy(const std::vector<int> &localNode2Global
 Partition::Partition(Mesh<E3D::Parser::SU2MeshParser> *meshGlobal, int &nPart) {
 	_m_meshGlobal = meshGlobal;
 	_m_nPart = nPart;
-
-	return;
-}
-
-Partition::~Partition() {
-	return;
 }
 
 void Partition::SolveElem2Part() {
