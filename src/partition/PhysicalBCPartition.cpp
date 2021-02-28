@@ -3,12 +3,22 @@
 #include "partition/Partition.hpp"
 #include <algorithm>
 #include <vector>
+#include "partition/StackSet.hpp"
 
 using namespace E3D::Partition;
 
 void PhysicalBCPartition::Solve(const E3D::Parser::BC_Structure &globalBC,
                                 std::vector<SU2Mesh> &parts) {
 	std::vector<int> localMarkerNodes;
+	
+	int size = parts.size();
+	std::vector<int> order(size);
+	for (auto i = 0; i < size; i++)
+	{
+		order[i] = i;
+	}
+	StackSet<int> partsOrderStack(order.begin(), order.end());
+
 	for (auto const &Marker : globalBC) {
 		const std::string &tag = Marker.first;
 		const std::vector<E3D::Parser::Element> &elemVector = Marker.second;
@@ -19,7 +29,8 @@ void PhysicalBCPartition::Solve(const E3D::Parser::BC_Structure &globalBC,
 			const std::vector<int> &markerNodes = elem.getElemNodes();
 			int failedMatch = 0;
 			// Look for a match in each partition
-			for (auto &part : parts) {
+			for (auto partID : partsOrderStack) {
+				auto& part = parts[partID];
 				PhysicalBCPartition::FindMarkerInPartition(part, markerNodes, localMarkerNodes);
 				if (localMarkerNodes.empty()) {
 					// No match has been found in this partition
@@ -28,6 +39,7 @@ void PhysicalBCPartition::Solve(const E3D::Parser::BC_Structure &globalBC,
 					// A match has been found
 					int VTKid = elem.getVtkID();
 					part.AddMarkerElement(tag, VTKid, localMarkerNodes.data(), localMarkerNodes.size());
+					partsOrderStack.toFront(part.ID);
 					break;
 				}
 			}

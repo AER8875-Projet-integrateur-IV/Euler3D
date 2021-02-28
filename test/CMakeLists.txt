@@ -11,6 +11,7 @@ set(TEST_SOURCE
     Test_Element.cpp
     Test_PhysicalBCPartition.cpp
     Test_Connectivity.cpp
+    Test_StackSet.cpp
 )
 
 # Add subdirectories
