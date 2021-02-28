@@ -49,40 +49,16 @@ void FlowField::Initialize(const int totalElemCount) {
 	H_inf = E_inf + (p_inf / rho_inf);
 
 	// Reserve
-	_rho.reserve(totalElemCount);
-	_p.reserve(totalElemCount);
-	_u.reserve(totalElemCount);
-	_v.reserve(totalElemCount);
-	_w.reserve(totalElemCount);
-	_M.reserve(totalElemCount);
-	_E.reserve(totalElemCount);
-	_H.reserve(totalElemCount);
+	_rho.resize(totalElemCount, rho_inf);
+	_p.resize(totalElemCount, p_inf);
+	_u.resize(totalElemCount,u_inf);
+	_v.resize(totalElemCount,v_inf);
+	_w.resize(totalElemCount,w_inf);
+	_M.resize(totalElemCount,M_inf);
+	_E.resize(totalElemCount,E_inf);
+	_H.resize(totalElemCount,H_inf);
 
-	//TODO RESERVE FOR FORCE VECTORS
+	//TODO RESIZE AND INITIALIZATION FOR FORCE VECTORS
 
-	//
 
-	// Initialize density vector
-	std::fill(_rho.begin(), _rho.end(), rho_inf);
-
-	// Initialize pressure vector
-	std::fill(_p.begin(), _p.end(), p_inf);
-
-	// Initialize Velocity
-	std::fill(_u.begin(), _u.end(), u_inf);
-	std::fill(_v.begin(), _v.end(), v_inf);
-	std::fill(_w.begin(), _w.end(), w_inf);
-
-	// Initialize Mach
-	std::fill(_M.begin(), _M.end(), M_inf);
-
-	// Initialize Energy and entropy
-
-	std::fill(_E.begin(), _E.end(), E_inf);
-	std::fill(_H.begin(), _H.end(), H_inf);
-
-	// Initialize Forces
-	std::fill(_Fx.begin(), _Fx.end(), 0.0);
-	std::fill(_Fy.begin(), _Fy.end(), 0.0);
-	std::fill(_Fz.begin(), _Fz.end(), 0.0);
 }
