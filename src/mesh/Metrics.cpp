@@ -191,6 +191,7 @@ void Metrics::computeCellMetrics() {
 
 
             // Compute Cell Volume
+			//TODO volume is double the correct value for tets
 			temp_volume += Vector3<double>::dot(faceCenter, faceNormalVector) * 0.33333333;
 
 		}
