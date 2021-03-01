@@ -1,10 +1,11 @@
 
+#include <cstdlib>
 #include <iostream>
 #include <mpi.h>
-#include <cstdlib>
 
+#include "mesh/Mesh.hpp"
+#include "mesh/Metrics.hpp"
 #include "parallelization/MPIHandler.hpp"
-#include "parser/MeshPartition.hpp"
 #include "parser/SimConfig.hpp"
 #include "solver/FlowField.hpp"
 #include "solver/SolverLoop.hpp"
@@ -13,27 +14,30 @@ using namespace E3D;
 
 int main(int argc, char *argv[]) {
 
-    E3D::Parallel::MPIHandler e3d_mpi(argc,argv);
+	E3D::Parallel::MPIHandler e3d_mpi(argc, argv);
 
-    if (e3d_mpi.getRankID() == 0) {
+	if (e3d_mpi.getRankID() == 0) {
 
-        if (argc != 2) {
-            std::cerr << "Usage : mpiexec -np <num of processes> ./E3D_Solveur <configFile.e3d> " << std::endl;
-            exit(EXIT_FAILURE);
-        }
-    }
-    MPI_Barrier(MPI_COMM_WORLD);
+		if (argc != 2) {
+			std::cerr << "Usage : mpiexec -np <num of processes> ./E3D_Solveur <configFile.e3d> " << std::endl;
+			exit(EXIT_FAILURE);
+		}
+	}
+	MPI_Barrier(MPI_COMM_WORLD);
 
-    // Parsing Config file
-    std::string configFile = argv[1];
-    Parser::SimConfig config(configFile, e3d_mpi.getRankID(), e3d_mpi.getPoolSize());
+	// Parsing Config file
+	std::string configFile = argv[1];
+	Parser::SimConfig config(configFile, e3d_mpi.getRankID(), e3d_mpi.getPoolSize());
 
-    // Parsing Partitions (mesh files)
-    Parser::MeshPartition localmesh(config.getPartitionedMeshFiles()[e3d_mpi.getRankID()], e3d_mpi);
+	E3D::Mesh<E3D::Parser::MeshPartition> localmesh(config.getPartitionedMeshFiles()[e3d_mpi.getRankID()], e3d_mpi);
 
-    localmesh.printAllPartitionsInfo();
 
-    MPI_Barrier(MPI_COMM_WORLD);
+	// Parsing Partitions (mesh files)
+	double startConnectivityTimer = MPI_Wtime();
+	localmesh.solveConnectivity();
+	MPI_Barrier(MPI_COMM_WORLD);
+	if (e3d_mpi.getRankID() == 0) {
+		double endConnectivityTimer = MPI_Wtime();
 
     // Solver related features
     FlowField SimResults(config);
@@ -42,9 +46,13 @@ int main(int argc, char *argv[]) {
     SolverLoop MainLoop(SimResults);
     MainLoop.Run();
 
+		printf("Connectivity took %.5f seconds to solve.\n", endConnectivityTimer - startConnectivityTimer);
+	}
+	Metrics localMeshMetrics(localmesh, e3d_mpi);
+	MPI_Barrier(MPI_COMM_WORLD);
 
-    e3d_mpi.finalize();
+	e3d_mpi.finalize();
 
 
-    return 0;
+	return 0;
 }

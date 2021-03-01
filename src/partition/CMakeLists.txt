@@ -7,7 +7,7 @@
 #      set(NAME_LIBRARY Connectivity)
 #      set(NAME_LIBRARY Solver)
 
-set(NAME_LIBRARY Utils)
+set(NAME_LIBRARY Partition)
 
 #   2. Write the source files you want to add to your library.
 #      
@@ -15,14 +15,13 @@ set(NAME_LIBRARY Utils)
 #      set(SOURCE Partition.cpp SU2Writer.cpp)
 #      set(NAME_LIBRARY SolverEuler.cpp)
 
-set(SOURCE Logger.cpp
-           ../../include/utils/Vector3.h)
+set(SOURCE Partition.cpp SU2Writer.cpp PhysicalBCPartition)
 
 
 #   3. Add the command add_subdirectory(NameOfThisDirectory) to the CMakeLists.txt
 #      in the parent folder
 
-set(DEPENDANCIES )
+set(DEPENDANCIES Utils Mesh Parser metis)
 
 #   4. Add the command add_subdirectory(NameOfThisDirectory) to the CMakeLists.txt
 #      in the parent folder

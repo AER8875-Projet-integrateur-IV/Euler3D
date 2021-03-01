@@ -1,5 +1,5 @@
 
-add_library(Mesh Mesh.cpp)
+add_library(Mesh Mesh.cpp Metrics.cpp)
 
 TARGET_INCLUDE_DIRECTORIES(Mesh PUBLIC ${PROJECT_SOURCE_DIR}/include)
 

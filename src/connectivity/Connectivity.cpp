@@ -88,7 +88,6 @@ void Connectivity::SolveElement2Element(const std::vector<int> &VTK, int Boundar
 
 
     _nFace = (BoundaryFaces + _element2elementStart[_nElem]) / 2;
-    std::cout << '\n' << "nFace: " << _nFace << '\n';
 
 
     _face2element.resize(_nFace * 2, -1);
