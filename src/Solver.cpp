@@ -8,6 +8,7 @@
 #include "parallelization/MPIHandler.hpp"
 #include "parser/SimConfig.hpp"
 #include "solver/FlowField.hpp"
+#include "solver/EulerSolver.hpp"
 using namespace E3D;
 
 int main(int argc, char *argv[]) {
@@ -43,6 +44,11 @@ int main(int argc, char *argv[]) {
 	MPI_Barrier(MPI_COMM_WORLD);
 
     E3D::Solver::FlowField localFlowField(config,localmesh,e3d_mpi);
+
+	E3D::Solver::EulerSolver solver(localFlowField,e3d_mpi,localmesh,config);
+
+	solver.Run();
+
 	e3d_mpi.finalize();
 
 
