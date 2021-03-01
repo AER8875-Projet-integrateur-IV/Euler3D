@@ -1,20 +1,19 @@
 #include "partition/PhysicalBCPartition.hpp"
 #include "mesh/Mesh.hpp"
 #include "partition/Partition.hpp"
+#include "partition/StackSet.hpp"
 #include <algorithm>
 #include <vector>
-#include "partition/StackSet.hpp"
 
 using namespace E3D::Partition;
 
 void PhysicalBCPartition::Solve(const E3D::Parser::BC_Structure &globalBC,
                                 std::vector<SU2Mesh> &parts) {
 	std::vector<int> localMarkerNodes;
-	
+
 	int size = parts.size();
 	std::vector<int> order(size);
-	for (auto i = 0; i < size; i++)
-	{
+	for (auto i = 0; i < size; i++) {
 		order[i] = i;
 	}
 	StackSet<int> partsOrderStack(order.begin(), order.end());
@@ -30,7 +29,7 @@ void PhysicalBCPartition::Solve(const E3D::Parser::BC_Structure &globalBC,
 			int failedMatch = 0;
 			// Look for a match in each partition
 			for (auto partID : partsOrderStack) {
-				auto& part = parts[partID];
+				auto &part = parts[partID];
 				PhysicalBCPartition::FindMarkerInPartition(part, markerNodes, localMarkerNodes);
 				if (localMarkerNodes.empty()) {
 					// No match has been found in this partition
@@ -58,10 +57,10 @@ void PhysicalBCPartition::FindMarkerInPartition(SU2Mesh &part,
 	localMarkerNodes = std::vector<int>();
 	localMarkerNodes.reserve(markerNodes.size());
 
-	// Go over every element in the partition, if all nodes in
+	// Go over every border element in the partition, if all nodes in
 	// markerNodes are found in a element, elem is part of the
 	// current partition
-	for (int elemI = 0; elemI < part.NELEM; elemI++) {
+	for (int elemI : part.physicalBorderElements) {
 		int start = part.elem2nodeStart[elemI];
 		int end = part.elem2nodeStart[elemI + 1];
 		int size = end - start;

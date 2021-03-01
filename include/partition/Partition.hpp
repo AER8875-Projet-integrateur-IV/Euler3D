@@ -11,16 +11,18 @@
  */
 #pragma once
 #include <iostream>
+#include <metis.h>
 #include <string>
 #include <unordered_map>
 #include <vector>
-#include <metis.h>
 
 #include "mesh/Mesh.hpp"
 #include "parser/Element.hpp"
 
 namespace E3D::Partition {
 	struct SU2Mesh {
+		using mesh_type = E3D::Mesh<E3D::Parser::SU2MeshParser>;
+
 		// Dimensions de la partition
 		int NDIM;
 		int NELEM;
@@ -30,6 +32,9 @@ namespace E3D::Partition {
 		// Connectivité elements - nodes
 		std::vector<int> elem2nodeStart;
 		std::vector<int> elem2node;
+
+		// Contain the local index of all elements on a physical border
+		std::vector<int> physicalBorderElements;
 
 		// Interfaces avec les autres partitions
 		std::vector<int> Ninterface;
@@ -73,6 +78,17 @@ namespace E3D::Partition {
          */
 		void SetLocal2GlobalConnectivy(const std::vector<int> &localNode2Global,
 		                               const std::vector<int> &localNode2GlobalStart);
+		/**
+         * @brief Find which elements are part of a physical border and populate
+         *      physicalBorderElements field      
+         * 
+         * @param mesh global mesh object
+         * @param Part2ElemStart linked list containing the element ID per partition
+         * @param Part2Elem linked list containing the element ID per partition
+         */
+		void FindPhysicalBorder(const mesh_type &mesh,
+		                        const std::vector<int> &Part2ElemStart,
+		                        const std::vector<int> &Part2Elem);
 
 	private:
 		const int *_localNode2globalPtr;
@@ -83,7 +99,7 @@ namespace E3D::Partition {
 		E3D::Mesh<E3D::Parser::SU2MeshParser> *_m_meshGlobal;//   Mesh object to be partitionned, connectivity must already be solved
 
 		int _m_nPart;                      //   Nombre de partitions
-		std::vector<idx_t> _m_elem2Part;//   i position holds the partition number for global element number i (0 based)
+		std::vector<idx_t> _m_elem2Part;   //   i position holds the partition number for global element number i (0 based)
 		std::vector<int> _m_Part2Elem;     //   contain the global element indexes for each partition in continuous blocks
 		std::vector<int> _m_Part2ElemStart;//   contain the start index of each block associated to a partition in _m_Part2Elem
 
@@ -175,11 +191,6 @@ namespace E3D::Partition {
          *
          */
 		Partition(Mesh<E3D::Parser::SU2MeshParser> *meshGlobal, int &nPart);
-		/**
-         * Destructeur de la classe
-         *
-         */
-		~Partition();
 
 		/**
          * @brief Partition the global mesh and write to file
