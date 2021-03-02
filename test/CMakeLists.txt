@@ -20,7 +20,7 @@ set(TEST_SOURCE
         ############################################## #message(STATUS "Tests are included")
 
 #link Catch2 library
-add_subdirectory(extern / Catch2)
+add_subdirectory(extern/Catch2)
 add_executable(tests ${TEST_SOURCE})
 
 
@@ -31,8 +31,8 @@ target_link_libraries(tests Catch2::Catch2
                             Parallel_tools
                             Partition)
 target_link_libraries(tests MPI::MPI_CXX)
-TARGET_INCLUDE_DIRECTORIES(tests PUBLIC ${PROJECT_SOURCE_DIR} / include)
-TARGET_INCLUDE_DIRECTORIES(tests PUBLIC ${PROJECT_SOURCE_DIR} / extern)
+TARGET_INCLUDE_DIRECTORIES(tests PUBLIC ${PROJECT_SOURCE_DIR}/include)
+TARGET_INCLUDE_DIRECTORIES(tests PUBLIC ${PROJECT_SOURCE_DIR}/extern)
 find_package(MPI REQUIRED)
 
 #add Catch2 cmake scripts to module path to allow automatic
