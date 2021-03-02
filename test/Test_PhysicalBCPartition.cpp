@@ -1,5 +1,5 @@
 /**
- * @file Test_Partition.cpp
+ * @file Test_PhysicalBCPartition.cpp
  * @author Abraham Bhérer-Constant (abraham.bconstant@gmail.com)
  * @brief Test file for Partition class
  * @date 2021-02-05
@@ -45,7 +45,7 @@ TEST_CASE("FindContainedElements", "[partition]") {
  *      case. The case is graphically represented in docs/test/PhysicalBCPartition.svg
  * 
  */
-TEST_CASE("Solve physical border conditions in 2D", "[partition],[PhysicalBC]") {
+TEST_CASE("Solve physical border conditions for four 2D squares", "[partition],[PhysicalBC]") {
 	// build localNode2Global
 	std::vector<int> localNode2Global{0, 1, 3, 4,       // red
 	                                  1, 2, 4, 5,       // blue
@@ -126,7 +126,7 @@ TEST_CASE("Solve physical border conditions in 2D", "[partition],[PhysicalBC]") 
 		REQUIRE(parts[1].Markers.size() == 1);
 	}
 
-	SECTION("Red partition") {
+	SECTION("Green partition") {
 		std::vector<E3D::Parser::Element> northExp{E3D::Parser::Element(3, std::vector<int>{5, 2})};
 		std::vector<E3D::Parser::Element> southExp{E3D::Parser::Element(3, std::vector<int>{5, 4}),
 		                                           E3D::Parser::Element(3, std::vector<int>{4, 3}),
@@ -136,5 +136,81 @@ TEST_CASE("Solve physical border conditions in 2D", "[partition],[PhysicalBC]") 
 		REQUIRE(northSol == northExp);
 		REQUIRE(southSol == southExp);
 		REQUIRE(parts[2].Markers.size() == 2);
+	}
+}
+
+
+/**
+ * @details Test the partitionning of physical border conditions for a 2D test
+ *      case. The case is graphically represented in docs/test/tetrahedronPartitionning.svg
+ * 
+ */
+TEST_CASE("Solve physical border conditions for 2 tetrahedron", "[partition],[PhysicalBC]") {
+	// build localNode2Global
+	std::vector<int> localNode2Global{0, 1, 2, 3, // top
+	                                  1, 2, 3, 4};// bot
+	std::vector<int> localNode2GlobalStart{0, 4, 8};
+
+	// building SU2Mesh objects
+	E3D::Partition::SU2Mesh top;
+	top.elem2nodeStart = std::vector<int>{0, 4};
+	top.elem2node = std::vector<int>{0, 1, 2, 3};
+	top.NDIM = 3;
+	top.NELEM = 1;
+	top.NPOIN = 4;
+	top.ID = 0;
+	top.SetLocal2GlobalConnectivy(localNode2Global, localNode2GlobalStart);
+	top.physicalBorderElements = std::vector<int>{0};
+
+	E3D::Partition::SU2Mesh bot;
+	bot.elem2nodeStart = std::vector<int>{0, 4};
+	bot.elem2node = std::vector<int>{0, 1, 2, 3};
+	bot.NDIM = 3;
+	bot.NELEM = 1;
+	bot.NPOIN = 4;
+	bot.ID = 1;
+	bot.SetLocal2GlobalConnectivy(localNode2Global, localNode2GlobalStart);
+	bot.physicalBorderElements = std::vector<int>{0};
+
+	std::vector<E3D::Partition::SU2Mesh> parts{top, bot};
+
+	// Build border conditions
+	std::pair<std::string, std::vector<E3D::Parser::Element>> red;
+	red.first = "red";
+	red.second = std::vector<E3D::Parser::Element>{
+	        E3D::Parser::Element(5, std::vector<int>{0, 1, 3}),
+	        E3D::Parser::Element(5, std::vector<int>{1, 4, 3})};
+
+	std::pair<std::string, std::vector<E3D::Parser::Element>> blue;
+	blue.first = "blue";
+	blue.second = std::vector<E3D::Parser::Element>{
+	        E3D::Parser::Element(5, std::vector<int>{0, 3, 2}),
+	        E3D::Parser::Element(5, std::vector<int>{3, 4, 2})};
+
+	E3D::Parser::BC_Structure BC{red, blue};
+
+	// Run partitionning
+	E3D::Partition::PhysicalBCPartition::Solve(BC, parts);
+
+	SECTION("top partition") {
+		std::vector<E3D::Parser::Element> redExp{E3D::Parser::Element(5, std::vector<int>{0, 1, 3})};
+		std::vector<E3D::Parser::Element> blueExp{E3D::Parser::Element(5, std::vector<int>{0, 3, 2})};
+		std::vector<E3D::Parser::Element> redSol = parts[0].Markers["red"];
+		std::vector<E3D::Parser::Element> blueSol = parts[0].Markers["blue"];
+		int size = parts[0].Markers.size();
+		REQUIRE(redSol == redExp);
+		REQUIRE(blueSol == blueExp);
+		REQUIRE(size == 2);
+	}
+
+	SECTION("bot partition") {
+		std::vector<E3D::Parser::Element> redExp{E3D::Parser::Element(5, std::vector<int>{0, 3, 2})};
+		std::vector<E3D::Parser::Element> blueExp{E3D::Parser::Element(5, std::vector<int>{2, 3, 1})};
+		std::vector<E3D::Parser::Element> redSol = parts[1].Markers["red"];
+		std::vector<E3D::Parser::Element> blueSol = parts[1].Markers["blue"];
+		int size = parts[1].Markers.size();
+		REQUIRE(redSol == redExp);
+		REQUIRE(blueSol == blueExp);
+		REQUIRE(size == 2);
 	}
 }
