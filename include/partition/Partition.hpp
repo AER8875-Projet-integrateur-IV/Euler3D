@@ -130,7 +130,8 @@ namespace E3D::Partition {
          * La fonction fait appel à METIS et récupère le vecteur de connectivité 
          * Element vers Partition.
          */
-		void SolveElem2Part();
+		void RunMetis();
+		void solveElem2Node();
 		/**
          * Résolution de la connectivité Partition vers Element
          *
@@ -181,6 +182,11 @@ namespace E3D::Partition {
          * @param path Save path
          */
 		void WriteSU2(E3D::Partition::SU2Mesh &partition, const std::string &path);
+		/**
+         * @brief Partition the physical borders between the different subpartitions
+         * 
+         */
+		void PhysicalPartitionSolve();
 
 	public:
 		/** 
@@ -195,10 +201,12 @@ namespace E3D::Partition {
 		/**
          * @brief Partition the global mesh and write to file
          * 
-         * @param SU2OuputPath Save path for the partitions, the # symbol will
-         *      be replaced by the partition ID
+         * @param SU2OuputPath 
+         * @param elem2Part Will use this vector instead of METIS library if
+         *      supplied
          */
-		void Write(const std::vector<std::string> &SU2OuputPath);
+		std::vector<E3D::Partition::SU2Mesh> &Write(const std::vector<std::string> &SU2OuputPath,
+		                                            const std::vector<int> &elem2Part = std::vector<int>());
 
 		/**
          * @brief Find the global node ID from a local node ID and part ID

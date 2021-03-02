@@ -1,5 +1,4 @@
 #include "partition/Partition.hpp"
-#include "partition/PhysicalBCPartition.hpp"
 #include "partition/SU2Writer.hpp"
 #include "spdlog/logger.h"
 #include "spdlog/stopwatch.h"
@@ -67,13 +66,8 @@ Partition::Partition(Mesh<E3D::Parser::SU2MeshParser> *meshGlobal, int &nPart) {
 	_m_nPart = nPart;
 }
 
-void Partition::SolveElem2Part() {
-	// Initialisation
-	idx_t NELEM = _m_meshGlobal->GetMeshInteriorElemCount();
-	idx_t NPOIN = _m_meshGlobal->GetMeshNodeCount();
-	idx_t npart(_m_nPart);// METIS utilise le type long
-	_m_elem2Part.resize(NELEM);
-
+void Partition::solveElem2Node() {
+	int NELEM = _m_meshGlobal->GetMeshInteriorElemCount();
 	// Connectivité elem2node du mmaillage global
 	_m_elem2NodeStart.reserve(NELEM + 1);
 	_m_elem2Node.reserve(4 * NELEM);
@@ -88,6 +82,14 @@ void Partition::SolveElem2Part() {
 			_m_elem2Node.push_back(node);
 		}
 	}
+}
+
+void Partition::RunMetis() {
+	// Initialisation
+	idx_t NELEM = _m_meshGlobal->GetMeshInteriorElemCount();
+	idx_t NPOIN = _m_meshGlobal->GetMeshNodeCount();
+	idx_t npart(_m_nPart);
+	_m_elem2Part.resize(NELEM);
 
 	// Paramètres utiles pour appeler METIS
 	std::vector<idx_t> node2Part(NPOIN);// vecteur qui va contenir la partition de chaque noeud
@@ -294,9 +296,59 @@ void Partition::SolveBorder() {
 	return;
 }
 
-void Partition::Write(const std::vector<std::string> &SU2OuputPath) {
-	std::shared_ptr<spdlog::logger> logger = E3D::Logger::Getspdlog();
+void Partition::PhysicalPartitionSolve() {
+	auto &mesh = _m_meshGlobal;
+	auto isInterior = [&mesh](int id) {
+		int n = mesh->GetInteriorElementVector().size();
+		return id < n;
+	};
 
+	for (auto const &Marker : _m_meshGlobal->GetBoundaryConditionVector()) {
+		const std::string &tag = Marker.first;
+		const std::vector<E3D::Parser::Element> &elemVector = Marker.second;
+
+
+		// Find a match for each border element of the global mesh
+		for (auto const &elem : elemVector) {
+			const std::vector<int> &markerNodes = elem.getElemNodes();
+			int nMarkerNode = markerNodes.size();
+
+			// Find global element ID of the interior element
+			auto node = markerNodes.begin();
+			int nElem;
+			int *node2elem = _m_meshGlobal->GetNode2ElementID(*node, nElem);
+			std::vector<int> commonElem(node2elem, node2elem + nElem);
+			auto commonBeg = commonElem.begin();
+			auto commonEnd = commonElem.end();
+			std::sort(commonBeg, commonEnd);
+
+			for (int i = 1; i < (nMarkerNode); i++) {
+				node++;
+				node2elem = _m_meshGlobal->GetNode2ElementID(*node, nElem);
+				std::sort(node2elem, node2elem + nElem);
+				// Check for matches
+				std::set_intersection(commonBeg, commonEnd,
+				                      node2elem, node2elem + nElem,
+				                      commonBeg);
+			}
+			int InteriorElement = *std::find_if(commonBeg, commonEnd, isInterior);
+			int partID = _m_elem2Part[InteriorElement];
+
+			std::vector<int> localMarkerNodes;
+			localMarkerNodes.reserve(nMarkerNode);
+			for (int globalNode : markerNodes) {
+				localMarkerNodes.push_back(globalNode2Local(globalNode, partID));
+			}
+			int VTKid = elem.getVtkID();
+			_m_part[partID].AddMarkerElement(tag, VTKid, localMarkerNodes.data(), localMarkerNodes.size());
+		}
+	}
+}
+
+std::vector<E3D::Partition::SU2Mesh> &Partition::Write(
+        const std::vector<std::string> &SU2OuputPath,
+        const std::vector<int> &elem2Part) {
+	std::shared_ptr<spdlog::logger> logger = E3D::Logger::Getspdlog();
 	std::cout << std::string(24, '#') << "  Partitionning  " << std::string(24, '#') << "\n"
 	          << std::endl;
 
@@ -306,34 +358,40 @@ void Partition::Write(const std::vector<std::string> &SU2OuputPath) {
 	          << _m_nPart
 	          << "\n";
 
-	spdlog::stopwatch METISsw;
-	SolveElem2Part();
-	logger->debug("METIS and set-up run time {}", METISsw);
-
-	spdlog::stopwatch connecsw;
+	solveElem2Node();
+	if (elem2Part.empty()) {
+		spdlog::stopwatch METISsw;
+		RunMetis();
+		logger->debug("METIS and set-up run time {}", METISsw);
+	} else {
+		int nElem = elem2Part.size();
+		_m_elem2Part.resize(nElem);
+		std::copy_n(elem2Part.begin(), nElem, _m_elem2Part.begin());
+	}
+	// spdlog::stopwatch connecsw;
 	SolvePart2Elem();
 	SolveElem2Node();
-	logger->debug("Partition connectivity run time {}", connecsw);
+	// logger->debug("Partition connectivity run time {}", connecsw);
 
 	spdlog::stopwatch internalMarkersw;
 	SolveBorder();
-	logger->debug("Internal markers partitionning run time {}", internalMarkersw);
+	// logger->debug("Internal markers partitionning run time {}", internalMarkersw);
 
 	for (auto &part : _m_part) {
 		// initial set up before resolving physical markers
 		part.SetLocal2GlobalConnectivy(_m_localNode2Global, _m_localNode2GlobalStart);
-		part.FindPhysicalBorder(*_m_meshGlobal, _m_Part2ElemStart, _m_Part2Elem);
 	}
 
 	spdlog::stopwatch physicalMarkersw;
-	PhysicalBCPartition::Solve(_m_meshGlobal->GetBoundaryConditionVector(), _m_part);
-	logger->debug("Physical markers partitionning run time {}", physicalMarkersw);
+	PhysicalPartitionSolve();
+	// logger->debug("Physical markers partitionning run time {}", physicalMarkersw);
 
 	for (int i = 0; i < _m_nPart; i++) {
 		SU2Mesh &part = _m_part[i];
 		std::string path = SU2OuputPath[i];
 		this->WriteSU2(part, path);
 	}
+	return _m_part;
 }
 
 void Partition::WriteSU2(E3D::Partition::SU2Mesh &partition, const std::string &path) {
