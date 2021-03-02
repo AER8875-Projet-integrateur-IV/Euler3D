@@ -52,6 +52,8 @@ int main(int argc, char *argv[]) {
 	                                           "/home/aziz/Bureau/A2020/PI4/Codes/Euler3D/test/post/StructuredBlock_8_p3"};
 	std::string outputFile = "/home/aziz/Bureau/A2020/PI4/Codes/Euler3D/test/post/Output.dat";
 
+	E3D::Post::Post post = E3D::Post::Post(Path_Partition, outputFile);
 	logObject->debug("Total run time {} s", globalsw);
+	post.Write();
 	return 0;
 }

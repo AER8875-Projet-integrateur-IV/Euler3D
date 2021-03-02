@@ -16,7 +16,7 @@
 
 #include "parser/Element.hpp"
 #include "parser/SU2MeshParser.hpp"
-// #include "mesh/Mesh.hpp"
+#include "parser/SolutionPost.hpp"
 
 namespace E3D::Post {
 
@@ -36,7 +36,9 @@ namespace E3D::Post {
          *
          * @param[in]   fileName   Nom du fichier Tecplot
          */
-		void WriteTecplot(std::string fileName);
+		void WriteTecplot();
+		void initializeTecplot();
+		void writeZoneHeader(int iPart);
 
 	public:
 		Post(std::vector<std::string> pathPartition, std::string outputFile);

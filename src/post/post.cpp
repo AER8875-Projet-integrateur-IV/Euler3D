@@ -16,119 +16,101 @@
 using namespace E3D::Post;
 
 
-Post::Post(std::string Meshpath, std::string Varpath, int nPart)
-{
-    _fileName = Meshpath;
-    _fileVar = Varpath;
-    _nPart = nPart;
-    return;
+Post::Post(std::vector<std::string> pathPartition, std::string outputFile) {
+	_outputFile = outputFile;
+	_nPart = pathPartition.size();
+	_meshPartitionPath.reserve(_nPart);
+	_solutionPartitionPath.reserve(_nPart);
+	for (int i = 0; i < _nPart; i++) {
+		std::string path = pathPartition[i];
+		_meshPartitionPath.push_back(path + ".par");
+		_solutionPartitionPath.push_back(path + ".sol");
+	}
+	return;
 }
 
-Post::~Post()
-{
-    return;
+Post::~Post() {
+	return;
 }
 
-void Post::Write()
-{
-    std::cout << "Début Post:\n";
-    WriteTecplot("test.dat");
-    std::cout << "Fin Post:\n";
+void Post::Write() {
+	std::cout << "Début Post:\n";
+	WriteTecplot();
+	std::cout << "Fin Post:\n";
 }
 
-void Post::WriteTecplot(std::string fileName)
-{
-    E3D::Parser::SU2MeshParser maillage(_fileName);
-    // Création du fichier
-    FILE *fid = fopen(fileName.c_str(), "w");
-    // Cas d'un maillage 2D
-    if (maillage.GetNDim() == 3)
-    {
-        // Entête du fichier
-        fprintf(fid, "VARIABLES=\"X\",\"Y\",\"Z\"\n");
-        // Écriture de chaque partition dans une zone de Tecplot
-        // for (int iPart = 0; iPart < _m_nPart; iPart++)
-            // {
-            // Entête de la zone
-            int nNodes = maillage.GetPointsCount();
-            int nElements = maillage.GetVolumeElemCount();
-            fprintf(fid, "ZONE T=\"Element\"\nNodes=%d, Elements=%d, ZONETYPE=FEBRICK\nDATAPACKING=BLOCK\n", nNodes, nElements);
+void Post::initializeTecplot() {
+	// Création du fichier
+	FILE *fid = fopen(_outputFile.c_str(), "w");
+	// Entête du fichier
+	fprintf(fid, "VARIABLES=\"X\",\"Y\",\"Z\",\"Rho\",\"u\",\"v\",\"w\",\"p\",\"E\"\n");
+	return;
+}
 
-            // Coordonnées des noeuds de la partition
-            for (int nodeI = 0; nodeI < nNodes; nodeI++)
-            {
-                E3D::Parser::Node node = maillage.GetPoints()[nodeI];
-                fprintf(fid, "%.12e\n", node.getX());
-            }
-            for (int nodeI = 0; nodeI < nNodes; nodeI++)
-            {
-                E3D::Parser::Node node = maillage.GetPoints()[nodeI];
-                fprintf(fid, "%.12e\n", node.getY());
-            }
-            for (int nodeI = 0; nodeI < nNodes; nodeI++)
-            {
-                E3D::Parser::Node node = maillage.GetPoints()[nodeI];
-                fprintf(fid, "%.12e\n", node.getZ());
-            }
-            // Variables Pression, Vitesse, Densité, Energie
-            // for (int elementI = 0; elementI < nElements; elementI++)
-            // {
-            //
-            // }
+void Post::writeZoneHeader(int iPart) {
 
-            // Connectivité des éléments de la partition
-            for (const E3D::Parser::Element &elem : maillage.GetVolumeElems())
-            {
-                for (const int &iNode: elem.getElemNodes())
-                {
-                    fprintf(fid, "%d ", iNode+1);
-                }
-                // for (const int &iNode: elem.getElemNodes())
-                // {
-                //     fprintf(fid, "%d ", iNode+1);
-                // }
-                fprintf(fid, "\n");
-            }
-        //}
-    }
-    // Cas d'un maillage 3D
-    // Elements ayant seulement 8 noeuds seront considérés
-    // else if (_m_meshGlobal->GetMeshDim() == 3)
-    // {
-    //     // Entête du fichier
-    //     fprintf(fid, "VARIABLES=\"X\",\"Y\",\"Z\"\n");
-    //     for (int iPart = 0; iPart < _m_nPart; iPart++)
-    //     {
-    //         // Entête de la zone
-    //         int nNodes = _m_nNodePerPart[iPart];
-    //         int nElements = _m_nElemPerPart[iPart];
-    //         fprintf(fid, "ZONE T=\"Element\"\nNodes=%d, Elements=%d, ZONETYPE=FEBRICK\nDATAPACKING=POINT\n", nNodes, nElements);
-    //
-    //         // Coordonnées des noeuds de la partition
-    //         for (int nodeI = 0; nodeI < nNodes; nodeI++)
-    //         {
-    //             E3D::Parser::Node node = _m_meshGlobal->GetNodeCoord(_m_localNode2Global[nodeI + _m_localNode2GlobalStart[iPart]]);
-    //             fprintf(fid, "%.12e %.12e %.12e\n", node.getX(), node.getY(), node.getZ());
-    //         }
-    //
-    //         // Variables Pression, Vitesse, Densité, Energie
-    //         // for (int elementI = 0; elementI < nElements; elementI++)
-    //         // {
-    //         //
-    //         // }
-    //
-    //         // Connectivité des éléments de la partition
-    //         for (int elementI = 0; elementI < nElements; elementI++)
-    //         {
-    //             for (int iNode = _m_part[iPart].elem2nodeStart[elementI]; iNode < _m_part[iPart].elem2nodeStart[elementI + 1]; iNode++)
-    //             {
-    //                 fprintf(fid, "%d ", _m_part[iPart].elem2node[iNode] + 1);
-    //             }
-    //             fprintf(fid, "\n");
-    //         }
-    //     }
+	return;
+}
 
-    // // Fermeture du fichier
-    fclose(fid);
-    return;
+void Post::WriteTecplot() {
+
+	// Création du fichier
+	FILE *fid = fopen(_outputFile.c_str(), "w");
+	// Entête du fichier
+	fprintf(fid, "VARIABLES=\"X\",\"Y\",\"Z\",\"Rho\",\"u\",\"v\",\"w\",\"p\",\"E\"\n");
+	for (int iPart = 0; iPart < _nPart; iPart++) {
+		// Lecture de la partition
+		E3D::Parser::SU2MeshParser iMesh = E3D::Parser::SU2MeshParser(_meshPartitionPath[iPart]);
+		// Entête de la zone
+		int nNodes = iMesh.GetPointsCount();
+		int nElements = iMesh.GetVolumeElemCount();
+		fprintf(fid, "ZONE T=\"Element\"\nNodes=%d, Elements=%d, ZONETYPE=FEBRICK\nDATAPACKING=BLOCK, VARLOCATION=([4-9]=CELLCENTERED)\n", nNodes, nElements);
+
+		// Coordonnées des noeuds de la partition
+		for (int nodeI = 0; nodeI < nNodes; nodeI++) {
+			E3D::Parser::Node node = iMesh.GetPoints()[nodeI];
+			fprintf(fid, "%.12e\n", node.getX());
+		}
+		for (int nodeI = 0; nodeI < nNodes; nodeI++) {
+			E3D::Parser::Node node = iMesh.GetPoints()[nodeI];
+			fprintf(fid, "%.12e\n", node.getY());
+		}
+		for (int nodeI = 0; nodeI < nNodes; nodeI++) {
+			E3D::Parser::Node node = iMesh.GetPoints()[nodeI];
+			fprintf(fid, "%.12e\n", node.getZ());
+		}
+
+		// Lecture des solutions
+		E3D::Parser::SolutionPost isolution(_solutionPartitionPath[iPart], nElements);
+		for (int iElem = 0; iElem < nElements; iElem++) {
+			fprintf(fid, "%.12e\n", isolution.GetRho(iElem));
+		}
+		for (int iElem = 0; iElem < nElements; iElem++) {
+			fprintf(fid, "%.12e\n", isolution.GetU(iElem));
+		}
+		for (int iElem = 0; iElem < nElements; iElem++) {
+			fprintf(fid, "%.12e\n", isolution.GetV(iElem));
+		}
+		for (int iElem = 0; iElem < nElements; iElem++) {
+			fprintf(fid, "%.12e\n", isolution.GetW(iElem));
+		}
+		for (int iElem = 0; iElem < nElements; iElem++) {
+			fprintf(fid, "%.12e\n", isolution.GetPression(iElem));
+		}
+		for (int iElem = 0; iElem < nElements; iElem++) {
+			fprintf(fid, "%.12e\n", isolution.GetEnergy(iElem));
+		}
+
+		// Connectivité des éléments de la partition
+		for (const E3D::Parser::Element &elem : iMesh.GetVolumeElems()) {
+			for (const int &iNode : elem.getElemNodes()) {
+				fprintf(fid, "%d ", iNode + 1);
+			}
+			fprintf(fid, "\n");
+		}
+	}
+
+	// Fermeture du fichier
+	fclose(fid);
+	return;
 }
