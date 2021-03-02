@@ -31,18 +31,14 @@ int main(int argc, char *argv[]) {
 	// E3D::Parser::SimConfig config(configFile);
 
 	// spdlog::stopwatch globalsw;
-	// E3D::Logger logger(config.getPreLog());
+	// // E3D::Logger logger(config.getPreLog());
 
 	// auto logObject = E3D::Logger::Getspdlog();
-	// logObject->info("Euler 3D Pre-processor.\n");
+	// logObject->info("Euler 3D Post-processor.\n");
 
-	// std::string fileName = argv[1];
-
-	// spdlog::stopwatch meshsw;
-	// E3D::Mesh mesh(config.getInitialMeshFile());
-	// logObject->debug("Mesh parser run time {}", meshsw);
-
-	// mesh.solveConnectivity();
+	// int nPart = config.getNumberPartitions();
+	// const std::vector<std::string> &SU2OuputPath = config.getPartitionedMeshFiles();
+	// std::string outputFile = config.getTecplotFile();
 
 
 	// int nPart = config.getNumberPartitions();
@@ -50,6 +46,11 @@ int main(int argc, char *argv[]) {
 	// E3D::Partition::Partition part(&mesh, nPart);
 	// part.Write(SU2OuputPath);
 
+	std::vector<std::string> Path_Partition = {"/home/aziz/Bureau/A2020/PI4/Codes/Euler3D/test/post/StructuredBlock_8_p0",
+	                                           "/home/aziz/Bureau/A2020/PI4/Codes/Euler3D/test/post/StructuredBlock_8_p1",
+	                                           "/home/aziz/Bureau/A2020/PI4/Codes/Euler3D/test/post/StructuredBlock_8_p2",
+	                                           "/home/aziz/Bureau/A2020/PI4/Codes/Euler3D/test/post/StructuredBlock_8_p3"};
+	std::string outputFile = "/home/aziz/Bureau/A2020/PI4/Codes/Euler3D/test/post/Output.dat";
 
 	logObject->debug("Total run time {} s", globalsw);
 	return 0;

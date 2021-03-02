@@ -11,37 +11,37 @@
 #pragma once
 #include <iostream>
 #include <string>
-#include <vector>
 #include <unordered_map>
+#include <vector>
 
 #include "parser/Element.hpp"
 #include "parser/SU2MeshParser.hpp"
 // #include "mesh/Mesh.hpp"
 
-namespace E3D::Post
-{
+namespace E3D::Post {
 
-    class Post
-    {
-    private:
-        /*Fichier maillage*/
-        std::string _fileName;
-        /*Fichier variable solveur*/
-        std::string _fileVar;
-        /*Nombre de partitions*/
-        int _nPart;
+	class Post {
+	private:
+		/*Fichier maillage*/
+		std::vector<std::string> _meshPartitionPath;
+		/*Fichiers variable solveur*/
+		std::vector<std::string> _solutionPartitionPath;
+		// Fichier de sortie
+		std::string _outputFile;
+		/*Nombre de partitions*/
+		int _nPart;
 
-        /**
+		/**
          * Écrit la solution dans un fichier Tecplot
          *
          * @param[in]   fileName   Nom du fichier Tecplot
          */
-        void WriteTecplot(std::string fileName);
+		void WriteTecplot(std::string fileName);
 
-    public:
-        Post(std::string mesh, std::string var, int nPart);
-        ~Post();
+	public:
+		Post(std::vector<std::string> pathPartition, std::string outputFile);
+		~Post();
 
-        void Write();
-    };
-}; // namespace E3D::Post
+		void Write();
+	};
+};// namespace E3D::Post
