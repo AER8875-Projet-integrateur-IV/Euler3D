@@ -348,7 +348,7 @@ void Partition::PhysicalPartitionSolve() {
 std::vector<E3D::Partition::SU2Mesh> &Partition::Write(
         const std::vector<std::string> &SU2OuputPath,
         const std::vector<int> &elem2Part) {
-	std::shared_ptr<spdlog::logger> logger = E3D::Logger::Getspdlog();
+	auto logger = E3D::Logger::Getspdlog();
 	std::cout << std::string(24, '#') << "  Partitionning  " << std::string(24, '#') << "\n"
 	          << std::endl;
 
@@ -368,14 +368,14 @@ std::vector<E3D::Partition::SU2Mesh> &Partition::Write(
 		_m_elem2Part.resize(nElem);
 		std::copy_n(elem2Part.begin(), nElem, _m_elem2Part.begin());
 	}
-	// spdlog::stopwatch connecsw;
+	spdlog::stopwatch connecsw;
 	SolvePart2Elem();
 	SolveElem2Node();
-	// logger->debug("Partition connectivity run time {}", connecsw);
+	logger->debug("Partition connectivity run time {}", connecsw);
 
 	spdlog::stopwatch internalMarkersw;
 	SolveBorder();
-	// logger->debug("Internal markers partitionning run time {}", internalMarkersw);
+	logger->debug("Internal markers partitionning run time {}", internalMarkersw);
 
 	for (auto &part : _m_part) {
 		// initial set up before resolving physical markers
@@ -384,7 +384,7 @@ std::vector<E3D::Partition::SU2Mesh> &Partition::Write(
 
 	spdlog::stopwatch physicalMarkersw;
 	PhysicalPartitionSolve();
-	// logger->debug("Physical markers partitionning run time {}", physicalMarkersw);
+	logger->debug("Physical markers partitionning run time {}", physicalMarkersw);
 
 	for (int i = 0; i < _m_nPart; i++) {
 		SU2Mesh &part = _m_part[i];
