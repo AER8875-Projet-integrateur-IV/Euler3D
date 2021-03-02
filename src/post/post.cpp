@@ -103,10 +103,33 @@ void Post::WriteTecplot() {
 
 		// Connectivité des éléments de la partition
 		for (const E3D::Parser::Element &elem : iMesh.GetVolumeElems()) {
-			for (const int &iNode : elem.getElemNodes()) {
-				fprintf(fid, "%d ", iNode + 1);
+			if (elem.getVtkID() == 12)// Hexaedre
+			{
+				fprintf(fid, "%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\n",
+				        elem.getElemNodes()[0] + 1, elem.getElemNodes()[1] + 1, elem.getElemNodes()[2] + 1, elem.getElemNodes()[3] + 1,
+				        elem.getElemNodes()[4] + 1, elem.getElemNodes()[5] + 1, elem.getElemNodes()[6] + 1, elem.getElemNodes()[7] + 1);
+			} else if (elem.getVtkID() == 10)// Tetraedre
+			{
+				fprintf(fid, "%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\n",
+				        elem.getElemNodes()[0] + 1, elem.getElemNodes()[1] + 1, elem.getElemNodes()[2] + 1, elem.getElemNodes()[2] + 1,
+				        elem.getElemNodes()[3] + 1, elem.getElemNodes()[3] + 1, elem.getElemNodes()[3] + 1, elem.getElemNodes()[3] + 1);
+			} else if (elem.getVtkID() == 14)// Pyramid
+			{
+				fprintf(fid, "%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\n",
+				        elem.getElemNodes()[0] + 1, elem.getElemNodes()[1] + 1, elem.getElemNodes()[2] + 1, elem.getElemNodes()[3] + 1,
+				        elem.getElemNodes()[4] + 1, elem.getElemNodes()[4] + 1, elem.getElemNodes()[4] + 1, elem.getElemNodes()[4] + 1);
+			} else if (elem.getVtkID() == 13)// Prism
+			{
+				fprintf(fid, "%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\n",
+				        elem.getElemNodes()[0] + 1, elem.getElemNodes()[1] + 1, elem.getElemNodes()[1] + 1, elem.getElemNodes()[2] + 1,
+				        elem.getElemNodes()[3] + 1, elem.getElemNodes()[4] + 1, elem.getElemNodes()[4] + 1, elem.getElemNodes()[5] + 1);
+			} else {
+
+				for (const int &iNode : elem.getElemNodes()) {
+					fprintf(fid, "%d\t", iNode + 1);
+				}
+				fprintf(fid, "\n");
 			}
-			fprintf(fid, "\n");
 		}
 	}
 
