@@ -32,14 +32,10 @@ int main(int argc, char *argv[]) {
 
 
 	// Parsing Partitions (mesh files)
-	double startConnectivityTimer = MPI_Wtime();
+
 	localmesh.solveConnectivity();
 	MPI_Barrier(MPI_COMM_WORLD);
-	if (e3d_mpi.getRankID() == 0) {
-		double endConnectivityTimer = MPI_Wtime();
 
-		printf("Connectivity took %.5f seconds to solve.\n", endConnectivityTimer - startConnectivityTimer);
-	}
 	Metrics localMeshMetrics(localmesh, e3d_mpi);
 	MPI_Barrier(MPI_COMM_WORLD);
 

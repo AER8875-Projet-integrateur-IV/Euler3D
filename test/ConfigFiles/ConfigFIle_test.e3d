@@ -71,7 +71,7 @@ CFL= 3
 MIN_RESIDUAL= 1e-10
 
 # Number of maximum iterations to stop solver
-MAX_ITER= 99999
+MAX_ITER= 9
 
 -------------------- POST-PROCESSING CONTROL ----------------
 # Path to file output, from executable directory

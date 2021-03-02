@@ -55,6 +55,8 @@ namespace E3D::Solver
         // Return rhoE of problem
         inline const std::vector<double>& GetMach() const {return this->_M; }
 
+		inline int getTotalElemsCount() const {return _totalElemCount;}
+
 		static constexpr const double E3D_PI = 3.141592653589793238;
 
     private:
@@ -85,7 +87,9 @@ namespace E3D::Solver
 		double M_inf =    0.0;
 		double gamma_ref = 0.0;
 
+		int _totalElemCount = 0;
 
-		void Initialize(const int);
+
+		void Initialize(const int, const int);
     };
 }

@@ -16,7 +16,7 @@ namespace E3D::Parser {
 
         void printAllPartitionsInfo();
 
-        inline const std::vector<std::pair<int, std::vector<E3D::Parser::GhostCell>>> &getMpiBoundaryElems() const {
+        inline std::vector<std::pair<int, std::vector<E3D::Parser::GhostCell>>> &getMpiBoundaryElems() {
             return this->_MpiBoundaryElements;
         }
 
