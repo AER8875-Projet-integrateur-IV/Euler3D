@@ -9,6 +9,7 @@
  * such as Pressure, Density, Velocity and Energy already solved in Solver.
  */
 #pragma once
+#include "/usr/local/tecplot/360ex_2019r1/include/TECIO.h"
 #include <iostream>
 #include <string>
 #include <unordered_map>
@@ -36,9 +37,8 @@ namespace E3D::Post {
          *
          * @param[in]   fileName   Nom du fichier Tecplot
          */
-		void WriteTecplot();
-		void initializeTecplot();
-		void writeZoneHeader(int iPart);
+		void WriteTecplotASCII();
+		void WriteTecplotBinary();
 
 	public:
 		Post(std::vector<std::string> pathPartition, std::string outputFile);

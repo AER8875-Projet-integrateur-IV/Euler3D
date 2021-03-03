@@ -35,24 +35,11 @@ Post::~Post() {
 
 void Post::Write() {
 	std::cout << "Début Post:\n";
-	WriteTecplot();
+	WriteTecplotASCII();
 	std::cout << "Fin Post:\n";
 }
 
-void Post::initializeTecplot() {
-	// Création du fichier
-	FILE *fid = fopen(_outputFile.c_str(), "w");
-	// Entête du fichier
-	fprintf(fid, "VARIABLES=\"X\",\"Y\",\"Z\",\"Rho\",\"u\",\"v\",\"w\",\"p\",\"E\"\n");
-	return;
-}
-
-void Post::writeZoneHeader(int iPart) {
-
-	return;
-}
-
-void Post::WriteTecplot() {
+void Post::WriteTecplotASCII() {
 
 	// Création du fichier
 	FILE *fid = fopen(_outputFile.c_str(), "w");
@@ -137,3 +124,6 @@ void Post::WriteTecplot() {
 	fclose(fid);
 	return;
 }
+
+
+void Post::WriteTecplotBinary() { return; }
