@@ -20,16 +20,10 @@ Solver::EulerSolver::EulerSolver(FlowField &localFlowField,
 	}
 
 	MPI_Barrier(MPI_COMM_WORLD);
-	//    if (e3d_mpi.getRankID() == 0) {
-	//
-	//        printf("Total Domain Volume : %.3f \n", domainVolume);
-	//        printf("Computing Metrics took %.5f seconds .\n", endMetricsTimer - startMetricsTimer);
-	//
-	//    }
 }
 
 void Solver::EulerSolver::Run() {
-    if (_e3d_mpi.getRankID() == 0) {
+	if (_e3d_mpi.getRankID() == 0) {
 		E3D::Solver::printHeader();
 	}
 
