@@ -3,6 +3,7 @@
 #include "spdlog/logger.h"
 #include "spdlog/stopwatch.h"
 #include "utils/Logger.hpp"
+#include "utils/ProgressBar.hpp"
 #include <algorithm>
 #include <iomanip>
 #include <metis.h>
@@ -303,6 +304,9 @@ void Partition::PhysicalPartitionSolve() {
 		return id < n;
 	};
 
+	int nMarker = _m_meshGlobal->GetMeshBoundaryElemCount();
+	ProgressBar progress("Physical marker partitionning", nMarker, "physical marker");
+
 	for (auto const &Marker : _m_meshGlobal->GetBoundaryConditionVector()) {
 		const std::string &tag = Marker.first;
 		const std::vector<E3D::Parser::Element> &elemVector = Marker.second;
@@ -341,6 +345,7 @@ void Partition::PhysicalPartitionSolve() {
 			}
 			int VTKid = elem.getVtkID();
 			_m_part[partID].AddMarkerElement(tag, VTKid, localMarkerNodes.data(), localMarkerNodes.size());
+			progress += 1;
 		}
 	}
 }
