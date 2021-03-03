@@ -33,7 +33,9 @@ namespace E3D::Parallel {
         /**
          *  @brief set the requester ID member variable
          */
-         inline void updateRequesterID(const std::vector<std::vector<E3D::Parser::GhostCell>>) {};
+         inline void updateRequesterID(const std::vector<std::pair<int, std::vector<E3D::Parser::GhostCell>>> reqID) {
+		        _requesterID = reqID;
+		};
 
         /**
          * @brief sort requester ID in destination partition increasing order -> this member function populate
@@ -58,6 +60,8 @@ namespace E3D::Parallel {
 
           inline int getPoolSize() const {return _poolSize;}
 
+		  inline const std::vector<std::pair<int, std::vector<E3D::Parser::GhostCell>>> & getRequesterID() const {return _requesterID;}
+
 
         /**
          * @brief Finalize this MPI process
@@ -65,7 +69,7 @@ namespace E3D::Parallel {
         inline void finalize() { MPI_Finalize(); }
 
     private:
-        std::vector<std::vector<int>> _requesterID;           /** @brief vector of vectors holding IDs of MPI boundary elements sorted
+        std::vector<std::pair<int, std::vector<E3D::Parser::GhostCell>>> _requesterID;           /** @brief vector of vectors holding IDs of MPI boundary elements sorted
                                                               * in increasing order,  in following format :
                                                               * [  [MpiElements]  --> For adjacentPartitionsID[0]
                                                               *    [MpiElements]  --> For adjacentPartitionsID[1]

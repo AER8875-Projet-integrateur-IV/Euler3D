@@ -11,8 +11,10 @@ using namespace E3D;
 Solver::EulerSolver::EulerSolver(FlowField &localFlowField,
                                  const E3D::Parallel::MPIHandler &e3d_mpi,
                                  const E3D::Mesh<E3D::Parser::MeshPartition> &localMesh,
-                                 const E3D::Parser::SimConfig &config)
-    : _localFlowField(localFlowField), _e3d_mpi(e3d_mpi), _localMesh(localMesh), _config(config) {
+                                 const E3D::Parser::SimConfig &config,
+                                 const E3D::Metrics& localMetrics)
+
+    : _localFlowField(localFlowField), _e3d_mpi(e3d_mpi), _localMesh(localMesh), _config(config), _localMetrics(localMetrics) {
 
 	if (e3d_mpi.getRankID() == 0) {
 		std::cout << "\n\n"
@@ -24,22 +26,18 @@ Solver::EulerSolver::EulerSolver(FlowField &localFlowField,
 
 void Solver::EulerSolver::Run() {
 	if (_e3d_mpi.getRankID() == 0) {
-		E3D::Solver::printHeader();
-	}
 
-	const std::vector<int> MpiGhostCellIDs = _localMesh.GetMPIGhostCellsIDs();
-	const std::vector<int> SymmetryGhostCellIDs = _localMesh.GetSymmetryGhostCellsIDs();
-	const std::vector<int> FarfieldGhostCellIDs = _localMesh.GetFarfieldGhostCellsIDs();
-	const std::vector<int> WallGhostCellIDs = _localMesh.GetWallGhostCellsIDs();
+
+
+
+        E3D::Solver::printHeader();
+	}
 
 
 	while (_maximumLocalRms > _config.getMinResidual() && _nbInteration < _config.getMaxNumberIterations()) {
 
-		// loop Through GHost cells (Boundary Cells)
-		for (int GCElemID = _localMesh.GetMeshInteriorElemCount(); GCElemID < _localFlowField.getTotalElemsCount(); GCElemID++) {
-			if (GCElemID) {
-			}
-		}
+		// loop Through Ghost cells (Boundary Cells)
+        updateBC();
 
 
 		double iterationBeginimer = MPI_Wtime();
@@ -62,4 +60,10 @@ void Solver::EulerSolver::Run() {
 }
 
 void Solver::EulerSolver::updateBC() {
+
+	// Update Farfield
+    for (const auto& GhostCellID : _FarfieldGhostCellIDs) {
+
+
+    }
 }

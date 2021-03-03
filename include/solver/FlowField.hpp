@@ -55,9 +55,55 @@ namespace E3D::Solver
         // Return rhoE of problem
         inline const std::vector<double>& GetMach() const {return this->_M; }
 
+		inline double getrho_ref() const {return rho_ref;}
+
+        inline double getp_inf() const {return p_inf;}
+
+        inline double getrho_inf() const {return rho_inf;}
+
+        inline double getp_ref() const {return p_ref;}
+
+        inline double getT_ref() const {return T_ref;}
+
+        inline double getu_inf() const {return u_inf;}
+
+        inline double getv_inf() const {return v_inf;}
+
+        inline double getw_inf() const {return w_inf;}
+
+        inline double getE_inf() const {return E_inf;}
+
+        inline double getH_inf() const {return H_inf;}
+
+        inline double getM_inf() const {return M_inf;}
+
+        inline double getgamma_ref() const {return gamma_ref;}
+
 		inline int getTotalElemsCount() const {return _totalElemCount;}
 
 		static constexpr const double E3D_PI = 3.141592653589793238;
+
+        inline void setRho(int ID, double value) { _rho[ID] = value; }
+
+        inline void setU(int ID, double value) { _u[ID] = value; }
+
+        inline void setV(int ID, double value) { _v[ID] = value; }
+
+        inline void setW(int ID, double value) { _w[ID] = value; }
+
+        inline void setE(int ID, double value) { _E[ID] = value; }
+
+        inline void setH(int ID, double value) { _H[ID] = value; }
+
+        inline void setP(int ID, double value) { _p[ID] = value; }
+
+        inline void setFx(int ID, double value) { _Fx[ID] = value; }
+
+        inline void setFy(int ID, double value) { _Fy[ID] = value; }
+
+        inline void setFz(int ID, double value) { _Fz[ID] = value; }
+
+        inline void setM(int ID, double value) { _M[ID] = value; }
 
     private:
         const E3D::Parser::SimConfig& _simConfig;

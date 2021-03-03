@@ -5,6 +5,8 @@
 #include <solver/FlowField.hpp>
 #include <utils/Vector3.h>
 
+#include "mesh/Metrics.hpp"
+
 namespace E3D::Solver {
 
 	class EulerSolver {
@@ -12,7 +14,8 @@ namespace E3D::Solver {
 		EulerSolver(FlowField& localFlowField,
 		            const E3D::Parallel::MPIHandler& e3d_mpi,
 		            const E3D::Mesh<E3D::Parser::MeshPartition>& localMesh,
-		            const E3D::Parser::SimConfig& config);
+		            const E3D::Parser::SimConfig& config,
+		            const E3D::Metrics&);
 
 		void Run();
 
@@ -61,10 +64,16 @@ namespace E3D::Solver {
 		std::vector<ConservativeVar> _deltaW;
 		std::vector<double> _cp;
 
+        const std::vector<std::pair<int, std::vector<int>>> _MpiGhostCellIDs = _localMesh.GetMPIGhostCellsIDs();
+        const std::vector<int> _SymmetryGhostCellIDs = _localMesh.GetSymmetryGhostCellsIDs();
+        const std::vector<int> _FarfieldGhostCellIDs = _localMesh.GetFarfieldGhostCellsIDs();
+        const std::vector<int> _WallGhostCellIDs = _localMesh.GetWallGhostCellsIDs();
+
         FlowField& _localFlowField;
         const E3D::Parallel::MPIHandler& _e3d_mpi;
         const E3D::Mesh<E3D::Parser::MeshPartition>& _localMesh;
         const E3D::Parser::SimConfig& _config;
+		const E3D::Metrics& _localMetrics;
 
 		int _nbInteration=0;
         double _maximumLocalRms=10;
@@ -72,7 +81,6 @@ namespace E3D::Solver {
 		double _CL=0;
 		double _CD=0;
 		double _CM=0;
-
 
 
 	};

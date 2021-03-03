@@ -1,5 +1,5 @@
 #include <parallelization/MPIHandler.hpp>
-
+#include <algorithm>
 
 using namespace E3D::Parallel;
 
@@ -11,4 +11,10 @@ MPIHandler::MPIHandler(int argc, char* argv[]) {
     if(_rankID==0) printf("\nNumber of MPI processes launched : %d\n", _poolSize);
 
 
+}
+
+void MPIHandler::sortInterface() {
+	for(auto& [tagID, VectorGhostCell] : _requesterID){
+		std::sort(VectorGhostCell.begin(),VectorGhostCell.end());
+	}
 }

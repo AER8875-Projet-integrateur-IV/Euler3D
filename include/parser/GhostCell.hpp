@@ -14,19 +14,20 @@ namespace E3D::Parser {
 
 		friend std::ostream &operator<<(std::ostream &out, const GhostCell &cell) {
 
-			out << " GhostCell ID : " << cell.getGhostCellID()
-			    << " | This Parition Element ID: " << cell.getthisPartitionElementID()
-			    << " | Adjacent Parition Element ID: " << cell.getAdjacentPartitionElementID()
-			    << " | Face VTK ID : " << cell.getFaceVtkID()
+			out << " GhostCell ID : " << cell._ghostCellID
+			    << " | This Parition Element ID: " << cell._thisPartitionElementID
+			    << " | Adjacent Parition Element ID: " << cell._adjacentPartitionElementID
+			    << " | Face VTK ID : " << cell._faceVtkID
 			    << " | Face Nodes : ";
-			for (auto &nodeID : cell.getfaceNodeIDs()) {
+			for (auto &nodeID : cell._faceNodeIDs) {
 				out << nodeID << " ";
 			}
 			return out;
 		}
 
 		//Todo add < operator
-
+        bool operator<(const GhostCell &rhs) const {return _adjacentPartitionElementID < rhs._adjacentPartitionElementID;}
+        bool operator<=(const GhostCell &rhs) const {return _adjacentPartitionElementID <= rhs._adjacentPartitionElementID;}
 
 		inline int getthisPartitionElementID() const { return _thisPartitionElementID; }
 
