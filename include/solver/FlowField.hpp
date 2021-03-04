@@ -5,40 +5,37 @@
 #include "parser/SimConfig.hpp"
 #include "solver/ConservativeVar.hpp"
 #include "mesh/Mesh.hpp"
-#include "parallelization/MPIHandler.hpp"
 
 namespace E3D::Solver
 {
-
     class FlowField {
 
     public:
 
         FlowField(const E3D::Parser::SimConfig& config,
-		          const E3D::Mesh<E3D::Parser::MeshPartition>&,
-		            const E3D::Parallel::MPIHandler&);
+		          const E3D::Mesh<E3D::Parser::MeshPartition>&);
 
         void PrintTest();
 
 		void Update(std::vector<E3D::Solver::ConservativeVar> delW_vector);
 
         // Return rho (density) of problem
-        inline const std::vector<double>& Getrho() const {return this->_rho; }
+        inline  std::vector<double>& Getrho() {return this->_rho; }
 
         // Return rhoU of problem
-        inline const std::vector<double>& GetU_Velocity() const {return this->_u; }
+        inline  std::vector<double>& GetU_Velocity()  {return this->_u; }
 
         // Return rhoV of problem
-        inline const std::vector<double>& GetV_Velocity() const {return this->_v; }
+        inline  std::vector<double>& GetV_Velocity()  {return this->_v; }
 
         // Return rhoW of problem
-        inline const std::vector<double>& GetW_Velocity() const {return this->_w; }
+        inline  std::vector<double>& GetW_Velocity() {return this->_w; }
 
         // Return rhoE of problem
         inline const std::vector<double>& GetP() const {return this->_p; }
 
         // Return rhoE of problem
-        inline const std::vector<double>& GetE() const {return this->_E; }
+        inline std::vector<double>& GetE() {return this->_E; }
 
         // Return rhoE of problem
         inline const std::vector<double>& GetH() const {return this->_H; }

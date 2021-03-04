@@ -21,29 +21,29 @@ Solver::EulerSolver::EulerSolver(FlowField &localFlowField,
 		          << std::string(24, '#') << "  Starting Solving Process !  " << std::string(24, '#') << "\n\n";
 	}
 
-	MPI_Barrier(MPI_COMM_WORLD);
+
 }
 
 void Solver::EulerSolver::Run() {
+
 	if (_e3d_mpi.getRankID() == 0) {
-
-
-
-
         E3D::Solver::printHeader();
 	}
 
 
 	while (_maximumLocalRms > _config.getMinResidual() && _nbInteration < _config.getMaxNumberIterations()) {
 
+
+        double iterationBeginimer = MPI_Wtime();
+
 		// loop Through Ghost cells (Boundary Cells)
         updateBC();
+		_e3d_mpi.updateFlowField(_localFlowField);
 
 
-		double iterationBeginimer = MPI_Wtime();
-		updateBC();
-		_nbInteration += 1;
 
+
+        _nbInteration += 1;
 		if (_e3d_mpi.getRankID() == 0) {
 			double iterationEndTimer = MPI_Wtime();
 			double iterationwallTime = iterationEndTimer - iterationBeginimer;

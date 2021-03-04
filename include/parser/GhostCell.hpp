@@ -46,6 +46,6 @@ namespace E3D::Parser {
 		int _faceVtkID;                  /** VTK id of the face between the 2 elements */
 		int _thisPartitionElementID;     /** ID of the element in the partition of this MPI process */
 		int _adjacentPartitionElementID; /** ID of the element in neighbor partition */
-		int _ghostCellID;
+		int _ghostCellID = -1;
 	};
 }// namespace E3D::Parser

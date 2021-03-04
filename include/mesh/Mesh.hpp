@@ -1,5 +1,5 @@
 #pragma once
-
+#include <mpi.h>
 #include <algorithm>
 #include <memory>
 #include <string>
@@ -12,7 +12,6 @@
 
 
 namespace E3D {
-
 
 	/**
 	 *
@@ -29,13 +28,10 @@ namespace E3D {
 			_parser.printInfo();
 		};
 
-		/**
-		 *
-		 * @brief ctor for solver with MPI, use this ctor with type MeshPartition
-		 */
-		Mesh(const std::string &fileName, E3D::Parallel::MPIHandler &e3d_mpi) : _parser(fileName, e3d_mpi), _e3d_mpi(e3d_mpi) {
+		Mesh(const std::string &fileName, const int RankID) : _parser(fileName, RankID) {
 			_parser.printAllPartitionsInfo();
-		};
+		}
+
 
 		void solveConnectivity() {
 			// IF type of the parser == MeshPartition, print info
@@ -82,16 +78,11 @@ namespace E3D {
 				updateFarfieldGhostCell();
 				updateSymmetryGhostCell();
 
-				_e3d_mpi.updateRequesterID(_parser.getMpiBoundaryElems());
-				_e3d_mpi.sortInterface();
-				int totalnumFaces = 0;
-				MPI_Reduce(&connectivityObj._nFace, &totalnumFaces, 1, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
 
 				MPI_Barrier(MPI_COMM_WORLD);
 				if (_parser.getrankID() == 0) {
 
 					printf("All processes solved connectivity of partitioned meshes !\n");
-					printf("Total number of Faces : %d\n", totalnumFaces);
 					double endConnectivityTimer = MPI_Wtime();
 					printf("Connectivity took %.5f seconds to solve.\n", endConnectivityTimer - startConnectivityTimer);
 				}
@@ -147,6 +138,12 @@ namespace E3D {
 		inline std::vector<std::pair<int, std::vector<E3D::Parser::GhostCell>>> &getMPIelements() {
 			if constexpr (std::is_same_v<T, E3D::Parser::MeshPartition>) {
 				return _parser.getMpiBoundaryElems();
+			}
+		}
+
+		inline int getMeshRankID() const {
+			if constexpr (std::is_same_v<T, E3D::Parser::MeshPartition>) {
+				return _parser.getrankID();
 			}
 		}
 
@@ -324,12 +321,15 @@ namespace E3D {
 
 	private:
 		T _parser;
-		E3D::Parallel::MPIHandler& _e3d_mpi;
+
 		std::vector<int> _connectivity;
 		std::vector<std::pair<int, std::vector<int>>> MPIGhostCellsIDs;
 		std::vector<int> WallGhostCellIDs;
+		std::vector<int> WallAdjacentToGhostCellIDs;
 		std::vector<int> SymmetryGhostCellIDs;
+		std::vector<int> SymmetryAdjacentGhostCellIDs;
 		std::vector<int> FarfieldGhostCellIDs;
+		std::vector<int> FarfieldAdjacentToGhostCellIDs;
 		std::vector<int> facesAroundGhostCells;
 		// variable calculees et assignees par connectivity
 		std::unique_ptr<std::vector<int>> node2element;
@@ -349,7 +349,7 @@ namespace E3D {
 		 * @brief populate member variable "_ghostCellID" of GhostCell objects found in vector MPIBoundaryElems of class MeshPartition
 		 */
 		void updateMPIGhostCells() {
-			std::cout << "Partition : " << _e3d_mpi.getRankID() << "\n";
+
 			// use only with solve exectuable (MeshPartition class)
 			if constexpr (std::is_same_v<T, E3D::Parser::MeshPartition>) {
 				// Find Faces Connected to ghost cells
@@ -370,8 +370,7 @@ namespace E3D {
 
 				// Loop through all MPI Ghost cells
 				for (auto &[partitionID, elems] : MPIelems) {
-                    std::cout << "PartitionID : " << partitionID << "\n";
-					std::cout << "Number of MPI elems : " << elems.size() << "\n";
+
 					std::pair<int, std::vector<int>> PairghostElemsOfAPartition;
 					PairghostElemsOfAPartition.first = partitionID;
 					std::vector<int> ghostElemsOfAPartition;
@@ -379,20 +378,23 @@ namespace E3D {
 
 					// Loop though Ghost Cells (MPIelem)
 					for (auto &MPIelem : elems) {
+
 						std::vector<int> potentialMPIGhostCell;
 						int localElemID = MPIelem.getthisPartitionElementID();
 						int SurrElemCount = 0;
 						int *p_localElem = GetElement2ElementID(localElemID, SurrElemCount);
+
+
 						for (int i = 0; i < SurrElemCount; i++) {
 							if (p_localElem[i] >= GetMeshInteriorElemCount()) {
 								potentialMPIGhostCell.push_back(p_localElem[i]);
 							}
 						}
+
+
 						// If local Element connected to only one ghost cell, the searching is done
 						if (potentialMPIGhostCell.size() == 1) {
 							MPIelem.setGhostCellID(potentialMPIGhostCell[0]);
-							std::cout << potentialMPIGhostCell[0] << "\n";
-							break;
 						}
 
 						// If local Element connected to many ghost cells (farfield, wall..) , MPI ghost cell should be found with face node information
@@ -428,7 +430,7 @@ namespace E3D {
 								std::sort(SurrNodes.begin(), SurrNodes.end());
 								if (SurrNodes == localElemIDFaceNodes) {
 									MPIelem.setGhostCellID(potentialGhostCellID);
-									std::cout << potentialGhostCellID << "\n";
+
 									ghostElemsOfAPartition.push_back(potentialGhostCellID);
 									break;
 									foundElem = true;
@@ -450,6 +452,7 @@ namespace E3D {
 				if (Tag == "airfoil" || Tag == "wall") {
 					for (auto face : faces) {
 						WallGhostCellIDs.reserve(faces.size());
+						WallAdjacentToGhostCellIDs.reserve(faces.size());
 						auto wallFaceNodes = face.getElemNodes();
 						std::sort(wallFaceNodes.begin(), wallFaceNodes.end());
 						for (auto &faceConnectedToGC : facesAroundGhostCells) {
@@ -463,6 +466,7 @@ namespace E3D {
 							std::sort(tempNodes.begin(), tempNodes.end());
 							if (tempNodes == wallFaceNodes) {
 								WallGhostCellIDs.push_back(GetFace2ElementID(faceConnectedToGC)[1]);
+								WallAdjacentToGhostCellIDs.push_back(GetFace2ElementID(faceConnectedToGC)[0]);
 								break;
 							}
 						}
@@ -479,6 +483,7 @@ namespace E3D {
 				std::transform(Tag.begin(), Tag.end(), Tag.begin(), ::tolower);
 				if (Tag == "farfield") {
 					FarfieldGhostCellIDs.reserve(faces.size());
+					FarfieldAdjacentToGhostCellIDs.reserve(faces.size());
 					for (auto face : faces) {
 						auto wallFaceNodes = face.getElemNodes();
 						std::sort(wallFaceNodes.begin(), wallFaceNodes.end());
@@ -493,6 +498,7 @@ namespace E3D {
 							std::sort(tempNodes.begin(), tempNodes.end());
 							if (tempNodes == wallFaceNodes) {
 								FarfieldGhostCellIDs.push_back(GetFace2ElementID(faceConnectedToGC)[1]);
+								FarfieldAdjacentToGhostCellIDs.push_back(GetFace2ElementID(faceConnectedToGC)[0]);
 								break;
 							}
 						}
@@ -509,6 +515,7 @@ namespace E3D {
 				if (Tag == "sym") {
 					for (auto face : faces) {
 						SymmetryGhostCellIDs.reserve(faces.size());
+						SymmetryAdjacentGhostCellIDs.reserve(faces.size());
 						auto wallFaceNodes = face.getElemNodes();
 						std::sort(wallFaceNodes.begin(), wallFaceNodes.end());
 						for (auto &faceConnectedToGC : facesAroundGhostCells) {
@@ -522,6 +529,7 @@ namespace E3D {
 							std::sort(tempNodes.begin(), tempNodes.end());
 							if (tempNodes == wallFaceNodes) {
 								SymmetryGhostCellIDs.push_back(GetFace2ElementID(faceConnectedToGC)[1]);
+								SymmetryAdjacentGhostCellIDs.push_back(GetFace2ElementID(faceConnectedToGC)[0]);
 								break;
 							}
 						}

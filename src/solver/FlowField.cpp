@@ -6,10 +6,9 @@
 using namespace E3D::Solver;
 
 FlowField::FlowField(const E3D::Parser::SimConfig &config,
-                     const E3D::Mesh<E3D::Parser::MeshPartition> &localMesh,
-                     const E3D::Parallel::MPIHandler &e3d_mpi) : _simConfig(config) {
+                     const E3D::Mesh<E3D::Parser::MeshPartition> &localMesh) : _simConfig(config) {
 
-	if (e3d_mpi.getRankID() == 0) {
+	if (localMesh.getMeshRankID() == 0) {
 		std::cout << "\n\n"
 		          << std::string(24, '#') << "  FlowField Initialization  " << std::string(24, '#') << "\n\n";
 	}
@@ -43,7 +42,8 @@ FlowField::FlowField(const E3D::Parser::SimConfig &config,
 	}
 
 
-	double totalElemCount = localMesh.GetMeshInteriorElemCount() + localMesh.GetMpiElemsCount() + TotalNumberOfBoundaryElems;
+	double totalElemCount = localMesh.GetMeshInteriorElemCount() + localMesh.GetMpiElemsCount() + localMesh.GetWallGhostCellsIDs().size()
+	        + localMesh.GetFarfieldGhostCellsIDs().size() + localMesh.GetSymmetryGhostCellsIDs().size();
 	_totalElemCount=totalElemCount;
 
 
@@ -51,7 +51,7 @@ FlowField::FlowField(const E3D::Parser::SimConfig &config,
 
 
 	MPI_Barrier(MPI_COMM_WORLD);
-	if (e3d_mpi.getRankID() == 0) {
+	if (localMesh.getMeshRankID() == 0) {
 		double endInitializationTimer = MPI_Wtime();
 		printf("Initializing FlowField took %.5f seconds .\n", endInitializationTimer - startInitializationTimer);
 	}

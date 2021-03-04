@@ -9,6 +9,7 @@
 #include "parser/SimConfig.hpp"
 #include "solver/FlowField.hpp"
 #include "solver/EulerSolver.hpp"
+
 using namespace E3D;
 
 int main(int argc, char *argv[]) {
@@ -28,7 +29,7 @@ int main(int argc, char *argv[]) {
 	std::string configFile = argv[1];
 	Parser::SimConfig config(configFile, e3d_mpi.getRankID(), e3d_mpi.getPoolSize());
 
-	E3D::Mesh<E3D::Parser::MeshPartition> localmesh(config.getPartitionedMeshFiles()[e3d_mpi.getRankID()], e3d_mpi);
+	E3D::Mesh<E3D::Parser::MeshPartition> localmesh(config.getPartitionedMeshFiles()[e3d_mpi.getRankID()], e3d_mpi.getRankID());
 
 
 	// Parsing Partitions (mesh files)
@@ -36,12 +37,17 @@ int main(int argc, char *argv[]) {
 	localmesh.solveConnectivity();
 	MPI_Barrier(MPI_COMM_WORLD);
 
+
+    e3d_mpi.updateRequesterID(localmesh.getMPIelements());
+    e3d_mpi.sortInterfaceRequester();
+
 	Metrics localMeshMetrics(localmesh, e3d_mpi);
 	MPI_Barrier(MPI_COMM_WORLD);
 
-    E3D::Solver::FlowField localFlowField(config,localmesh,e3d_mpi);
 
-	E3D::Solver::EulerSolver solver(localFlowField,e3d_mpi,localmesh,config);
+    E3D::Solver::FlowField localFlowField(config,localmesh);
+
+	E3D::Solver::EulerSolver solver(localFlowField,e3d_mpi,localmesh,config,localMeshMetrics);
 
 	solver.Run();
 

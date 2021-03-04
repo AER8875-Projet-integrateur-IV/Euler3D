@@ -12,21 +12,21 @@
 
 using namespace E3D::Parser;
 
-MeshPartition::MeshPartition(const std::string &fileName, const Parallel::MPIHandler& e3d_mpi)
-        : SU2MeshParser(fileName), _e3d_mpi(e3d_mpi) {
+MeshPartition::MeshPartition(const std::string &fileName, const int RankID)
+        : SU2MeshParser(fileName) {
 
-	_rankID = _e3d_mpi.getRankID();
+	_rankID = RankID;
 
     double startParserTimer = MPI_Wtime();
 
-    if(_e3d_mpi.getRankID()==0){
+    if(RankID==0){
         std::cout << "\n\n"<< std::string(24, '#') << "  MeshPartition  " << std::string(24, '#') << "\n\n";
     }
     parseMpiBoundaryElement();
 
 
     MPI_Barrier(MPI_COMM_WORLD);
-    if(_e3d_mpi.getRankID()==0){
+    if(RankID==0){
         double endParserTimer = MPI_Wtime();
         printf("All processes parsed mesh files !\n");
 		printf("Mesh Partitions took %.5f seconds to parse.\n", endParserTimer-startParserTimer);
@@ -123,7 +123,7 @@ void MeshPartition::printAllPartitionsInfo() {
 
     MPI_Reduce(&meshStats, &sumMeshStats, 4, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
 
-    if (_e3d_mpi.getRankID() == 0) {
+    if (_rankID == 0) {
 
         printf("\nTotal Number of Volume Elements : %d \n", sumMeshStats[0]);
         printf("Total Number of Surface Elements : %d \n", sumMeshStats[1]);

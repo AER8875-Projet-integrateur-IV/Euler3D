@@ -6,13 +6,12 @@
 
 #include "parser/SU2MeshParser.hpp"
 #include "parser/GhostCell.hpp"
-#include "parallelization/MPIHandler.hpp"
 
 
 namespace E3D::Parser {
     class MeshPartition : public SU2MeshParser {
     public:
-        MeshPartition(const std::string &fileName, const E3D::Parallel::MPIHandler &);
+        MeshPartition(const std::string &fileName, const int);
 
         void printAllPartitionsInfo();
 
@@ -41,7 +40,6 @@ namespace E3D::Parser {
         std::vector<int> _adjacentPartitionsID;
         int _nbAdjacentPartitions;
         int _nbMpiBoundaryElements = 0;
-        const Parallel::MPIHandler &_e3d_mpi;
 		int _rankID;
 
     };

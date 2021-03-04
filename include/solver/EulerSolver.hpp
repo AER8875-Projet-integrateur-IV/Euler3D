@@ -2,7 +2,7 @@
 // Created by amin on 3/1/21.
 //
 #pragma once
-#include <solver/FlowField.hpp>
+#include "solver/FlowField.hpp"
 #include <utils/Vector3.h>
 
 #include "mesh/Metrics.hpp"
@@ -64,16 +64,18 @@ namespace E3D::Solver {
 		std::vector<ConservativeVar> _deltaW;
 		std::vector<double> _cp;
 
-        const std::vector<std::pair<int, std::vector<int>>> _MpiGhostCellIDs = _localMesh.GetMPIGhostCellsIDs();
-        const std::vector<int> _SymmetryGhostCellIDs = _localMesh.GetSymmetryGhostCellsIDs();
-        const std::vector<int> _FarfieldGhostCellIDs = _localMesh.GetFarfieldGhostCellsIDs();
-        const std::vector<int> _WallGhostCellIDs = _localMesh.GetWallGhostCellsIDs();
+
 
         FlowField& _localFlowField;
         const E3D::Parallel::MPIHandler& _e3d_mpi;
         const E3D::Mesh<E3D::Parser::MeshPartition>& _localMesh;
         const E3D::Parser::SimConfig& _config;
 		const E3D::Metrics& _localMetrics;
+
+        const std::vector<std::pair<int, std::vector<int>>> _MpiGhostCellIDs = _localMesh.GetMPIGhostCellsIDs();
+        const std::vector<int> _SymmetryGhostCellIDs = _localMesh.GetSymmetryGhostCellsIDs();
+        const std::vector<int> _FarfieldGhostCellIDs = _localMesh.GetFarfieldGhostCellsIDs();
+        const std::vector<int> _WallGhostCellIDs = _localMesh.GetWallGhostCellsIDs();
 
 		int _nbInteration=0;
         double _maximumLocalRms=10;

@@ -5,6 +5,7 @@
 #include "mesh/Mesh.hpp"
 #include "utils/Vector3.h"
 #include <parser/MeshPartition.hpp>
+#include "parallelization/MPIHandler.hpp"
 
 namespace E3D {
 	class Metrics {
