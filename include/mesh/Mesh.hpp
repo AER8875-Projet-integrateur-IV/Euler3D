@@ -17,6 +17,7 @@
 namespace E3D {
 
 
+
 	/**
 	 *
 	 * @tparam T type of the mesh : either SU2MeshParser or MeshPartition
@@ -105,6 +106,7 @@ namespace E3D {
 		inline int GetMeshBConditionCount() const { return _parser.GetMarkersCount(); }
 
 		inline int GetMeshNodeCount() const { return _parser.GetPointsCount(); }
+
 
 
 		/**
@@ -267,6 +269,7 @@ namespace E3D {
 			return face2element.get()[0].data() + starti;
 		}
 
+
 	private:
 		T _parser;
 		std::vector<int> _connectivity;
@@ -285,3 +288,4 @@ namespace E3D {
 	};
 
 }// namespace E3D
+

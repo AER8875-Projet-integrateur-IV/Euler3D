@@ -14,7 +14,6 @@
 */
 
 int main(int argc, char *argv[]) {
-
 	if (argc != 2) {
 		std::cerr << "Usage : EES2D_APP <meshFileName.su2> " << std::endl;
 		exit(EXIT_FAILURE);

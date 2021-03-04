@@ -112,3 +112,4 @@ TEST_CASE("Solve physical border conditions for 2 tetrahedron", "[partition]") {
 	REQUIRE(blueSol == blueExp);
 	REQUIRE(size == 3);
 }
+

@@ -29,22 +29,24 @@ set(DEPENDANCIES Utils Mesh Parser metis)
 # 5. Add your library's name in the relevent 
 #target_link_libraries(Euler3D_APP PUBLIC ThisIsALibrary ThisTo ThisIsYourLibrairy)
 #
-#You need to link your library once for each executable that will need it
+#      You need to link your library once for each executable that will need it
 
-#__ __ _ _ _ _ _ _
-#       \ \ / / ___ _ _ __ | |(_) __ | |(_) | | _ | |
-#        \ V / / _ \ | | | | / _` | | | / _` | | | | __ | | |
-#| | |(_) | | | _ | | |(_ | | | | |(_ | | | | | | _ | _ |
-#| _ |    \___ /   \__, _ |    \__, _ | | _ |  \__, _ | | _ |  \__ |(_)
+#       __   __                        _   _       _     _   _     _ 
+#       \ \ / /   ___    _   _      __| | (_)   __| |   (_) | |_  | |
+#        \ V /   / _ \  | | | |    / _` | | |  / _` |   | | | __| | |
+#         | |   | (_) | | |_| |   | (_| | | | | (_| |   | | | |_  |_|
+#         |_|    \___/   \__,_|    \__,_| |_|  \__,_|   |_|  \__| (_)
 
 
-                        ################################################################################
-#NOTHING SHOULD BE MODIFIED BELOW THIS LINE #
-        ################################################################################
+################################################################################
+#              NOTHING SHOULD BE MODIFIED BELOW THIS LINE                      #
+################################################################################
 
 add_library(${NAME_LIBRARY} ${SOURCE})
 TARGET_INCLUDE_DIRECTORIES(${NAME_LIBRARY} PUBLIC ${PROJECT_SOURCE_DIR}/include)
 TARGET_INCLUDE_DIRECTORIES(${NAME_LIBRARY} PUBLIC ${PROJECT_SOURCE_DIR}/extern)
 target_link_libraries(${NAME_LIBRARY} PUBLIC ${DEPENDANCIES})
+
 TARGET_COMPILE_OPTIONS(${NAME_LIBRARY} PUBLIC "$<$<CONFIG:DEBUG>:${debug_flags}>")
 TARGET_COMPILE_OPTIONS(${NAME_LIBRARY} PUBLIC "$<$<CONFIG:RELEASE>:${release_flags}>")
+

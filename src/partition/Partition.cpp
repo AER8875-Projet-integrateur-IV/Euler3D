@@ -10,6 +10,7 @@
 #include <regex>
 #include <utility>
 
+
 using namespace E3D::Partition;
 
 void SU2Mesh::AddMarkerElement(const std::string &tag, int VTKid, int *elem2Node, int nNode) {
@@ -35,6 +36,7 @@ void SU2Mesh::SetLocal2GlobalConnectivy(const std::vector<int> &localNode2Global
 	int startID = localNode2GlobalStart[this->ID];
 	_localNode2globalPtr = localNode2Global.data() + startID;
 }
+
 
 void SU2Mesh::FindPhysicalBorder(const mesh_type &mesh,
                                  const std::vector<int> &Part2ElemStart,
@@ -62,6 +64,7 @@ void SU2Mesh::FindPhysicalBorder(const mesh_type &mesh,
 	physicalBorderElements.shrink_to_fit();
 }
 
+
 Partition::Partition(Mesh<E3D::Parser::SU2MeshParser> *meshGlobal, int &nPart) {
 	_m_meshGlobal = meshGlobal;
 	_m_nPart = nPart;
@@ -69,6 +72,7 @@ Partition::Partition(Mesh<E3D::Parser::SU2MeshParser> *meshGlobal, int &nPart) {
 
 void Partition::solveElem2Node() {
 	int NELEM = _m_meshGlobal->GetMeshInteriorElemCount();
+
 	// Connectivité elem2node du mmaillage global
 	_m_elem2NodeStart.reserve(NELEM + 1);
 	_m_elem2Node.reserve(4 * NELEM);
@@ -373,6 +377,7 @@ std::vector<E3D::Partition::SU2Mesh> &Partition::Write(
 		_m_elem2Part.resize(nElem);
 		std::copy_n(elem2Part.begin(), nElem, _m_elem2Part.begin());
 	}
+
 	spdlog::stopwatch connecsw;
 	SolvePart2Elem();
 	SolveElem2Node();
@@ -389,6 +394,7 @@ std::vector<E3D::Partition::SU2Mesh> &Partition::Write(
 
 	spdlog::stopwatch physicalMarkersw;
 	PhysicalPartitionSolve();
+
 	logger->debug("Physical markers partitionning run time {}", physicalMarkersw);
 
 	for (int i = 0; i < _m_nPart; i++) {
