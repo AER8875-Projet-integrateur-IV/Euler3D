@@ -11,7 +11,7 @@
 #pragma once
 #include "/usr/local/tecplot/360ex_2019r1/include/TECIO.h"
 #include <iostream>
-#include <string>
+#include <string.h>
 #include <unordered_map>
 #include <vector>
 

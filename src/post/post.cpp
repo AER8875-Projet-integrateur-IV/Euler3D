@@ -44,7 +44,7 @@ void Post::WriteTecplotASCII() {
 	// Création du fichier
 	FILE *fid = fopen(_outputFile.c_str(), "w");
 	// Entête du fichier
-	fprintf(fid, "VARIABLES=\"X\",\"Y\",\"Z\",\"Rho\",\"u\",\"v\",\"w\",\"p\",\"E\"\n");
+	fprintf(fid, "VARIABLES=\"X\",\"Y\",\"Z\",\"Rho\",\"U\",\"V\",\"W\",\"P\",\"E\"\n");
 	for (int iPart = 0; iPart < _nPart; iPart++) {
 		// Lecture de la partition
 		E3D::Parser::SU2MeshParser iMesh = E3D::Parser::SU2MeshParser(_meshPartitionPath[iPart]);
@@ -126,4 +126,91 @@ void Post::WriteTecplotASCII() {
 }
 
 
-void Post::WriteTecplotBinary() { return; }
+void Post::WriteTecplotBinary() {
+	//Initialisation du fichier binaire
+	char *Title = "Titre du fichier";
+	char *Variables = "X,Y,Z,Rho,U,V,W,P,E";
+	std::string fileName = "./" + _outputFile + ".plt";
+	char *FName = new char[_outputFile.length() + 1];
+	strcpy(FName, _outputFile.c_str());
+	char *ScratchDir = ".";
+	INTEGER4 FileFormat = 0;// 0 = .plt et 1 = .szplt
+	INTEGER4 FileType = 0;  // 0=FUll (mesh+solution)
+	INTEGER4 Debug = 1;     // mode debug activé
+	INTEGER4 VIsDouble = 1; // precision double
+	INTEGER4 I = 0;         // retour de la fonction tecplot
+
+	I = tecini142(Title, Variables, FName, ScratchDir, &FileFormat, &FileType, &Debug, &VIsDouble);
+	delete[] Title;
+	delete[] Variables;
+	delete[] FName;
+	delete[] ScratchDir;
+
+	// Écriture des zones
+	// Initialisation de la zone
+	int iPart(0);
+	E3D::Parser::SU2MeshParser iMesh = E3D::Parser::SU2MeshParser(_meshPartitionPath[iPart]);
+	char *ZoneTitle = "Titre de la zone";
+	INTEGER4 ZoneType = 5;                                      // 5 = FEBRICK
+	INTEGER4 NumPts = iMesh.GetPointsCount();                   // Nombre de noeuds de la zone
+	INTEGER4 NumElements = iMesh.GetVolumeElemCount();          // Nombre d'élements
+	INTEGER4 NumFaces(0), ICellMax(0), JCellMax(0), KCellMax(0);// Non utilisé
+	double SolutionTime = 0.;
+	INTEGER4 StrandID = 0;  // zone statique
+	INTEGER4 ParentZone = 0;// pas de zone parent
+	INTEGER4 IsBlock = 1;
+	INTEGER4 NumFaceConnections(0), FaceNeighborMode(0), TotalNumFaceNodes(0);// Non utilisé
+	INTEGER4 NumConnectedBoundaryFaces(0), TotalNumBoundaryConnections(0);    // Non utilisé
+	INTEGER4 ValueLocation[] = {1, 1, 1, 0, 0, 0, 0, 0, 0};                   // 0 = cell-centered et 1 = node-centered
+	INTEGER4 ShareConnectivityFromZone = 0;
+
+	I = teczne142(ZoneTitle, &ZoneType, &NumPts, &NumElements, &NumFaces, &ICellMax, &JCellMax, &KCellMax,
+	              &SolutionTime, &StrandID, &ParentZone, &IsBlock, &NumFaceConnections, &FaceNeighborMode,
+	              &TotalNumFaceNodes, &NumConnectedBoundaryFaces, &TotalNumBoundaryConnections, NULL,
+	              ValueLocation, NULL, &ShareConnectivityFromZone);
+	delete[] ZoneTitle;
+
+	// Récupération des variables
+	double *X = new double[NumPts];
+	double *Y = new double[NumPts];
+	double *Z = new double[NumPts];
+	for (int nodeI = 0; nodeI < NumPts; nodeI++) {
+		E3D::Parser::Node node = iMesh.GetPoints()[nodeI];
+		X[nodeI] = node.getX();
+		Y[nodeI] = node.getY();
+		Z[nodeI] = node.getZ();
+	}
+	E3D::Parser::SolutionPost isolution(_solutionPartitionPath[iPart], NumElements);
+
+	// Écriture des variables de la zone
+	I = tecdat142(&NumPts, X, &VIsDouble);
+	I = tecdat142(&NumPts, Y, &VIsDouble);
+	I = tecdat142(&NumPts, Z, &VIsDouble);
+	I = tecdat142(&NumElements, isolution.GetRho().data(), &VIsDouble);
+	I = tecdat142(&NumElements, isolution.GetU().data(), &VIsDouble);
+	I = tecdat142(&NumElements, isolution.GetV().data(), &VIsDouble);
+	I = tecdat142(&NumElements, isolution.GetW().data(), &VIsDouble);
+	I = tecdat142(&NumElements, isolution.GetPression().data(), &VIsDouble);
+	I = tecdat142(&NumElements, isolution.GetEnergy().data(), &VIsDouble);
+	delete[] X;
+	delete[] Y;
+	delete[] Z;
+
+	// Connectivité de la zone
+	INTEGER4 N = 8 * NumElements;// FEBRICK : chaque elément a 8 noeuds
+	INTEGER4 *NData = new INTEGER4[N];
+	std::vector<E3D::Parser::Element> elem = iMesh.GetVolumeElems();
+	for (int iElem = 0; iElem < NumElements; iElem++) {
+		for (int iNode = 0; iNode < 8; iNode++) {
+			NData[iNode + iElem * 8] = elem[iElem].getElemNodes()[iNode] + 1;
+		}
+	}
+
+	I = tecnode142(&N, NData);
+	delete[] NData;
+
+	// Fermeture du fichier binaire
+	I = tecend142();
+
+	return;
+}

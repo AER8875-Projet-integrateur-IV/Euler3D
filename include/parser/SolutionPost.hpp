@@ -35,6 +35,13 @@ namespace E3D::Parser {
 		inline double GetPression(int iElem) const { return this->_p[iElem]; }
 		inline double GetEnergy(int iElem) const { return this->_e[iElem]; }
 
+		inline const std::vector<double> &GetRho() const { return this->_rho; }
+		inline const std::vector<double> &GetU() const { return this->_u; }
+		inline const std::vector<double> &GetV() const { return this->_v; }
+		inline const std::vector<double> &GetW() const { return this->_w; }
+		inline const std::vector<double> &GetPression() const { return this->_p; }
+		inline const std::vector<double> &GetEnergy() const { return this->_e; }
+
 	private:
 		std::string _filename;      /** @brief SU2 mesh file path and name */
 		std::ifstream _ifilestream; /** @brief Input file stream */
