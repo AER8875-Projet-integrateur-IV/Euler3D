@@ -65,6 +65,8 @@ void FlowField::PrintTest() {
 void FlowField::Initialize(const int totalElemCount, const int ForceElemsCount) {
 	//TODO ADD ANGLE FOR SIDE FLOW (V_INF)
 
+
+    // update reference variables
 	gamma_ref = _simConfig.getGamma();
 	M_inf = _simConfig.getMach();
 	u_inf = M_inf * sqrt(gamma_ref) * std::cos(_simConfig.getAoA() * (E3D_PI / 180));
@@ -72,11 +74,11 @@ void FlowField::Initialize(const int totalElemCount, const int ForceElemsCount) 
 	p_ref = _simConfig.getPressure();
 	T_ref = _simConfig.getTemperature();
 	rho_ref = _simConfig.getDensity();
-
 	E_inf = p_inf / ((gamma_ref - 1) * rho_inf) + ((u_inf * u_inf + v_inf * v_inf + w_inf * w_inf) / 2);
 	H_inf = E_inf + (p_inf / rho_inf);
+    SoundSpd_ref = sqrt(gamma_ref*(p_ref/rho_ref));
 
-	// Reserve
+	// resize vectors to infinite flowfield state
 	_rho.resize(totalElemCount, rho_inf);
 	_p.resize(totalElemCount, p_inf);
 	_u.resize(totalElemCount, u_inf);
