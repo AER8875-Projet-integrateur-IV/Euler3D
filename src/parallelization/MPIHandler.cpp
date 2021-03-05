@@ -13,16 +13,18 @@ MPIHandler::MPIHandler(int argc, char *argv[]) {
 
 
 void MPIHandler::sortInterface() {
-
+    // Sort requester ID
 	for (auto &[tagID, VectorGhostCell] : _requesterID) {
 		std::sort(VectorGhostCell.begin(), VectorGhostCell.end());
 	}
-
+    // Sort Sender ID
 	for (auto &[tagID, VectorGhostCell] : _senderID) {
 		std::sort(VectorGhostCell.begin(), VectorGhostCell.end(),
 		          [](E3D::Parser::GhostCell a, E3D::Parser::GhostCell b) { return a.getthisPartitionElementID() < b.getthisPartitionElementID(); });
 	}
 
+	// Following code creates unique pairs of partition for whole field
+	// and populates member variable _UniquePairs
 	std::vector<int> possible_combination;
 	possible_combination.reserve(_requesterID.size() * 2);
 	int num_combinations = _requesterID.size();
@@ -76,7 +78,8 @@ void MPIHandler::sortInterface() {
 }
 
 /**
- *
+ * @brief Communicate primitive variables between partition
+ *  Communication is done by looping through each pair found in _uniquePairs
  */
 void MPIHandler::updateFlowField(E3D::Solver::FlowField &localFlowField) const {
 	for (int PairIndex = 0; PairIndex < _uniquePairsSize; PairIndex += 2) {

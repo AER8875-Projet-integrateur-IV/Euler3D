@@ -98,36 +98,61 @@ namespace E3D {
 			}
 		};
 
+
+        /**
+         * @return IDs of ghost cells associated with a wall BC
+         */
 		inline const std::vector<int> &GetWallGhostCellsIDs() const {
 			if constexpr (std::is_same_v<T, E3D::Parser::MeshPartition>) {
 				return WallGhostCellIDs;
 			}
 		};
 
+        /**
+         * @return IDs of Volume cells connected to a ghost cell
+         * associated with a wall BC. They are placed in same order
+         * -> WallADjacentToGhostCellIds[i] is connected to WallGhostCellIDs[i]
+         */
 		inline const std::vector<int> &GetWallAdjacentGhostCellIDs() const {
 			if constexpr (std::is_same_v<T, E3D::Parser::MeshPartition>) {
 				return WallAdjacentToGhostCellIDs;
 			}
 		};
 
+        /**
+         * @return IDs of ghost cells associated with a Sym BC
+         */
 		inline const std::vector<int> &GetSymmetryGhostCellsIDs() const {
 			if constexpr (std::is_same_v<T, E3D::Parser::MeshPartition>) {
 				return SymmetryGhostCellIDs;
 			}
 		};
 
+        /**
+         * @return IDs of Volume cells connected to a ghost cell
+         * associated with a sym BC. They are placed in same order
+         * -> SymmteryAdjacentToGhostCellIds[i] is connected to SymmetryGhostCellIDs[i]
+         */
 		inline const std::vector<int> &GetSymmetryAdjacentGhostCellIDs() const {
 			if constexpr (std::is_same_v<T, E3D::Parser::MeshPartition>) {
 				return SymmetryAdjacentGhostCellIDs;
 			}
 		};
 
+        /**
+         * @return IDs of ghost cells associated with a Farfield BC
+         */
 		inline const std::vector<int> &GetFarfieldGhostCellsIDs() const {
 			if constexpr (std::is_same_v<T, E3D::Parser::MeshPartition>) {
 				return FarfieldGhostCellIDs;
 			}
 		};
 
+        /**
+         * @return IDs of Volume cells connected to a ghost cell
+         * associated with a Farfield BC. They are placed in same order
+         * -> FarfieldAdjacentToGhostCellIds[i] is connected to FarfieldGhostCellIDs[i]
+         */
 		inline const std::vector<int> &GetFarfieldAdjacentToGhostCellsIDs() const {
 			if constexpr (std::is_same_v<T, E3D::Parser::MeshPartition>) {
 				return FarfieldAdjacentToGhostCellIDs;
@@ -160,7 +185,7 @@ namespace E3D {
 			}
 		}
 
-		/*
+		/**
 		 * @brief Get MPI rank of this mesh (parition)
 		 */
 		inline int getMeshRankID() const {

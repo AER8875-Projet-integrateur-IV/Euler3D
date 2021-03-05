@@ -51,22 +51,35 @@ void Solver::EulerSolver::Run() {
 		MPI_Barrier(MPI_COMM_WORLD);
 	}
 
+
+
+	// If loop exited because of reaching maximum number of iteration, print this message
 	if (_config.getMaxNumberIterations() >= _nbInteration) {
 		if (_e3d_mpi.getRankID() == 0) {
-			std::cout << "Solver exceeded maximum number of iterations";
+			std::cout << "Solution not converged :  exceeded maximum number of iterations !";
 		}
 	}
 }
 
+
+
+
+// Update Farfield, Wall, Symmetry and MPI ghost cell primitive values
 void Solver::EulerSolver::updateBC() {
 
 	// Update Farfield
-    for (const auto& GhostCellID : _FarfieldGhostCellIDs) {
+    for (size_t GhostID=0; GhostID < _FarfieldGhostCellIDs.size(); GhostID++) {
 
     }
 	// Update Wall
+    for (size_t GhostID=0; GhostID < _WallGhostCellIDs.size(); GhostID++) {
+
+    }
 
 	// Update Symmetry
+    for (size_t GhostID=0; GhostID < _SymmetryGhostCellIDs.size(); GhostID++) {
+
+    }
 
 	// Update MPI
     _e3d_mpi.updateFlowField(_localFlowField);
