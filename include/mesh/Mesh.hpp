@@ -272,12 +272,11 @@ namespace E3D {
 			return face2element.get()[0].data() + starti;
 		}
 
+
 	private:
 		T _parser;
 		std::vector<int> _connectivity;
 
-		int nFace;
-		int nElemTot;
 		// variable calculees et assignees par connectivity
 		std::unique_ptr<std::vector<int>> node2element;
 		std::unique_ptr<std::vector<int>> node2elementStart;
@@ -292,3 +291,5 @@ namespace E3D {
 	};
 
 }// namespace E3D
+
+

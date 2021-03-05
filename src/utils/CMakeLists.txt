@@ -16,6 +16,7 @@ set(NAME_LIBRARY Utils)
 #      set(NAME_LIBRARY SolverEuler.cpp)
 
 set(SOURCE Logger.cpp
+           ProgressBar.cpp
            ../../include/utils/Vector3.h)
 
 

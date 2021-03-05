@@ -14,6 +14,8 @@ namespace E3D {
     class Logger{
     private:
         const static std::string _multisink_logger;
+        static bool _isInstantiated;
+        static std::shared_ptr<spdlog::logger> _logger;
     public:
         /**
          * @brief Construct a new Logger object
@@ -22,12 +24,18 @@ namespace E3D {
          */
         Logger(const std::string & logPath);
         /**
+         * @brief Construct a new Logger object without file sink
+         * 
+         */
+        Logger();
+        /**
          * @brief Get a pointer to the global log object
          * 
          * @return std::shared_ptr<spdlog::logger> 
          */
-        inline static std::shared_ptr<spdlog::logger> Getspdlog(){
-            return spdlog::get(_multisink_logger);
+        inline static std::shared_ptr<spdlog::logger>& Getspdlog(){
+            Logger logger;
+            return _logger;
         };
     };
 }
