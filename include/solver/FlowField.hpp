@@ -76,6 +76,8 @@ namespace E3D::Solver
 
         inline double getgamma_ref() const {return gamma_ref;}
 
+		inline double getSoundspd_ref() const {return SoundSpd_ref;}
+
 		inline int getTotalElemsCount() const {return _totalElemCount;}
 
 		static constexpr const double E3D_PI = 3.141592653589793238;
@@ -129,6 +131,7 @@ namespace E3D::Solver
 		double H_inf =    0.0;
 		double M_inf =    0.0;
 		double gamma_ref = 0.0;
+		double SoundSpd_ref = 0.0;
 
 		int _totalElemCount = 0;
 

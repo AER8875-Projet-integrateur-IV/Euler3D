@@ -25,6 +25,8 @@ namespace E3D {
 
 		inline const std::vector<double> &getCellVolumes() const { return _cellVolumes; }
 
+		inline const std::vector<Vector3<double>>& getFaceNormalsUnit() const {return _faceUnitNormals;}
+
 	private:
 		/**
 		 * @brief Compute face metrics by populating member variables _FaceNormals, _FaceCenters and _faceSurfaces
@@ -41,7 +43,7 @@ namespace E3D {
 		std::vector<Vector3<double>> _faceNormals;
 		std::vector<Vector3<double>> _faceCenters;
 		std::vector<Vector3<double>> _cellCentroids;
-        	std::vector<Vector3<double>> _faceUnitNormals;
+		std::vector<Vector3<double>> _faceUnitNormals;
 		std::vector<double> _faceSurfaces;
 		std::vector<double> _cellVolumes;
 

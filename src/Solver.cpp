@@ -39,11 +39,10 @@ int main(int argc, char *argv[]) {
 
 
     e3d_mpi.updateRequesterID(localmesh.getMPIelements());
-    e3d_mpi.sortInterfaceRequester();
+    e3d_mpi.sortInterface();
 
 	Metrics localMeshMetrics(localmesh, e3d_mpi);
 	MPI_Barrier(MPI_COMM_WORLD);
-
 
     E3D::Solver::FlowField localFlowField(config,localmesh);
 

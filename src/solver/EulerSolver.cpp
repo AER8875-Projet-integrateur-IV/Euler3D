@@ -30,7 +30,6 @@ void Solver::EulerSolver::Run() {
         E3D::Solver::printHeader();
 	}
 
-
 	while (_maximumLocalRms > _config.getMinResidual() && _nbInteration < _config.getMaxNumberIterations()) {
 
 
@@ -38,12 +37,12 @@ void Solver::EulerSolver::Run() {
 
 		// loop Through Ghost cells (Boundary Cells)
         updateBC();
-		_e3d_mpi.updateFlowField(_localFlowField);
-
 
 
 
         _nbInteration += 1;
+
+
 		if (_e3d_mpi.getRankID() == 0) {
 			double iterationEndTimer = MPI_Wtime();
 			double iterationwallTime = iterationEndTimer - iterationBeginimer;
@@ -52,7 +51,7 @@ void Solver::EulerSolver::Run() {
 		MPI_Barrier(MPI_COMM_WORLD);
 	}
 
-	if (_config.getMaxNumberIterations() == _nbInteration) {
+	if (_config.getMaxNumberIterations() >= _nbInteration) {
 		if (_e3d_mpi.getRankID() == 0) {
 			std::cout << "Solver exceeded maximum number of iterations";
 		}
@@ -64,6 +63,11 @@ void Solver::EulerSolver::updateBC() {
 	// Update Farfield
     for (const auto& GhostCellID : _FarfieldGhostCellIDs) {
 
-
     }
+	// Update Wall
+
+	// Update Symmetry
+
+	// Update MPI
+    _e3d_mpi.updateFlowField(_localFlowField);
 }
