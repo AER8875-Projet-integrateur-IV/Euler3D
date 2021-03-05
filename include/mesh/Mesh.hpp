@@ -17,7 +17,6 @@
 namespace E3D {
 
 
-
 	/**
 	 *
 	 * @tparam T type of the mesh : either SU2MeshParser or MeshPartition
@@ -95,8 +94,13 @@ namespace E3D {
 		}
 
 		// ------------------ Mesh parsing Info ----------------------
+		inline int GetMpiElemsCount() const {
+			if constexpr (std::is_same_v<T, E3D::Parser::MeshPartition>) {
+				return _parser.getMpiBoundaryElemsCount();
+			}
+		}
 
-		// CONSTANTES
+
 		inline int GetMeshDim() const { return _parser.GetnDim(); }
 
 		inline int GetMeshInteriorElemCount() const { return _parser.GetVolumeElemCount(); }
@@ -106,7 +110,6 @@ namespace E3D {
 		inline int GetMeshBConditionCount() const { return _parser.GetMarkersCount(); }
 
 		inline int GetMeshNodeCount() const { return _parser.GetPointsCount(); }
-
 
 
 		/**
@@ -288,4 +291,5 @@ namespace E3D {
 	};
 
 }// namespace E3D
+
 
