@@ -509,9 +509,11 @@ namespace E3D {
 				// Transform it to be case insensitive
 				std::transform(Tag.begin(), Tag.end(), Tag.begin(), ::tolower);
 				if (Tag == "airfoil" || Tag == "wall") {
+                    WallGhostCellIDs.reserve(faces.size());
+                    WallAdjacentToGhostCellIDs.reserve(faces.size());
+
 					for (auto face : faces) {
-						WallGhostCellIDs.reserve(faces.size());
-						WallAdjacentToGhostCellIDs.reserve(faces.size());
+
 						auto wallFaceNodes = face.getElemNodes();
 						std::sort(wallFaceNodes.begin(), wallFaceNodes.end());
 						for (auto &faceConnectedToGC : facesAroundGhostCells) {
@@ -581,10 +583,12 @@ namespace E3D {
 				auto Tag = partitionTag;
 				// Transform it to be case insensitive
 				std::transform(Tag.begin(), Tag.end(), Tag.begin(), ::tolower);
-				if (Tag == "sym") {
+				if (Tag == "sym"){
+                    SymmetryGhostCellIDs.reserve(faces.size());
+                    SymmetryAdjacentGhostCellIDs.reserve(faces.size());
+
 					for (auto face : faces) {
-						SymmetryGhostCellIDs.reserve(faces.size());
-						SymmetryAdjacentGhostCellIDs.reserve(faces.size());
+
 						auto wallFaceNodes = face.getElemNodes();
 						std::sort(wallFaceNodes.begin(), wallFaceNodes.end());
 						for (auto &faceConnectedToGC : facesAroundGhostCells) {
