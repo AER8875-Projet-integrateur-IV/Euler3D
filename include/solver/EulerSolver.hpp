@@ -4,7 +4,7 @@
 #pragma once
 #include "solver/FlowField.hpp"
 #include <utils/Vector3.h>
-
+#include "solver/PhysicalBC.h"
 #include "mesh/Metrics.hpp"
 
 namespace E3D::Solver {

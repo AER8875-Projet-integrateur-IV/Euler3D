@@ -79,12 +79,24 @@ namespace E3D {
 				updateFarfieldGhostCell();
 				updateSymmetryGhostCell();
 
+				int NghostCellsFarfield = FarfieldGhostCellIDs.size();
+                int NghostCellsSymmetry = SymmetryGhostCellIDs.size();
+                int NghostCellsWall = WallGhostCellIDs.size();
+                int NghostCellsMpi = GetMpiElemsCount();
 
+                std::array<int, 4> GhostCellStats{NghostCellsFarfield,NghostCellsWall,NghostCellsSymmetry,NghostCellsMpi};
+                std::array<int, 4> sumGhostCells{0, 0, 0,0};
+                MPI_Reduce(&GhostCellStats,&sumGhostCells,4,MPI_INT,MPI_SUM,0,MPI_COMM_WORLD);
 				MPI_Barrier(MPI_COMM_WORLD);
 				if (_parser.getrankID() == 0) {
-
+                    double endConnectivityTimer = MPI_Wtime();
 					printf("All processes solved connectivity of partitioned meshes !\n");
-					double endConnectivityTimer = MPI_Wtime();
+
+                    printf("Number of Farfield Ghost Cells : %d\n", sumGhostCells[0]);
+                    printf("Number of Wall Ghost Cells :     %d\n", sumGhostCells[1]);
+                    printf("Number of Symmetry Ghost Cells : %d\n", sumGhostCells[2]);
+                    printf("Number of MPI Ghost Cells :      %d\n\n", sumGhostCells[3]);
+
 					printf("Connectivity took %.5f seconds to solve.\n", endConnectivityTimer - startConnectivityTimer);
 				}
 			}
@@ -119,6 +131,13 @@ namespace E3D {
 			}
 		};
 
+
+        inline const std::vector<int> &GetWallAdjacentFaceIDs() const {
+            if constexpr (std::is_same_v<T, E3D::Parser::MeshPartition>) {
+                return WallAdjacentFaceIDs;
+            }
+        };
+
         /**
          * @return IDs of ghost cells associated with a Sym BC
          */
@@ -138,6 +157,14 @@ namespace E3D {
 				return SymmetryAdjacentGhostCellIDs;
 			}
 		};
+
+
+        inline const std::vector<int> &GetSymmetryAdjacentFaceIDs() const {
+            if constexpr (std::is_same_v<T, E3D::Parser::MeshPartition>) {
+                return SymmetryAdjacentFaceIDs;
+            }
+        };
+
 
         /**
          * @return IDs of ghost cells associated with a Farfield BC
@@ -159,7 +186,15 @@ namespace E3D {
 			}
 		};
 
-		inline int GetMpiElemsCount() const {
+
+        inline const std::vector<int> &GetFarfieldAdjacentFaceIDs() const {
+            if constexpr (std::is_same_v<T, E3D::Parser::MeshPartition>) {
+                return FarfieldAdjacentFaceIDs;
+            }
+        };
+
+
+        inline int GetMpiElemsCount() const {
 			if constexpr (std::is_same_v<T, E3D::Parser::MeshPartition>) {
 				return _parser.getMpiBoundaryElemsCount();
 
@@ -375,10 +410,13 @@ namespace E3D {
 		std::vector<std::pair<int, std::vector<int>>> MPIGhostCellsIDs;
 		std::vector<int> WallGhostCellIDs;
 		std::vector<int> WallAdjacentToGhostCellIDs;
+        std::vector<int> WallAdjacentFaceIDs;
 		std::vector<int> SymmetryGhostCellIDs;
 		std::vector<int> SymmetryAdjacentGhostCellIDs;
+		std::vector<int> SymmetryAdjacentFaceIDs;
 		std::vector<int> FarfieldGhostCellIDs;
 		std::vector<int> FarfieldAdjacentToGhostCellIDs;
+        std::vector<int> FarfieldAdjacentFaceIDs;
 		std::vector<int> facesAroundGhostCells;
 
 
@@ -511,7 +549,7 @@ namespace E3D {
 				if (Tag == "airfoil" || Tag == "wall") {
                     WallGhostCellIDs.reserve(faces.size());
                     WallAdjacentToGhostCellIDs.reserve(faces.size());
-
+                    WallAdjacentFaceIDs.reserve(faces.size());
 					for (auto face : faces) {
 
 						auto wallFaceNodes = face.getElemNodes();
@@ -528,6 +566,7 @@ namespace E3D {
 							if (tempNodes == wallFaceNodes) {
 								WallGhostCellIDs.push_back(GetFace2ElementID(faceConnectedToGC)[1]);
 								WallAdjacentToGhostCellIDs.push_back(GetFace2ElementID(faceConnectedToGC)[0]);
+                                WallAdjacentFaceIDs.push_back(faceConnectedToGC);
 								break;
 							}
 						}
@@ -550,6 +589,7 @@ namespace E3D {
 				if (Tag == "farfield") {
 					FarfieldGhostCellIDs.reserve(faces.size());
 					FarfieldAdjacentToGhostCellIDs.reserve(faces.size());
+                    FarfieldAdjacentFaceIDs.reserve(faces.size());
 					for (auto face : faces) {
 						auto wallFaceNodes = face.getElemNodes();
 						std::sort(wallFaceNodes.begin(), wallFaceNodes.end());
@@ -565,6 +605,7 @@ namespace E3D {
 							if (tempNodes == wallFaceNodes) {
 								FarfieldGhostCellIDs.push_back(GetFace2ElementID(faceConnectedToGC)[1]);
 								FarfieldAdjacentToGhostCellIDs.push_back(GetFace2ElementID(faceConnectedToGC)[0]);
+								FarfieldAdjacentFaceIDs.push_back(faceConnectedToGC);
 								break;
 							}
 						}
@@ -586,7 +627,7 @@ namespace E3D {
 				if (Tag == "sym"){
                     SymmetryGhostCellIDs.reserve(faces.size());
                     SymmetryAdjacentGhostCellIDs.reserve(faces.size());
-
+                    SymmetryAdjacentFaceIDs.reserve(faces.size());
 					for (auto face : faces) {
 
 						auto wallFaceNodes = face.getElemNodes();
@@ -603,6 +644,7 @@ namespace E3D {
 							if (tempNodes == wallFaceNodes) {
 								SymmetryGhostCellIDs.push_back(GetFace2ElementID(faceConnectedToGC)[1]);
 								SymmetryAdjacentGhostCellIDs.push_back(GetFace2ElementID(faceConnectedToGC)[0]);
+								SymmetryAdjacentFaceIDs.push_back(faceConnectedToGC);
 								break;
 							}
 						}

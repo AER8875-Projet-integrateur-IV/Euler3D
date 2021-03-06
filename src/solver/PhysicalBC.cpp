@@ -93,6 +93,7 @@ void BC::FarfieldSubsonicOutflow(E3D::Solver::FlowField &flowfield,
                                  const int FaceID) {
 
     // Calculate primitive Variables
+
     double InteriorCellSpd = sqrt(flowfield.getgamma_ref() * (flowfield.GetP()[InteriorCellID] / flowfield.Getrho()[InteriorCellID]));
 
 	double p = flowfield.getp_inf();

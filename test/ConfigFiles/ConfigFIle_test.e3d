@@ -32,7 +32,7 @@ SPEED_OPTION= 1
 SPEED_VALUE= 250.0
 
 angle of attack in degrees
-AOA= 1
+AOA= 0
 
 # Airflow pressure in Pa
 AIRFLOW_PRESSURE= 101325
@@ -77,7 +77,7 @@ CFL= 3
 MIN_RESIDUAL= 1e-10
 
 # Number of maximum iterations to stop solver
-MAX_ITER= 9
+MAX_ITER= 1
 
 # Path to log file for solver
 SOLVER_LOG= solverlog.txt

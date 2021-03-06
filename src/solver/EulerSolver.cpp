@@ -38,8 +38,6 @@ void Solver::EulerSolver::Run() {
 		// loop Through Ghost cells (Boundary Cells)
         updateBC();
 
-
-
         _nbInteration += 1;
 
 
@@ -49,9 +47,8 @@ void Solver::EulerSolver::Run() {
 			E3D::Solver::PrintSolverIteration(_CL, _CD, _maximumLocalRms, iterationwallTime, _nbInteration);
 		}
 		MPI_Barrier(MPI_COMM_WORLD);
+
 	}
-
-
 
 	// If loop exited because of reaching maximum number of iteration, print this message
 	if (_config.getMaxNumberIterations() >= _nbInteration) {
@@ -70,15 +67,48 @@ void Solver::EulerSolver::updateBC() {
 	// Update Farfield
     for (size_t GhostID=0; GhostID < _FarfieldGhostCellIDs.size(); GhostID++) {
 
+		int GhostIdx = _FarfieldGhostCellIDs[GhostID];
+		int FaceGhostIdx = _localMesh.GetFarfieldAdjacentFaceIDs()[GhostID];
+		int InteriorGhostIdx = _localMesh.GetFarfieldAdjacentToGhostCellsIDs()[GhostID];
+
+		double V = _localFlowField.GetU_Velocity()[GhostIdx]*_localMetrics.getFaceNormalsUnit()[FaceGhostIdx].x
+		        + _localFlowField.GetV_Velocity()[GhostIdx]*_localMetrics.getFaceNormalsUnit()[FaceGhostIdx].y
+		        + _localFlowField.GetW_Velocity()[GhostIdx]*_localMetrics.getFaceNormalsUnit()[FaceGhostIdx].z;
+
+		double M = _localFlowField.GetMach()[GhostIdx];
+		printf("V = %.3f, M=%.3f\n",V,M);
+
+		if ( M > 1.0 &&  V > 0.0){
+			Solver::BC::FarfieldSupersonicOutflow(_localFlowField,GhostIdx,InteriorGhostIdx);
+		}
+		else if( M < 1.0 && V > 0.0){
+            Solver::BC::FarfieldSubsonicOutflow(_localFlowField,_localMetrics,GhostIdx,InteriorGhostIdx, FaceGhostIdx);
+		}
+		else if(M > 1.0 && V < 0.0){
+			Solver::BC::FarfieldSupersonicInflow(_localFlowField,GhostIdx);
+		}
+		else if(M < 1.0 && V < 0.0) {
+			Solver::BC::FarfieldSubsonicInflow(_localFlowField, _localMetrics, GhostIdx, InteriorGhostIdx, FaceGhostIdx);
+		}
+
     }
+
 	// Update Wall
     for (size_t GhostID=0; GhostID < _WallGhostCellIDs.size(); GhostID++) {
+        int GhostIdx = _WallGhostCellIDs[GhostID];
+        int FaceGhostIdx = _localMesh.GetWallAdjacentFaceIDs()[GhostID];
+        int InteriorGhostIdx = _localMesh.GetWallAdjacentGhostCellIDs()[GhostID];
 
+        Solver::BC::Wall(_localFlowField,_localMetrics,GhostIdx,InteriorGhostIdx,FaceGhostIdx);
     }
 
 	// Update Symmetry
     for (size_t GhostID=0; GhostID < _SymmetryGhostCellIDs.size(); GhostID++) {
 
+        int GhostIdx = _WallGhostCellIDs[GhostID];
+        int InteriorGhostIdx = _localMesh.GetWallAdjacentGhostCellIDs()[GhostID];
+
+        Solver::BC::Symmetry(_localFlowField,GhostIdx,InteriorGhostIdx);
     }
 
 	// Update MPI
