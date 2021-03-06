@@ -1,0 +1,6 @@
+
+add_library(Post post.cpp)
+TARGET_INCLUDE_DIRECTORIES(Post PUBLIC ${PROJECT_SOURCE_DIR}/include)
+
+TARGET_COMPILE_OPTIONS(Post PUBLIC "$<$<CONFIG:DEBUG>:${debug_flags}>" )
+TARGET_COMPILE_OPTIONS(Post PUBLIC "$<$<CONFIG:RELEASE>:${release_flags}>" )
