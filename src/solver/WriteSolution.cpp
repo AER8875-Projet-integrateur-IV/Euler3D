@@ -9,6 +9,7 @@ WriteSolution::WriteSolution(const E3D::Solver::FlowField &flowField,
 	_file = std::ofstream(_fileName);
 	_file << std::setiosflags(std::ios::dec)
 	      << std::setiosflags(std::ios::scientific);
+	write();
 	return;
 }
 
@@ -18,7 +19,13 @@ WriteSolution::~WriteSolution() {
 }
 
 void WriteSolution::write() {
-	_file << "density\tvelocity_x\tvelocity_y\tvelocity_z\tpressure\tenergy\n";
+	_file << std::setw(20) << "density"
+	      << std::setw(20) << "velocity_x"
+	      << std::setw(20) << "velocity_y"
+	      << std::setw(20) << "velocity_z"
+	      << std::setw(20) << "pressure"
+	      << std::setw(20) << "energy"
+	      << std::endl;
 	std::vector<double> rho = _flowField.Getrho();
 	std::vector<double> u = _flowField.GetU_Velocity();
 	std::vector<double> v = _flowField.GetV_Velocity();
