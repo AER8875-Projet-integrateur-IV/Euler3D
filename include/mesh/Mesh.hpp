@@ -370,13 +370,13 @@ namespace E3D {
          * @brief get face IDs associated to an element ID
          *
          * @param elemID
-         * @param nElem Number of faces arround elemID
+         * @param nFace Number of faces arround elemID
          * @return int*
          */
-		inline int *GetElement2FaceID(int elemID, int &nElem) const {
+		inline int *GetElement2FaceID(int elemID, int &nFace) const {
 			int starti = element2faceStart.get()[0][elemID];
 			int endi = element2faceStart.get()[0][elemID + 1];
-			nElem = endi - starti;
+			nFace = endi - starti;
 			return element2face.get()[0].data() + starti;
 		}
 
