@@ -9,7 +9,6 @@
  * such as Pressure, Density, Velocity and Energy already solved in Solver.
  */
 #pragma once
-#include "/usr/local/tecplot/360ex_2019r1/include/TECIO.h"
 #include <iostream>
 #include <string.h>
 #include <unordered_map>
@@ -17,6 +16,7 @@
 
 #include "parser/Element.hpp"
 #include "parser/SU2MeshParser.hpp"
+#include "parser/SimConfig.hpp"
 #include "parser/SolutionPost.hpp"
 
 namespace E3D::Post {
@@ -31,7 +31,6 @@ namespace E3D::Post {
 		std::string _outputFile;
 		/*Nombre de partitions*/
 		int _nPart;
-
 		/**
          * Écrit la solution dans un fichier Tecplot
          *
@@ -41,7 +40,7 @@ namespace E3D::Post {
 		void WriteTecplotBinary();
 
 	public:
-		Post(std::vector<std::string> pathPartition, std::string outputFile);
+		Post(const E3D::Parser::SimConfig &config);
 		~Post();
 
 		void Write();
