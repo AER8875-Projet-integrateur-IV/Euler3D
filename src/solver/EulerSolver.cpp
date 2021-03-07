@@ -30,17 +30,17 @@ void Solver::EulerSolver::Run() {
 	}
 
 	// resize residual, deltaT and deltaW vectors
-	_residuals.resize(_localFlowField.GetP().size(), ResidualVar(0.0,
-	                                                        0.0,
-	                                                        0.0,
-	                                                        0.0,
-	                                                        0.0));
-	_deltaT.resize(_localFlowField.GetP().size(), 0);
-	_deltaW.resize(_localFlowField.GetP().size(), ConservativeVar(0.0,
-	                                                         0.0,
-	                                                         0.0,
-	                                                         0.0,
-	                                                         0.0));
+	_residuals.resize(_localMesh.GetnElemTot(), ResidualVar(0.0,
+	                                          0.0,
+	                                          0.0,
+	                                          0.0,
+	                                          0.0));
+	_deltaT.resize(_localMesh.GetnElemTot(), 0);
+	_deltaW.resize(_localMesh.GetnElemTot(), ConservativeVar(0.0,
+	                                           0.0,
+	                                           0.0,
+	                                           0.0,
+	                                           0.0));
 
 	while (_nbInteration < _config.getMaxNumberIterations()) {
 		resetResiduals();
@@ -62,7 +62,9 @@ void Solver::EulerSolver::Run() {
 			}
 			break;
 		}
+
 		updateDeltaTime();
+
 		TimeIntegration();
 		updateW();
 
@@ -73,9 +75,12 @@ void Solver::EulerSolver::Run() {
 			double iterationEndTimer = MPI_Wtime();
 			double iterationwallTime = iterationEndTimer - iterationBeginTimer;
 			E3D::Solver::PrintSolverIteration(_CL, _CD, _maximumDomainRms, iterationwallTime, _nbInteration);
+			for (auto &value : _residuals) {
+				std::cout << value.m_rhoV_residual << "\n";
+			}
 		}
-		MPI_Barrier(MPI_COMM_WORLD);
 
+		MPI_Barrier(MPI_COMM_WORLD);
 	}
 
 
@@ -134,6 +139,7 @@ void Solver::EulerSolver::updateBC() {
 		Solver::BC::Symmetry(_localFlowField, GhostIdx, InteriorGhostIdx);
 	}
 	// Update MPI
+
 	_e3d_mpi.updateFlowField(_localFlowField);
 }
 
@@ -146,6 +152,7 @@ void Solver::EulerSolver::computeResidual() {
 		int element1 = ptr[0];
 		int element2 = ptr[1];
 		ResidualVar residu = Solver::Roe(_localFlowField, _localMesh, _localMetrics, IfaceID, false);
+
 
 		double surfaceArea = _localMetrics.getFaceSurfaces()[IfaceID];
 		_residuals[element1] -= residu * surfaceArea;
@@ -166,34 +173,36 @@ void Solver::EulerSolver::computeResidual() {
 		double composant2 = _localMetrics.getFaceNormalsUnit()[EfaceID].y * _localFlowField.GetP()[element2];
 		double composant3 = _localMetrics.getFaceNormalsUnit()[EfaceID].z * _localFlowField.GetP()[element2];
 
-		//If Wall
-		if (std::find(_WallGhostCellIDs.begin(), _WallGhostCellIDs.end(), element2) != _WallGhostCellIDs.end()) {
-			ResidualVar residu = {0, composant1, composant2, composant3, 0};
+		auto itWall = std::find(_WallGhostCellIDs.begin(), _WallGhostCellIDs.end(), element2);
+		auto itMpi = std::find(MPIghostCellElems.begin(), MPIghostCellElems.end(), element2);
+		auto itSym = std::find(_SymmetryGhostCellIDs.begin(), _SymmetryGhostCellIDs.end(), element2);
 
+
+		//If Wall
+		if (itWall != _WallGhostCellIDs.end()) {
+			ResidualVar residu = {0, composant1, composant2, composant3, 0};
 			_residuals[element1] -= residu * surfaceArea;
-			_residuals[element2] += residu * surfaceArea;
 
 		}
 
 		// If MPI or Symmetry
-		else if (std::find(MPIghostCellElems.begin(), MPIghostCellElems.end(), element2) != MPIghostCellElems.end() || std::find(_SymmetryGhostCellIDs.begin(), _SymmetryGhostCellIDs.end(), element2) != _SymmetryGhostCellIDs.end()) {
-
-			ResidualVar residu = Solver::Roe(_localFlowField, _localMesh, _localMetrics, 1, true);
+		else if (itMpi != MPIghostCellElems.end() || itSym != _SymmetryGhostCellIDs.end()) {
+			ResidualVar residu = Solver::Roe(_localFlowField, _localMesh, _localMetrics, EfaceID, true);
 			_residuals[element1] -= residu * surfaceArea;
-			_residuals[element2] += residu * surfaceArea;
 		}
 
 		// if farfield
 		else {
-			ResidualVar residu = Solver::Roe(_localFlowField, _localMesh, _localMetrics, 4, false);
+			ResidualVar residu = Solver::Roe(_localFlowField, _localMesh, _localMetrics, EfaceID, false);
 			_residuals[element1] -= residu * surfaceArea;
-			_residuals[element2] += residu * surfaceArea;
 		}
 	}
 }
 
 void Solver::EulerSolver::updateDeltaTime() {
+
 	for (int ielem = 0; ielem < _localMesh.GetnElemTot(); ielem++) {
+
 		_deltaT[ielem] = Solver::TimeStep(_localFlowField, _localMesh, _localMetrics, ielem);
 	}
 }
@@ -206,7 +215,7 @@ void Solver::EulerSolver::TimeIntegration() {
 }
 
 void Solver::EulerSolver::updateW() {
-	_localFlowField.Update(_deltaW);
+	_localFlowField.Update(_deltaW, MPIghostCellElems,_localMesh.getMPIadjacentToGhostCellIDs());
 }
 
 double Solver::EulerSolver::computeRMS() {

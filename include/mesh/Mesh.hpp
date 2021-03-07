@@ -228,6 +228,14 @@ namespace E3D {
 			}
 		}
 
+        inline const std::vector<int> &getMPIadjacentToGhostCellIDs() const {
+            if constexpr (std::is_same_v<T, E3D::Parser::MeshPartition>) {
+                return MPIadjacentToGhostCellIDs;
+            }
+        }
+
+
+
 		/**
 		 * @brief Get MPI rank of this mesh (parition)
 		 */
@@ -422,6 +430,7 @@ namespace E3D {
 		// Variables for ghost cells
 		std::vector<std::pair<int, std::vector<int>>> MPIGhostCellsIDsPerPartition;
         std::vector<int> MPIGhostCellIDs;
+		std::vector<int> MPIadjacentToGhostCellIDs;
 		std::vector<int> WallGhostCellIDs;
 		std::vector<int> WallAdjacentToGhostCellIDs;
         std::vector<int> WallAdjacentFaceIDs;
@@ -468,6 +477,7 @@ namespace E3D {
 					}
 				}
 				MPIGhostCellIDs.reserve(GetMpiElemsCount());
+                MPIadjacentToGhostCellIDs.reserve(GetMpiElemsCount());
 
 				// Get the vector of MPI ghost cells
 
@@ -501,6 +511,7 @@ namespace E3D {
 						if (potentialMPIGhostCell.size() == 1) {
 							MPIelem.setGhostCellID(potentialMPIGhostCell[0]);
 							MPIGhostCellIDs.push_back(potentialMPIGhostCell[0]);
+							MPIadjacentToGhostCellIDs.push_back(localElemID);
 
 						}
 
@@ -539,6 +550,7 @@ namespace E3D {
 									MPIelem.setGhostCellID(potentialGhostCellID);
                                     MPIGhostCellIDs.push_back(potentialGhostCellID);
 									ghostElemsOfAPartition.push_back(potentialGhostCellID);
+                                    MPIadjacentToGhostCellIDs.push_back(localElemID);
 									break;
 									foundElem = true;
 								}

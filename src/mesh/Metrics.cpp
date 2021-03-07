@@ -29,6 +29,7 @@ E3D::Metrics::Metrics(const Mesh<Parser::MeshPartition> &localMesh, const Parall
 
 	computeFaceMetrics();
 	computeCellMetrics();
+    reorientFaceVectors();
 
 	double endMetricsTimer = MPI_Wtime();
 
@@ -202,4 +203,28 @@ void Metrics::computeCellMetrics() {
 		_cellCentroids.push_back(temp_centroid);
 		_cellVolumes.push_back(temp_volume);
 	}
+}
+
+void Metrics::reorientFaceVectors(){
+
+    const int nFaces = _localMesh.GetnFace();
+
+    for (int iface = 0; iface < nFaces; iface++){
+
+		    int* ptr = _localMesh.GetFace2ElementID(iface);
+
+		    int elem0 = ptr[0];
+		    int elem1 = ptr[1];
+
+		    E3D::Vector3<double> Coord0 = _cellCentroids[elem0];
+            E3D::Vector3<double> Coord1 = _cellCentroids[elem1];
+
+		    E3D::Vector3<double> From0to1 = Coord1 - Coord0;
+            double CosthetaCellCenterFace = Vector3<double>::dot(From0to1, _faceNormals[iface]) / (From0to1.length() * _faceNormals[iface].length());
+
+		    if (CosthetaCellCenterFace < 0) {
+                _faceNormals[iface] *= -1;
+                _faceUnitNormals[iface] *= -1;
+            }
+	    }
 }

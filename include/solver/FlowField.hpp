@@ -18,7 +18,7 @@ namespace E3D::Solver
 
         void PrintTest();
 
-		void Update(std::vector<E3D::Solver::ConservativeVar>& delW_vector);
+		void Update(const std::vector<E3D::Solver::ConservativeVar>& delW_vector,const std::vector<int>&, const std::vector<int>&);
 
         // Return rho (density) of problem
 

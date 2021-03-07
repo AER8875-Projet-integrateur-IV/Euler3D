@@ -87,6 +87,7 @@ namespace E3D::Solver {
         const std::vector<int> _SymmetryGhostCellIDs = _localMesh.GetSymmetryGhostCellsIDs();
         const std::vector<int> _FarfieldGhostCellIDs = _localMesh.GetFarfieldGhostCellsIDs();
         const std::vector<int> _WallGhostCellIDs = _localMesh.GetWallGhostCellsIDs();
+		std::vector<int> InteriorandMPIandSymmetryElemsIDs;
 
 		int _nbInteration=0;
         double _maximumDomainRms =10;

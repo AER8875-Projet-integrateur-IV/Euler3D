@@ -26,10 +26,10 @@ PRE_LOG= prelog.txt
 # Options : MACH -> 0
 #           Velocity -> 1
 
-SPEED_OPTION= 1
+SPEED_OPTION= 0
 
 # Velocity in m/s or Mach
-SPEED_VALUE= 250.0
+SPEED_VALUE= 1.5
 
 angle of attack in degrees
 AOA= 1
@@ -71,13 +71,13 @@ SCHEME= 1
 TIME_INTEGRATION= 2
 
 # Courant_Friedrichs-Lewy Number (CFL)
-CFL= 3
+CFL= 0.1
 
 # Minimum residual to stop solver (RMS of density)
 MIN_RESIDUAL= 1e-10
 
 # Number of maximum iterations to stop solver
-MAX_ITER= 3
+MAX_ITER= 2
 
 # Path to log file for solver
 SOLVER_LOG= solverlog.txt

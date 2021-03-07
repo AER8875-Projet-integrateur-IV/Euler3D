@@ -15,27 +15,27 @@ using namespace E3D::Solver;
 		double sumSz = 0;
 
 		int nfacefelement;
-		int *ptr;
 
-		ptr = _localMesh.GetElement2FaceID(iElem, nfacefelement);
-		std::vector<int> element2face(ptr, ptr + nfacefelement);
+
+        int *ptr = _localMesh.GetElement2FaceID(iElem, nfacefelement);
 
 		int iface;
-		for (size_t i = 0; i < nfacefelement; i++) {
-			iface = element2face[i];
+		for (int i = 0; i < nfacefelement; i++) {
+			iface = ptr[i];
 			E3D::Vector3<double> faceNormals = _localMetrics.getFaceNormals()[iface];
 			sumSx += abs(faceNormals.x * _localMetrics.getFaceSurfaces()[iface]);
 			sumSy += abs(faceNormals.y * _localMetrics.getFaceSurfaces()[iface]);
 			sumSz += abs(faceNormals.z * _localMetrics.getFaceSurfaces()[iface]);
 		}
 
+
 		double c = sqrt(_localFlowField.getgamma_ref() * _localFlowField.GetP()[iElem] / _localFlowField.Getrho()[iElem]);
+
 		double lambdaCx = 0.5 * (abs(_localFlowField.GetU_Velocity()[iElem]) + c) * sumSx;
 		double lambdaCy = 0.5 * (abs(_localFlowField.GetV_Velocity()[iElem]) + c) * sumSy;
 		double lambdaCz = 0.5 * (abs(_localFlowField.GetW_Velocity()[iElem]) + c) * sumSz;
 
 		double localTimeStep = cfl * _localMetrics.getCellVolumes()[iElem] / (lambdaCx + lambdaCy + lambdaCz);
-
 		return localTimeStep;
 	};
 

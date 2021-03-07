@@ -43,7 +43,6 @@ FlowField::FlowField(const E3D::Parser::SimConfig &config,
          TotalNumberOfBoundaryElems +=  localMesh.GetNumberOfElementsInTag(i);
 	}
 
-
 	double totalElemCount = localMesh.GetMeshInteriorElemCount() + localMesh.GetMpiElemsCount() + localMesh.GetWallGhostCellsIDs().size()
 	        + localMesh.GetFarfieldGhostCellsIDs().size() + localMesh.GetSymmetryGhostCellsIDs().size();
 	_totalElemCount=totalElemCount;
@@ -97,8 +96,11 @@ void FlowField::Initialize(const int totalElemCount, const int ForceElemsCount) 
 
 }
 
-void FlowField::Update(std::vector<E3D::Solver::ConservativeVar>& delW_vector){
-        for(int ielem=0; ielem<_totalElemCount;ielem++){
+void FlowField::Update(const std::vector<E3D::Solver::ConservativeVar>& delW_vector,
+                       const std::vector<int>& MPIids,
+                       const std::vector<int>& adjacentToMPIids){
+	// Update interior Cells
+        for(size_t ielem=0; ielem<delW_vector.size();ielem++){
 		    double rho = delW_vector[ielem].rho ;
 		    _rho[ielem] += rho;
             _u[ielem] += delW_vector[ielem].rhoU / rho;
@@ -108,5 +110,17 @@ void FlowField::Update(std::vector<E3D::Solver::ConservativeVar>& delW_vector){
 		    _p[ielem] = (gamma_ref-1) * _rho[ielem] *(_E[ielem] - (std::pow(_u[ielem],2) + std::pow(_v[ielem],2) + std::pow(_w[ielem],2) )/2.0);
 		    _H[ielem] =  _E[ielem] + (_p[ielem] / _rho[ielem]);
 		    _M[ielem] = sqrt(gamma_ref*(_p[ielem]/_rho[ielem]))/sqrt((std::pow(_u[ielem],2) + std::pow(_v[ielem],2) + std::pow(_w[ielem],2)));
+	    }
+
+	    //Update Ghost Cells
+	    for(size_t ielem = 0;ielem < MPIids.size();ielem++){
+		    _rho[MPIids[ielem]] = _rho[adjacentToMPIids[ielem]];
+            _u[MPIids[ielem]] = _u[adjacentToMPIids[ielem]];
+            _v[MPIids[ielem]] = _v[adjacentToMPIids[ielem]];
+            _w[MPIids[ielem]] = _w[adjacentToMPIids[ielem]];
+            _E[MPIids[ielem]] = _E[adjacentToMPIids[ielem]];
+            _p[MPIids[ielem]] = _p[adjacentToMPIids[ielem]];
+            _H[MPIids[ielem]] = _H[adjacentToMPIids[ielem]];
+            _M[MPIids[ielem]] = _M[adjacentToMPIids[ielem]];
 	    }
 }

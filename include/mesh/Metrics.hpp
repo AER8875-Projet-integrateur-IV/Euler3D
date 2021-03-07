@@ -38,6 +38,13 @@ namespace E3D {
          */
 		void computeCellMetrics();
 
+        /**
+         * @brief orient face vectors from cell with lower id to greater id
+         */
+        void reorientFaceVectors();
+
+
+
 
 		const Mesh<Parser::MeshPartition> &_localMesh;
 		std::vector<Vector3<double>> _faceNormals;

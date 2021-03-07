@@ -16,7 +16,6 @@ E3D::Solver::ResidualVar E3D::Solver::Roe(E3D::Solver::FlowField &_localFlowFiel
     int *ptr = _localMesh.GetFace2ElementID(iface);
 	int leftElementId = ptr[0];
 	int rightElementId = ptr[1];
-    printf("Problem Here1\n");
 
 	//get variables from FlowField
 	double gamma = _localFlowField.getgamma_ref();
