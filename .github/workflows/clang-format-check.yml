@@ -7,9 +7,9 @@ jobs:
     strategy:
       matrix:
         path:
-          - 'src'
-          - 'test'
-          - 'include'
+          - '${{github.workspace}}/src'
+          - '${{github.workspace}}/test'
+          - '${{github.workspace}}/include'
     steps:
     - uses: actions/checkout@v2
     - name: Run clang-format style check for C/C++ programs.
