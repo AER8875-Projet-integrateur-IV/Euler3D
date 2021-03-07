@@ -330,6 +330,10 @@ namespace E3D {
 			return connectivityObj._nFace;
 		}
 
+		inline int GetnFaceInt() const {
+			return connectivityObj._nFaceInt;
+		}
+
 		inline int GetnElemTot() const {
 			return connectivityObj._nElem;
 		}

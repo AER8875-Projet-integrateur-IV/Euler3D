@@ -17,6 +17,7 @@ public:
   int _nElem;
   int _nNode;
   int _nFace;
+  int _nFaceInt;
   std::vector<int> _element2node;
   std::vector<int> _element2nodeStart;
   std::vector<int> _node2element;

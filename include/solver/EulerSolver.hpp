@@ -51,7 +51,7 @@ namespace E3D::Solver {
 		/**
 		 * @brief compute convective fluxes with Roe scheme
 		 */
-		void computeResidual();
+		void computeResidual(int iface);
 
         /**
          * @brief Compute DeltaW with Explicit/Implicit Euler or Runge-Kutta

@@ -13,7 +13,7 @@ void Connectivity::SolveElement2node(const std::vector<E3D::Parser::Element> &el
         _element2nodeStart[ielem + 1] = counter;
     }
     _element2node.resize(counter);
-    
+
     //construire element2nodeStart
     for (int ielem = 0; ielem < _nElem; ielem++) {
         int localindex = 0;
@@ -88,6 +88,7 @@ void Connectivity::SolveElement2Element(const std::vector<int> &VTK, int Boundar
 
 
     _nFace = (BoundaryFaces + _element2elementStart[_nElem]) / 2;
+    _nFaceInt = _nFace-BoundaryFaces;
 
 
     _face2element.resize(_nFace * 2, -1);
