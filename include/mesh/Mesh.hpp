@@ -106,13 +106,6 @@ namespace E3D {
 		}
 
 		// ------------------ Mesh parsing Info ----------------------
-		inline int GetMpiElemsCount() const {
-			if constexpr (std::is_same_v<T, E3D::Parser::MeshPartition>) {
-				return _parser.getMpiBoundaryElemsCount();
-			}
-		}
-
-
 		inline const std::vector<std::pair<int, std::vector<int>>> &GetMPIGhostCellsIDs() const {
 			if constexpr (std::is_same_v<T, E3D::Parser::MeshPartition>) {
 				return MPIGhostCellsIDs;
