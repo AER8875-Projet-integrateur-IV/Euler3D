@@ -1,3 +1,4 @@
 info       Euler 3D Post-processor.
 
-debug      Total run time 0.027137256
+debug      Writing Tecplot ASCII file 0.000562035
+debug      Total run time 0.000810949

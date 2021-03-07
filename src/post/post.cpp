@@ -9,8 +9,9 @@
  * such as Pressure, Density, Velocity and Energy already solved in Solver.
  */
 #include "post/post.hpp"
-#include <algorithm>
-#include <utility>
+#include "spdlog/logger.h"
+#include "spdlog/stopwatch.h"
+#include "utils/Logger.hpp"
 
 
 using namespace E3D::Post;
@@ -32,9 +33,14 @@ Post::~Post() {
 }
 
 void Post::Write() {
-	std::cout << "Début Post:\n";
+	std::cout << std::string(24, '#') << "  TECPLOT  " << std::string(24, '#') << "\n"
+	          << std::endl;
+	auto logger = E3D::Logger::Getspdlog();
+	spdlog::stopwatch tecplotASCIIsw;
 	WriteTecplotASCII();
-	std::cout << "Fin Post:\n";
+	logger->debug("Writing Tecplot ASCII file run time {}", tecplotASCIIsw);
+	std::cout << "Output File: " << _outputFile << std::endl;
+	std::cout << "\n";
 }
 
 void Post::WriteTecplotASCII() {
