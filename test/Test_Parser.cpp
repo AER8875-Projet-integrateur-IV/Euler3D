@@ -180,10 +180,9 @@ TEST_CASE("MeshPartition and Metrics classes test", "[parser]") {
     E3D::Parser::SimConfig config(configFile, e3d_mpi.getRankID(), e3d_mpi.getPoolSize());
 
     // Parsing Partitions (mesh files)
-    E3D::Parser::MeshPartition localmeshClass(config.getPartitionedMeshFiles()[e3d_mpi.getRankID()],
-                                         e3d_mpi);
+    E3D::Parser::MeshPartition localmeshClass(config.getPartitionedMeshFiles()[e3d_mpi.getRankID()],e3d_mpi.getRankID());
 
-    E3D::Mesh<E3D::Parser::MeshPartition> localmesh(config.getPartitionedMeshFiles()[e3d_mpi.getRankID()], e3d_mpi);
+    E3D::Mesh<E3D::Parser::MeshPartition> localmesh(config.getPartitionedMeshFiles()[e3d_mpi.getRankID()], e3d_mpi.getRankID());
 
 
     localmesh.solveConnectivity();
