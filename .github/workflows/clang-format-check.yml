@@ -10,8 +10,8 @@ jobs:
     - uses: actions/checkout@v2
     - uses: DoozyX/clang-format-lint-action@v0.11
       with:
-        source: '${{github.workspace}}/src ${{github.workspace}}/test ${{github.workspace}}/include'
-        exclude: '${{github.workspace}}/test/extern'
+        source: './src ./test ./include'
+        exclude: './test/extern'
         extensions: 'h,hpp,cpp,c'
         clangFormatVersion: 11
         inplace: True
