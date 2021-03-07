@@ -43,6 +43,7 @@ namespace E3D {
 				}
 
 				double startConnectivityTimer = MPI_Wtime();
+
 			}
 
 
@@ -73,6 +74,7 @@ namespace E3D {
 
 
 			if constexpr (std::is_same_v<T, E3D::Parser::MeshPartition>) {
+
 				// Call private functions to update ghost cells
 				updateMPIGhostCells();
 				updateWallGhostCell();
@@ -87,6 +89,7 @@ namespace E3D {
                 std::array<int, 4> GhostCellStats{NghostCellsFarfield,NghostCellsWall,NghostCellsSymmetry,NghostCellsMpi};
                 std::array<int, 4> sumGhostCells{0, 0, 0,0};
                 MPI_Reduce(&GhostCellStats,&sumGhostCells,4,MPI_INT,MPI_SUM,0,MPI_COMM_WORLD);
+
 				MPI_Barrier(MPI_COMM_WORLD);
 				if (_parser.getrankID() == 0) {
                     double endConnectivityTimer = MPI_Wtime();
@@ -103,6 +106,12 @@ namespace E3D {
 		}
 
 		// ------------------ Mesh parsing Info ----------------------
+		inline int GetMpiElemsCount() const {
+			if constexpr (std::is_same_v<T, E3D::Parser::MeshPartition>) {
+				return _parser.getMpiBoundaryElemsCount();
+			}
+		}
+
 
 		inline const std::vector<std::pair<int, std::vector<int>>> &GetMPIGhostCellsIDs() const {
 			if constexpr (std::is_same_v<T, E3D::Parser::MeshPartition>) {
@@ -401,6 +410,7 @@ namespace E3D {
 			return face2element.get()[0].data() + starti;
 		}
 
+
 	private:
 		T _parser;
 
@@ -410,15 +420,14 @@ namespace E3D {
 		std::vector<std::pair<int, std::vector<int>>> MPIGhostCellsIDs;
 		std::vector<int> WallGhostCellIDs;
 		std::vector<int> WallAdjacentToGhostCellIDs;
-        std::vector<int> WallAdjacentFaceIDs;
+    std::vector<int> WallAdjacentFaceIDs;
 		std::vector<int> SymmetryGhostCellIDs;
 		std::vector<int> SymmetryAdjacentGhostCellIDs;
 		std::vector<int> SymmetryAdjacentFaceIDs;
 		std::vector<int> FarfieldGhostCellIDs;
 		std::vector<int> FarfieldAdjacentToGhostCellIDs;
-        std::vector<int> FarfieldAdjacentFaceIDs;
+    std::vector<int> FarfieldAdjacentFaceIDs;
 		std::vector<int> facesAroundGhostCells;
-
 
 		// variable calculees et assignees par connectivity
 		std::unique_ptr<std::vector<int>> node2element;

@@ -9,7 +9,6 @@
 #include "parser/SimConfig.hpp"
 #include "solver/FlowField.hpp"
 #include "solver/EulerSolver.hpp"
-
 using namespace E3D;
 
 int main(int argc, char *argv[]) {
@@ -49,6 +48,7 @@ int main(int argc, char *argv[]) {
 	E3D::Solver::EulerSolver solver(localFlowField,e3d_mpi,localmesh,config,localMeshMetrics);
 
 	solver.Run();
+
 
 	e3d_mpi.finalize();
 
