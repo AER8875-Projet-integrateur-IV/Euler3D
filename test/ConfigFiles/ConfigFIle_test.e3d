@@ -32,7 +32,7 @@ SPEED_OPTION= 1
 SPEED_VALUE= 250.0
 
 angle of attack in degrees
-AOA= 0
+AOA= 1
 
 # Airflow pressure in Pa
 AIRFLOW_PRESSURE= 101325

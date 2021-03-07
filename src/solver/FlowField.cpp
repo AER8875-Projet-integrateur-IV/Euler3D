@@ -9,9 +9,11 @@ FlowField::FlowField(const E3D::Parser::SimConfig &config,
                      const E3D::Mesh<E3D::Parser::MeshPartition> &localMesh) : _simConfig(config) {
 
 	if (localMesh.getMeshRankID() == 0) {
+
 		std::cout << "\n\n"
 		          << std::string(24, '#') << "  FlowField Initialization  " << std::string(24, '#') << "\n\n";
 	}
+
 
 	// Compute Number of cells connected airfoil or wall
 
@@ -62,11 +64,13 @@ void FlowField::PrintTest() {
 	          << "\n";
 }
 
+
 void FlowField::Initialize(const int totalElemCount, const int ForceElemsCount) {
 	//TODO ADD ANGLE FOR SIDE FLOW (V_INF)
 
 
     // update reference variables
+
 	gamma_ref = _simConfig.getGamma();
 	M_inf = _simConfig.getMach();
 	u_inf = M_inf * sqrt(gamma_ref) * std::cos(_simConfig.getAoA() * (E3D_PI / 180));
@@ -76,7 +80,7 @@ void FlowField::Initialize(const int totalElemCount, const int ForceElemsCount) 
 	rho_ref = _simConfig.getDensity();
 	E_inf = p_inf / ((gamma_ref - 1) * rho_inf) + ((u_inf * u_inf + v_inf * v_inf + w_inf * w_inf) / 2);
 	H_inf = E_inf + (p_inf / rho_inf);
-    SoundSpd_ref = sqrt(gamma_ref*(p_ref/rho_ref));
+  SoundSpd_ref = sqrt(gamma_ref*(p_ref/rho_ref));
 
 	// resize vectors to infinite flowfield state
 	_rho.resize(totalElemCount, rho_inf);
@@ -91,5 +95,6 @@ void FlowField::Initialize(const int totalElemCount, const int ForceElemsCount) 
 	_Fx.resize(ForceElemsCount, 0);
     _Fy.resize(ForceElemsCount, 0);
     _Fz.resize(ForceElemsCount, 0);
+
 
 }

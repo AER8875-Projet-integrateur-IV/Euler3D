@@ -8,6 +8,7 @@
 
 namespace E3D::Solver
 {
+
     class FlowField {
 
     public:
@@ -20,6 +21,7 @@ namespace E3D::Solver
 		void Update(std::vector<E3D::Solver::ConservativeVar> delW_vector);
 
         // Return rho (density) of problem
+
         inline  std::vector<double>& Getrho() {return this->_rho; }
 
         // Return rhoU of problem
@@ -31,11 +33,14 @@ namespace E3D::Solver
         // Return rhoW of problem
         inline  std::vector<double>& GetW_Velocity() {return this->_w; }
 
+
         // Return rhoE of problem
         inline const std::vector<double>& GetP() const {return this->_p; }
 
         // Return rhoE of problem
         inline std::vector<double>& GetE() {return this->_E; }
+
+
 
         // Return rhoE of problem
         inline const std::vector<double>& GetH() const {return this->_H; }
@@ -107,16 +112,16 @@ namespace E3D::Solver
     private:
         const E3D::Parser::SimConfig& _simConfig;
 
-        std::vector<double> _rho;
-        std::vector<double> _u;
-        std::vector<double> _v;
-        std::vector<double> _w;
-        std::vector<double> _E;
+    std::vector<double> _rho;
+    std::vector<double> _u;
+    std::vector<double> _v;
+    std::vector<double> _w;
+    std::vector<double> _E;
 		std::vector<double> _H;
-        std::vector<double> _p;
-        std::vector<double> _Fx;
-        std::vector<double> _Fy;
-        std::vector<double> _Fz;
+    std::vector<double> _p;
+    std::vector<double> _Fx;
+    std::vector<double> _Fy;
+    std::vector<double> _Fz;
 		std::vector<double> _M;
 
 		double rho_ref =  0.0;
@@ -124,15 +129,14 @@ namespace E3D::Solver
 		const double rho_inf =   1.0;
 		double p_ref =    0.0;
 		double T_ref =    0.0;
-        double u_inf =    0.0;
-        double v_inf =    0.0;
-        double w_inf =    0.0;
+    double u_inf =    0.0;
+    double v_inf =    0.0;
+    double w_inf =    0.0;
 		double E_inf =    0.0;
 		double H_inf =    0.0;
 		double M_inf =    0.0;
 		double gamma_ref = 0.0;
 		double SoundSpd_ref = 0.0;
-
 		int _totalElemCount = 0;
 
 
