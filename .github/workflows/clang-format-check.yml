@@ -1,5 +1,5 @@
 name: clang-format Check
-on: [push, PR]
+on: push
 jobs:
   formatting-check:
     name: Formatting Check
@@ -17,4 +17,3 @@ jobs:
       with:
         clang-format-version: '11'
         check-path: ${{ matrix.path }}
-        fallback-style: 'Mozilla' # optional
