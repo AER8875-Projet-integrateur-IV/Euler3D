@@ -17,6 +17,7 @@ set(NAME_LIBRARY Utils)
 
 set(SOURCE Logger.cpp
            ../../include/utils/Vector3.h
+            ProgressBar.cpp
             ../../include/utils/SolverPrint.hpp)
 
 #   3. Add the command add_subdirectory(NameOfThisDirectory) to the CMakeLists.txt
