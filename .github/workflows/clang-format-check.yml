@@ -1,19 +1,17 @@
-name: clang-format Check
-on: push
+name: Run clang-format Linter
+
+on: [push]
+
 jobs:
-  formatting-check:
-    name: Formatting Check
+  build:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        path:
-          - '${{github.workspace}}/src'
-          - '${{github.workspace}}/test'
-          - '${{github.workspace}}/include'
+
     steps:
     - uses: actions/checkout@v2
-    - name: Run clang-format style check for C/C++ programs.
-      uses: jidicula/clang-format-action@v3.2.0
+    - uses: DoozyX/clang-format-lint-action@v0.11
       with:
-        clang-format-version: '11'
-        check-path: ${{ matrix.path }}
+        source: '${{github.workspace}}/src ${{github.workspace}}/test ${{github.workspace}}/include'
+        exclude: '${{github.workspace}}/test/extern'
+        extensions: 'h,hpp,cpp,c'
+        clangFormatVersion: 11
+        inplace: True
