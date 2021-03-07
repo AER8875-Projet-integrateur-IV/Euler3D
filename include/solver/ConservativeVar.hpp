@@ -49,27 +49,27 @@ namespace E3D::Solver
 
         // Might not need this one
         inline ConservativeVar operator-(E3D::Solver::ResidualVar &v) {
-            return ConservativeVar(rho - v.GetrhoV_res(),
-                     rhoU - v.GetrhouV_res(),
-                     rhoV - v.GetrhovV_res(),
-                     rhoW - v.GetrhowV_res(),
-                     rhoE - v.GetrhoHV_res());
+            return ConservativeVar(rho - v.m_rhoV_residual,
+                     rhoU - v.m_rho_uV_residual,
+                     rhoV - v.m_rho_vV_residual,
+                     rhoW - v.m_rho_wV_residual,
+                     rhoE - v.m_rho_HV_residual);
         }
 
         inline ConservativeVar operator*(E3D::Solver::ResidualVar &v) {
-            return ConservativeVar(rho * v.GetrhoV_res(),
-                     rhoU * v.GetrhouV_res(),
-                     rhoV * v.GetrhovV_res(),
-                     rhoW * v.GetrhowV_res(),
-                     rhoE * v.GetrhoHV_res());
+            return ConservativeVar(rho * v.m_rhoV_residual,
+                     rhoU * v.m_rho_uV_residual,
+                     rhoV * v.m_rho_vV_residual,
+                     rhoW * v.m_rho_wV_residual,
+                     rhoE * v.m_rho_HV_residual);
         }
 
         inline ConservativeVar &operator+=(E3D::Solver::ResidualVar &&v) {
-            this->rho += v.GetrhoV_res();
-            this->rhoU += v.GetrhouV_res();
-            this->rhoV += v.GetrhovV_res();
-            this->rhoW += v.GetrhowV_res();
-            this->rhoE += v.GetrhoHV_res();
+            this->rho += v.m_rhoV_residual;
+            this->rhoU += v.m_rho_uV_residual;
+            this->rhoV += v.m_rho_vV_residual;
+            this->rhoW += v.m_rho_wV_residual;
+            this->rhoE += v.m_rho_HV_residual;
             return *this;
         }
 

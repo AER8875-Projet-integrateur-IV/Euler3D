@@ -6,6 +6,9 @@
 #include <utils/Vector3.h>
 #include "solver/PhysicalBC.h"
 #include "mesh/Metrics.hpp"
+#include "solver/ConvectiveFluxesSchemes.h"
+#include "solver/TimeIntegration.h"
+
 
 namespace E3D::Solver {
 
@@ -29,9 +32,9 @@ namespace E3D::Solver {
 		void updateBC();
 
 		/**
-		 * @brief Compute maximum Residual mean square
+		 * @brief Compute maximum ResidualVar mean square
 		 */
-		void computeRMS();
+		double computeRMS();
 
 		/**
 		 * @brief Compute forces around airfoil/wall
@@ -46,20 +49,27 @@ namespace E3D::Solver {
 		/**
 		 * @brief compute local time step of cell
 		 */
-		void deltaTime();
+		void updateDeltaTime();
 
 		/**
 		 * @brief compute convective fluxes with Roe scheme
 		 */
-		void computeResidual(int iface);
+		void computeResidual();
 
         /**
          * @brief Compute DeltaW with Explicit/Implicit Euler or Runge-Kutta
          */
 		void TimeIntegration();
 
+        /**
+         * @brief UpdateW in localFlowField
+         */
+        void updateW();
+
+        void resetResiduals();
+
         std::vector<E3D::Vector3<double>> _forces;
-		std::vector<double> _residuals;
+		std::vector<E3D::Solver::ResidualVar> _residuals;
 		std::vector<double> _deltaT;
 		std::vector<ConservativeVar> _deltaW;
 		std::vector<double> _cp;
@@ -72,13 +82,14 @@ namespace E3D::Solver {
         const E3D::Parser::SimConfig& _config;
 		const E3D::Metrics& _localMetrics;
 
-        const std::vector<std::pair<int, std::vector<int>>> _MpiGhostCellIDs = _localMesh.GetMPIGhostCellsIDs();
+        const std::vector<std::pair<int, std::vector<int>>> _PairsMpiGhostCellIDs = _localMesh.VectorGetMPIGhostCellsIDs();
+		const std::vector<int> MPIghostCellElems = _localMesh.GetMPIGhostCellsIDs();
         const std::vector<int> _SymmetryGhostCellIDs = _localMesh.GetSymmetryGhostCellsIDs();
         const std::vector<int> _FarfieldGhostCellIDs = _localMesh.GetFarfieldGhostCellsIDs();
         const std::vector<int> _WallGhostCellIDs = _localMesh.GetWallGhostCellsIDs();
 
 		int _nbInteration=0;
-        double _maximumLocalRms=10;
+        double _maximumDomainRms =10;
 
 		double _CL=0;
 		double _CD=0;

@@ -49,7 +49,6 @@ int main(int argc, char *argv[]) {
 
 	solver.Run();
 
-
 	e3d_mpi.finalize();
 
 

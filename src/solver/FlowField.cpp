@@ -68,9 +68,8 @@ void FlowField::PrintTest() {
 void FlowField::Initialize(const int totalElemCount, const int ForceElemsCount) {
 	//TODO ADD ANGLE FOR SIDE FLOW (V_INF)
 
-
     // update reference variables
-
+    cfl = _simConfig.getCFL();
 	gamma_ref = _simConfig.getGamma();
 	M_inf = _simConfig.getMach();
 	u_inf = M_inf * sqrt(gamma_ref) * std::cos(_simConfig.getAoA() * (E3D_PI / 180));
@@ -96,5 +95,18 @@ void FlowField::Initialize(const int totalElemCount, const int ForceElemsCount) 
     _Fy.resize(ForceElemsCount, 0);
     _Fz.resize(ForceElemsCount, 0);
 
+}
 
+void FlowField::Update(std::vector<E3D::Solver::ConservativeVar>& delW_vector){
+        for(int ielem=0; ielem<_totalElemCount;ielem++){
+		    double rho = delW_vector[ielem].rho ;
+		    _rho[ielem] += rho;
+            _u[ielem] += delW_vector[ielem].rhoU / rho;
+            _v[ielem] += delW_vector[ielem].rhoV / rho;
+            _w[ielem] += delW_vector[ielem].rhoW / rho;
+            _E[ielem] += delW_vector[ielem].rhoE / rho;
+		    _p[ielem] = (gamma_ref-1) * _rho[ielem] *(_E[ielem] - (std::pow(_u[ielem],2) + std::pow(_v[ielem],2) + std::pow(_w[ielem],2) )/2.0);
+		    _H[ielem] =  _E[ielem] + (_p[ielem] / _rho[ielem]);
+		    _M[ielem] = sqrt(gamma_ref*(_p[ielem]/_rho[ielem]))/sqrt((std::pow(_u[ielem],2) + std::pow(_v[ielem],2) + std::pow(_w[ielem],2)));
+	    }
 }

@@ -18,7 +18,7 @@ namespace E3D::Solver
 
         void PrintTest();
 
-		void Update(std::vector<E3D::Solver::ConservativeVar> delW_vector);
+		void Update(std::vector<E3D::Solver::ConservativeVar>& delW_vector);
 
         // Return rho (density) of problem
 
@@ -79,6 +79,8 @@ namespace E3D::Solver
 
         inline double getM_inf() const {return M_inf;}
 
+		inline double getCFL() const {return cfl;}
+
         inline double getgamma_ref() const {return gamma_ref;}
 
 		inline double getSoundspd_ref() const {return SoundSpd_ref;}
@@ -124,14 +126,15 @@ namespace E3D::Solver
     std::vector<double> _Fz;
 		std::vector<double> _M;
 
+		double cfl = 0.0;
 		double rho_ref =  0.0;
 		const double p_inf  =    1.0;
 		const double rho_inf =   1.0;
 		double p_ref =    0.0;
 		double T_ref =    0.0;
-    double u_inf =    0.0;
-    double v_inf =    0.0;
-    double w_inf =    0.0;
+        double u_inf =    0.0;
+        double v_inf =    0.0;
+        double w_inf =    0.0;
 		double E_inf =    0.0;
 		double H_inf =    0.0;
 		double M_inf =    0.0;

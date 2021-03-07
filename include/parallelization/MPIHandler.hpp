@@ -51,7 +51,7 @@ namespace E3D::Parallel {
 
 
 		/**
-          * @brief Compute and broadcast maximum Residual through collective communication
+          * @brief Compute and broadcast maximum ResidualVar through collective communication
           * TODO add appropriate arguments to the function
           */
 		void updateRMS();
