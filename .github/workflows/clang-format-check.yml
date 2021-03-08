@@ -14,4 +14,3 @@ jobs:
         exclude: './test/extern'
         extensions: 'h,hpp,cpp,c'
         clangFormatVersion: 11
-        inplace: True
