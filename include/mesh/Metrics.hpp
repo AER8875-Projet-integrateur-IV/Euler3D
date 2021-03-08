@@ -12,7 +12,7 @@ namespace E3D {
 		/**
 		 * Ctor takes Mesh class with a parser of type MeshPartition
 		 */
-		Metrics(const Mesh<Parser::MeshPartition>&, const Parallel::MPIHandler& e3d_mpi);
+		Metrics(const Mesh<Parser::MeshPartition> &, const Parallel::MPIHandler &e3d_mpi);
 
 		inline const std::vector<Vector3<double>> &getFaceNormals() const { return _faceNormals; }
 
@@ -30,7 +30,7 @@ namespace E3D {
 		 */
 		void computeFaceMetrics();
 
-        /**
+		/**
          * @brief Compute cell metrics by populating member variables _CellVolumes and _CellCentroids
          */
 		void computeCellMetrics();
@@ -40,9 +40,8 @@ namespace E3D {
 		std::vector<Vector3<double>> _faceNormals;
 		std::vector<Vector3<double>> _faceCenters;
 		std::vector<Vector3<double>> _cellCentroids;
-        	std::vector<Vector3<double>> _faceUnitNormals;
+		std::vector<Vector3<double>> _faceUnitNormals;
 		std::vector<double> _faceSurfaces;
 		std::vector<double> _cellVolumes;
-
 	};
 }// namespace E3D

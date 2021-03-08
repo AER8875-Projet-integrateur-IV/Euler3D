@@ -291,5 +291,3 @@ namespace E3D {
 	};
 
 }// namespace E3D
-
-
