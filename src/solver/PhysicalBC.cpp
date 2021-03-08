@@ -161,6 +161,7 @@ void BC::Wall(E3D::Solver::FlowField &flowfield,
 
     double H = E + (p / rho);
 
+
     // Update FlowField
     flowfield.setRho(GhostcellID, rho);
 

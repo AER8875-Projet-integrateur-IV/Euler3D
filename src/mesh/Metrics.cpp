@@ -200,7 +200,12 @@ void Metrics::computeCellMetrics() {
 		temp_centroid = centroid_numerator / centroid_denominator;
 
 		_cellCentroids.push_back(temp_centroid);
-		_cellVolumes.push_back(temp_volume);
+		if(temp_localNodes.size() == 4){
+            _cellVolumes.push_back(temp_volume/2);
+        }
+		else{
+            _cellVolumes.push_back(temp_volume);
+		}
 	}
 }
 

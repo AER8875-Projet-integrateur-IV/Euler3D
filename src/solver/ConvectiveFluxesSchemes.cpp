@@ -143,7 +143,13 @@ E3D::Solver::ResidualVar E3D::Solver::Roe(E3D::Solver::FlowField &_localFlowFiel
 		}
 
 		for (size_t i = 0; i < 5; i++) {
+			if(i==0){
+				printf("fluxAvg : %.3f | deltaF1 : %.3f | deltaF234 : %.3f | deltaF5 %.3f\n", fluxAvg[i],deltaF1[i], deltaF234[i], deltaF5[i] );
+			}
 			flux[i] = fluxAvg[i] - 0.5 * (deltaF1[i] + deltaF234[i] + deltaF5[i]);
+            if(i==0){
+                printf("flux : %.3f\n", flux[i] );
+            }
 		}
 	}
 	return E3D::Solver::ResidualVar(flux[0], flux[1], flux[2], flux[3], flux[4]);

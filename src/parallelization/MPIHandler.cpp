@@ -258,6 +258,5 @@ void MPIHandler::updateFlowField(E3D::Solver::FlowField &localFlowField) const {
 				}
 			}
 		}
-        MPI_Barrier(MPI_COMM_WORLD);
 	}
 }

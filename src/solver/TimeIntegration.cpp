@@ -46,7 +46,7 @@ E3D::Solver::ConservativeVar E3D::Solver::ExplicitEuler(E3D::Solver::ResidualVar
 
 	double coeff = -dt / _localMetrics.getCellVolumes()[iElem];
 	E3D::Solver::ResidualVar temp_deltaW = residual * coeff;
-
+    printf("Residual Rho %.3f\n",temp_deltaW.m_rhoV_residual);
 	E3D::Solver::ConservativeVar deltaW { temp_deltaW.m_rhoV_residual,
 		                                  temp_deltaW.m_rho_uV_residual,
 		                                  temp_deltaW.m_rho_vV_residual,

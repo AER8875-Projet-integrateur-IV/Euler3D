@@ -120,6 +120,10 @@ namespace E3D::Solver
     std::vector<double> _w;
     std::vector<double> _E;
 		std::vector<double> _H;
+        std::vector<double> _rhou;
+        std::vector<double> _rhov;
+        std::vector<double> _rhow;
+        std::vector<double> _rhoE;
     std::vector<double> _p;
     std::vector<double> _Fx;
     std::vector<double> _Fy;
@@ -141,6 +145,7 @@ namespace E3D::Solver
 		double gamma_ref = 0.0;
 		double SoundSpd_ref = 0.0;
 		int _totalElemCount = 0;
+		int _interiorElemCount = 0;
 
 
 		void Initialize(const int, const int);
