@@ -220,8 +220,7 @@ void Solver::EulerSolver::computeResidual() {
 void Solver::EulerSolver::updateDeltaTime() {
 
 	for (int ielem = 0; ielem < _localMesh.GetnElemTot(); ielem++) {
-
-		_deltaT[ielem] = Solver::TimeStep(_localFlowField, _localMesh, _localMetrics, ielem);
+		_deltaT[ielem] = Solver::TimeStepMethod1(_localFlowField, _localMesh, _localMetrics, ielem);
 	}
 }
 
