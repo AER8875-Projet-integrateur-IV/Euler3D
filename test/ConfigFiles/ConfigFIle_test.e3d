@@ -71,13 +71,13 @@ SCHEME= 1
 TIME_INTEGRATION= 2
 
 # Courant_Friedrichs-Lewy Number (CFL)
-CFL= 0.1
+CFL= 0.2
 
 # Minimum residual to stop solver (RMS of density)
 MIN_RESIDUAL= 1e-10
 
 # Number of maximum iterations to stop solver
-MAX_ITER= 4
+MAX_ITER= 5
 
 # Path to log file for solver
 SOLVER_LOG= solverlog.txt

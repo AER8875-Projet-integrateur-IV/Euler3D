@@ -29,7 +29,6 @@ E3D::Metrics::Metrics(const Mesh<Parser::MeshPartition> &localMesh, const Parall
 
 	computeFaceMetrics();
 	computeCellMetrics();
-    reorientFaceVectors();
 
 	double endMetricsTimer = MPI_Wtime();
 
@@ -222,7 +221,7 @@ void Metrics::reorientFaceVectors(){
 		    E3D::Vector3<double> From0to1 = Coord1 - Coord0;
             double CosthetaCellCenterFace = Vector3<double>::dot(From0to1, _faceNormals[iface]) / (From0to1.length() * _faceNormals[iface].length());
 
-		    if (CosthetaCellCenterFace < 0) {
+		    if (CosthetaCellCenterFace > 0) {
                 _faceNormals[iface] *= -1;
                 _faceUnitNormals[iface] *= -1;
             }

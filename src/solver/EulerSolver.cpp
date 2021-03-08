@@ -29,6 +29,7 @@ void Solver::EulerSolver::Run() {
 		E3D::Solver::printHeader();
 	}
 
+
 	// resize residual, deltaT and deltaW vectors
 	_residuals.resize(_localMesh.GetnElemTot(), ResidualVar(0.0,
 	                                          0.0,
@@ -49,6 +50,7 @@ void Solver::EulerSolver::Run() {
 
 		// loop Through Ghost cells (Boundary Cells)
 		updateBC();
+
 		computeResidual();
 
 		//TODO Exchange max RMS between partition;
@@ -103,7 +105,9 @@ void Solver::EulerSolver::updateBC() {
 		int FaceGhostIdx = _localMesh.GetFarfieldAdjacentFaceIDs()[GhostID];
 		int InteriorGhostIdx = _localMesh.GetFarfieldAdjacentToGhostCellsIDs()[GhostID];
 
-		double V = _localFlowField.GetU_Velocity()[GhostIdx] * _localMetrics.getFaceNormalsUnit()[FaceGhostIdx].x + _localFlowField.GetV_Velocity()[GhostIdx] * _localMetrics.getFaceNormalsUnit()[FaceGhostIdx].y + _localFlowField.GetW_Velocity()[GhostIdx] * _localMetrics.getFaceNormalsUnit()[FaceGhostIdx].z;
+		double V = _localFlowField.GetU_Velocity()[GhostIdx] * _localMetrics.getFaceNormalsUnit()[FaceGhostIdx].x +
+		           _localFlowField.GetV_Velocity()[GhostIdx] * _localMetrics.getFaceNormalsUnit()[FaceGhostIdx].y +
+		           _localFlowField.GetW_Velocity()[GhostIdx] * _localMetrics.getFaceNormalsUnit()[FaceGhostIdx].z;
 
 		double M = _localFlowField.GetMach()[GhostIdx];
 
@@ -113,10 +117,14 @@ void Solver::EulerSolver::updateBC() {
 			Solver::BC::FarfieldSubsonicOutflow(_localFlowField, _localMetrics, GhostIdx, InteriorGhostIdx, FaceGhostIdx);
 		} else if (M > 1.0 && V < 0.0) {
 			Solver::BC::FarfieldSupersonicInflow(_localFlowField, GhostIdx);
+
 		} else if (M < 1.0 && V < 0.0) {
 			Solver::BC::FarfieldSubsonicInflow(_localFlowField, _localMetrics, GhostIdx, InteriorGhostIdx, FaceGhostIdx);
 		}
+
 	}
+
+
 
 	// Update Wall
 	for (size_t GhostID = 0; GhostID < _WallGhostCellIDs.size(); GhostID++) {
@@ -127,19 +135,20 @@ void Solver::EulerSolver::updateBC() {
 		Solver::BC::Wall(_localFlowField, _localMetrics, GhostIdx, InteriorGhostIdx, FaceGhostIdx);
 	}
 
+
 	// Update Symmetry
 	for (size_t GhostID = 0; GhostID < _SymmetryGhostCellIDs.size(); GhostID++) {
 
-		int GhostIdx = _WallGhostCellIDs[GhostID];
-		int InteriorGhostIdx = _localMesh.GetWallAdjacentGhostCellIDs()[GhostID];
+		int GhostIdx = _SymmetryGhostCellIDs[GhostID];
+		int InteriorGhostIdx = _localMesh.GetSymmetryAdjacentGhostCellIDs()[GhostID];
 
 		Solver::BC::Symmetry(_localFlowField, GhostIdx, InteriorGhostIdx);
 	}
 	// Update MPI
 
 	_e3d_mpi.updateFlowField(_localFlowField);
-
 }
+
 
 void Solver::EulerSolver::computeResidual() {
 
@@ -156,6 +165,7 @@ void Solver::EulerSolver::computeResidual() {
 		double surfaceArea = _localMetrics.getFaceSurfaces()[IfaceID];
 		_residuals[element1] -= residu * surfaceArea;
 		_residuals[element2] += residu * surfaceArea;
+
 
 	}
 
@@ -189,14 +199,17 @@ void Solver::EulerSolver::computeResidual() {
 		else if (itMpi != MPIghostCellElems.end() || itSym != _SymmetryGhostCellIDs.end()) {
 			ResidualVar residu = Solver::Roe(_localFlowField, _localMesh, _localMetrics, EfaceID, true);
 			_residuals[element1] -= residu * surfaceArea;
+
 		}
 
 		// if farfield
 		else {
 			ResidualVar residu = Solver::Roe(_localFlowField, _localMesh, _localMetrics, EfaceID, false);
 			_residuals[element1] -= residu * surfaceArea;
+
 		}
 	}
+
 }
 
 void Solver::EulerSolver::updateDeltaTime() {

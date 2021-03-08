@@ -42,11 +42,11 @@ namespace E3D::Solver {
 		}
 
 		inline void reset() {
-			this->m_rhoV_residual = 0;
-			this->m_rho_uV_residual = 0;
-			this->m_rho_vV_residual = 0;
-            this->m_rho_wV_residual = 0;
-			this->m_rho_HV_residual = 0;
+			this->m_rhoV_residual = 0.0;
+			this->m_rho_uV_residual = 0.0;
+			this->m_rho_vV_residual = 0.0;
+            this->m_rho_wV_residual = 0.0;
+			this->m_rho_HV_residual = 0.0;
 		}
 
 
