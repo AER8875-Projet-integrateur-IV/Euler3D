@@ -9,6 +9,9 @@
  * such as Pressure, Density, Velocity and Energy already solved in Solver.
  */
 #include "post/post.hpp"
+#include "spdlog/logger.h"
+#include "spdlog/stopwatch.h"
+#include "utils/Logger.hpp"
 #include <algorithm>
 #include <utility>
 
@@ -16,15 +19,13 @@
 using namespace E3D::Post;
 
 
-Post::Post(std::vector<std::string> pathPartition, std::string outputFile) {
-	_outputFile = outputFile;
-	_nPart = pathPartition.size();
-	_meshPartitionPath.reserve(_nPart);
+Post::Post(const E3D::Parser::SimConfig &config) {
+	_outputFile = config.getTecplotFile();
+	_nPart = config.getNumberPartitions();
+	_meshPartitionPath = config.getPartitionedMeshFiles();
 	_solutionPartitionPath.reserve(_nPart);
 	for (int i = 0; i < _nPart; i++) {
-		std::string path = pathPartition[i];
-		_meshPartitionPath.push_back(path + ".par");
-		_solutionPartitionPath.push_back(path + ".sol");
+		_solutionPartitionPath.push_back(_meshPartitionPath[i] + ".sol");
 	}
 	return;
 }
@@ -34,9 +35,14 @@ Post::~Post() {
 }
 
 void Post::Write() {
-	std::cout << "Début Post:\n";
+	std::cout << std::string(24, '#') << "  TECPLOT  " << std::string(24, '#') << "\n"
+	          << std::endl;
+	auto logger = E3D::Logger::Getspdlog();
+	spdlog::stopwatch tecplotASCIIsw;
 	WriteTecplotASCII();
-	std::cout << "Fin Post:\n";
+	logger->debug("Writing Tecplot ASCII file run time {}", tecplotASCIIsw);
+	std::cout << "Output File: " << _outputFile << std::endl;
+	std::cout << "\n";
 }
 
 void Post::WriteTecplotASCII() {

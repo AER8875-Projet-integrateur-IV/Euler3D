@@ -17,6 +17,7 @@
 
 #include "parser/Element.hpp"
 #include "parser/SU2MeshParser.hpp"
+#include "parser/SimConfig.hpp"
 #include "parser/SolutionPost.hpp"
 
 namespace E3D::Post {
@@ -41,7 +42,7 @@ namespace E3D::Post {
 		void WriteTecplotBinary();
 
 	public:
-		Post(std::vector<std::string> pathPartition, std::string outputFile);
+		Post(const E3D::Parser::SimConfig &config);
 		~Post();
 
 		void Write();
