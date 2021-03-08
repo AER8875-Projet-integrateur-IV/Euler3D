@@ -45,17 +45,17 @@ namespace E3D {
 			return Vector3(x + v.x, y + v.y, z + v.z);
 		}
 
-        void operator+=(Vector3 &&v) {
-             this->x += v.x;
-			 this->y += v.y;
-			 this->z += v.z;
-        }
+		void operator+=(Vector3 &&v) {
+			this->x += v.x;
+			this->y += v.y;
+			this->z += v.z;
+		}
 
-        void operator*=(int &&v) {
-            this->x *= v;
-            this->y *= v;
-            this->z *= v;
-        }
+		void operator*=(int &&v) {
+			this->x *= v;
+			this->y *= v;
+			this->z *= v;
+		}
 
 		bool operator==(const Vector3 &v) const {
 			return (this->x == v.x && this->y == v.y) && this->z == v.z;
@@ -66,14 +66,14 @@ namespace E3D {
 			return Vector3(x - v.x, y - v.y, z - v.z);
 		}
 
-		static T dot(Vector3& v1, Vector3& v2) {
+		static T dot(Vector3 &v1, Vector3 &v2) {
 			return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
 		}
 
-		static Vector3<T> crossProduct(Vector3& A, Vector3& B){
-		        return Vector3(A.y * B.z - A.z * B.y,
-		                       A.z * B.x - A.x * B.z,
-		                       A.x * B.y - A.y * B.x);
+		static Vector3<T> crossProduct(Vector3 &A, Vector3 &B) {
+			return Vector3(A.y * B.z - A.z * B.y,
+			               A.z * B.x - A.x * B.z,
+			               A.x * B.y - A.y * B.x);
 		}
 
 

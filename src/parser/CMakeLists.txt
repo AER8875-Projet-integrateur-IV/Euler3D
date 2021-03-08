@@ -1,5 +1,5 @@
 
-add_library(Parser SU2MeshParser.cpp SimConfig.cpp MeshPartition.cpp )
+add_library(Parser SU2MeshParser.cpp SimConfig.cpp MeshPartition.cpp SolutionPost.cpp)
 TARGET_INCLUDE_DIRECTORIES(Parser PUBLIC ${PROJECT_SOURCE_DIR}/include)
 
 TARGET_LINK_LIBRARIES(Parser PUBLIC Parallel_tools)
