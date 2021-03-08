@@ -4,14 +4,14 @@ on: [push]
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
 
     steps:
     - uses: actions/checkout@v2
 
-    - name: install clang-format
-      shell: bash
-      run: sudo apt install -y clang-format
+    # - name: install clang-format
+    #   shell: bash
+    #   run: sudo apt install -y clang-format-10
 
     - name: help clang-format
       shell: bash
