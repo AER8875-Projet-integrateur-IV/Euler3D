@@ -8,7 +8,11 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    
+
+    - name: install clang-format
+      shell: bash
+      run: sudo apt install -y clang-format-10
+
     - name: format check
       shell: bash
       run: $GITHUB_WORKSPACE/clang-format-check.bsh $GITHUB_WORKSPACE
