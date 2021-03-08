@@ -1,9 +1,9 @@
+#pragma once
+
 #include "parser/GhostCell.hpp"
+#include "solver/FlowField.hpp"
 #include <mpi.h>
 #include <vector>
-
-
-#pragma once
 
 namespace E3D::Parallel {
 
@@ -32,7 +32,10 @@ namespace E3D::Parallel {
 		/**
          *  @brief set the requester ID member variable
          */
-		inline void updateRequesterID(const std::vector<std::vector<E3D::Parser::GhostCell>>){};
+		inline void updateRequesterID(const std::vector<std::pair<int, std::vector<E3D::Parser::GhostCell>>> reqID) {
+			_requesterID = reqID;
+			_senderID = reqID;
+		};
 
 		/**
          * @brief sort requester ID in destination partition increasing order -> this member function populate
@@ -44,7 +47,8 @@ namespace E3D::Parallel {
          * @brief : send flowfield variables to neighbor partitions via point to point communication
          * TODO add appropriate arguments to the function
          */
-		void updateFlowField();
+		void updateFlowField(Solver::FlowField &) const;
+
 
 		/**
           * @brief Compute and broadcast maximum Residual through collective communication
@@ -58,25 +62,32 @@ namespace E3D::Parallel {
 		inline int getPoolSize() const { return _poolSize; }
 
 
+		inline const std::vector<std::pair<int, std::vector<E3D::Parser::GhostCell>>> &getRequesterID() const { return _requesterID; }
+
+
+		inline const std::vector<std::pair<int, std::vector<E3D::Parser::GhostCell>>> &getSenderID() const { return _senderID; }
 		/**
          * @brief Finalize this MPI process
          */
 		inline void finalize() { MPI_Finalize(); }
 
 	private:
-		std::vector<std::vector<int>> _requesterID; /** @brief vector of vectors holding IDs of MPI boundary elements sorted
+		std::vector<std::pair<int, std::vector<E3D::Parser::GhostCell>>> _requesterID; /** @brief vector of vectors holding IDs of MPI boundary elements sorted
                                                               * in increasing order,  in following format :
                                                               * [  [MpiElements]  --> For adjacentPartitionsID[0]
                                                               *    [MpiElements]  --> For adjacentPartitionsID[1]
                                                               *    [MpiElements]  --> For adjacentPartitionsID[2] ]*/
 
-		std::vector<std::vector<int>> _senderID; /** vector of vectors holding IDs of MPI boundary elements sorted in
+		std::vector<std::pair<int, std::vector<E3D::Parser::GhostCell>>> _senderID; /** vector of vectors holding IDs of MPI boundary elements sorted in
                                                              * destination partition increasing order. Same format as requesterID */
 
 		std::vector<int> _adjacentPartitionsID; /** @brief vector holding IDs of physically connected partitions */
 
 		MPI_Request _request;
 		MPI_Status _status;
+
+		std::vector<int> _uniquePairs;
+		int _uniquePairsSize;
 
 		int _rankID = -1;            /** @brief rank id of this process */
 		int _poolSize = 0;           /** @brief Number of processes in the communicator */

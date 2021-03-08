@@ -3,6 +3,7 @@
 //
 #pragma once
 #include "mesh/Mesh.hpp"
+#include "parallelization/MPIHandler.hpp"
 #include "utils/Vector3.h"
 #include <parser/MeshPartition.hpp>
 
@@ -23,6 +24,8 @@ namespace E3D {
 		inline const std::vector<double> &getFaceSurfaces() const { return _faceSurfaces; }
 
 		inline const std::vector<double> &getCellVolumes() const { return _cellVolumes; }
+
+		inline const std::vector<Vector3<double>> &getFaceNormalsUnit() const { return _faceUnitNormals; }
 
 	private:
 		/**
