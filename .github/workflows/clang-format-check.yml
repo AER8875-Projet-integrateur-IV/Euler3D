@@ -13,6 +13,14 @@ jobs:
       shell: bash
       run: sudo apt install -y clang-format-10
 
+    - name: help clang-format
+      shell: bash
+      run: clang-format --help
+
+    - name: version clang-format
+      shell: bash
+      run: clang-format --version
+
     - name: format check
       shell: bash
       run: $GITHUB_WORKSPACE/clang-format-check.bsh $GITHUB_WORKSPACE
