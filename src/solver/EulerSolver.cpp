@@ -136,16 +136,8 @@ void Solver::EulerSolver::updateBC() {
 		Solver::BC::Symmetry(_localFlowField, GhostIdx, InteriorGhostIdx);
 	}
 	// Update MPI
-	if(_e3d_mpi.getRankID() == 0){
-            std::cout << _localFlowField.GetE()[9] << "\n";
-	}
 
 	_e3d_mpi.updateFlowField(_localFlowField);
-
-    if(_e3d_mpi.getRankID() == 0){
-        std::cout << "---------" << "\n";
-        std::cout << _localFlowField.GetE()[9] << "\n";
-    }
 
 }
 
