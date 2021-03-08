@@ -9,4 +9,4 @@ jobs:
     steps:
     - name: format check
       shell: bash
-      run: ${{github.workspace}}/.github/clang-format-check.bsh ${{github.workspace}}
+      run: ${{github.workspace}}/clang-format-check.bsh ${{github.workspace}}
