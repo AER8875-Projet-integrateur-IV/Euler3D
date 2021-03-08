@@ -1,4 +1,5 @@
 add_subdirectory(parser)
+add_subdirectory(solver)
 add_subdirectory(partition)
 add_subdirectory(mesh)
 add_subdirectory(post)
@@ -27,9 +28,17 @@ target_link_libraries(E3D_Solver PUBLIC Parser Mesh Parallel_tools Utils Connect
 target_link_libraries(E3D_Solver PUBLIC MPI::MPI_CXX)
 
 # Post-traitement
+find_library(TECIO_LIB tecio)
+find_path(
+    TECIO_INCLUDE_DIR
+    NAMES "TECIO.h"
+    HINTS "/usr/local/tecplot/360ex_2019r1/include"
+)
+message(STATUS "TECIO => ${TECIO_INCLUDE_DIR}")
+message(STATUS "TECIO => ${TECIO_LIB}")
 ADD_EXECUTABLE(E3D_POST postprocessor.cpp)
-target_include_directories(E3D_POST PUBLIC ../include ../extern)
-target_link_libraries(E3D_POST PUBLIC Parser Mesh Utils Post)
+target_include_directories(E3D_POST PUBLIC ../include ../extern TECIO__INCLUDE_DIR)
+target_link_libraries(E3D_POST PUBLIC Parser Mesh Utils Post ${TECIO_LIB})
 
 
 # INCLUDE MPI
@@ -43,3 +52,4 @@ install(TARGETS E3D_PRE
 install(TARGETS E3D_PRE
         CONFIGURATIONS Release
         RUNTIME DESTINATION ${PROJECT_SOURCE_DIR}/include/)
+

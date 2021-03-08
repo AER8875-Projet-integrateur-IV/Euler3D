@@ -9,6 +9,7 @@
  * such as Pressure, Density, Velocity and Energy already solved in Solver.
  */
 #include "post/post.hpp"
+#include "TECIO.h"
 #include "spdlog/logger.h"
 #include "spdlog/stopwatch.h"
 #include "utils/Logger.hpp"
