@@ -43,7 +43,7 @@ namespace E3D::Partition {
 		void Write(std::vector<E3D::Parser::Element> &interiorElemVector,
 		           int nDim, std::vector<E3D::Parser::Node> &nodeVector,
 		           E3D::Parser::BC_Structure &bc, int nAdjPart,
-        		           std::vector<int> &Ninterface_elem,
+		           std::vector<int> &Ninterface_elem,
 		           std::vector<std::vector<int>> &interface_elem,
 		           std::vector<std::vector<int>> &interface_elemStart);
 
