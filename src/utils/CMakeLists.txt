@@ -15,7 +15,9 @@ set(NAME_LIBRARY Utils)
 #      set(SOURCE Partition.cpp SU2Writer.cpp)
 #      set(NAME_LIBRARY SolverEuler.cpp)
 
-set(SOURCE Logger.cpp)
+set(SOURCE Logger.cpp
+           ProgressBar.cpp
+           ../../include/utils/Vector3.h)
 
 
 #   3. Add the command add_subdirectory(NameOfThisDirectory) to the CMakeLists.txt
