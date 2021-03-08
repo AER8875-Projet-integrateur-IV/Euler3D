@@ -7,10 +7,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
-    - uses: DoozyX/clang-format-lint-action@v0.11
-      with:
-        source: './src ./test ./include'
-        exclude: './test/extern'
-        extensions: 'h,hpp,cpp,c'
-        clangFormatVersion: 11
+    - name: format check
+      working-directory: ${{github.workspace}}
+      shell: bash
+      run: ./.github/clang-format-check.bsh
