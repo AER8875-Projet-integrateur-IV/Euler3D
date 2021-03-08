@@ -146,7 +146,7 @@ void MPIHandler::updateFlowField(E3D::Solver::FlowField &localFlowField) const {
 						// Update H
                         for (size_t i = 0; i < VectorGhostCell.size(); i++){
                             int ghost_idx = _senderID[localPartitionPos].second[i].getGhostCellID();
-							double H = localFlowField.GetE()[ghost_idx] * (localFlowField.GetP()[ghost_idx] / localFlowField.Getrho()[ghost_idx]);
+							double H = localFlowField.GetE()[ghost_idx] + (localFlowField.GetP()[ghost_idx] / localFlowField.Getrho()[ghost_idx]);
                             localFlowField.setH(ghost_idx, H);
                         }
 						// Update p
@@ -163,7 +163,7 @@ void MPIHandler::updateFlowField(E3D::Solver::FlowField &localFlowField) const {
                             int ghost_idx = _senderID[localPartitionPos].second[i].getGhostCellID();
                             double a = std::sqrt(localFlowField.getgamma_ref()*(localFlowField.GetP()[ghost_idx]/localFlowField.Getrho()[ghost_idx])) ;
                             double V = std::sqrt(std::pow(localFlowField.GetU_Velocity()[ghost_idx],2) + std::pow(localFlowField.GetV_Velocity()[ghost_idx],2) + std::pow(localFlowField.GetW_Velocity()[ghost_idx],2));
-                            localFlowField.setP(ghost_idx, V/a);
+                            localFlowField.setM(ghost_idx, V/a);
                         }
 						break;
 					}
@@ -233,7 +233,7 @@ void MPIHandler::updateFlowField(E3D::Solver::FlowField &localFlowField) const {
                         // Update H
                         for (size_t i = 0; i < VectorGhostCell.size(); i++){
                             int ghost_idx = _senderID[localPartitionPos].second[i].getGhostCellID();
-                            double H = localFlowField.GetE()[ghost_idx] * (localFlowField.GetP()[ghost_idx] / localFlowField.Getrho()[ghost_idx]);
+                            double H = localFlowField.GetE()[ghost_idx] + (localFlowField.GetP()[ghost_idx] / localFlowField.Getrho()[ghost_idx]);
                             localFlowField.setH(ghost_idx, H);
                         }
                         // Update p
@@ -241,7 +241,6 @@ void MPIHandler::updateFlowField(E3D::Solver::FlowField &localFlowField) const {
                             int ghost_idx = _senderID[localPartitionPos].second[i].getGhostCellID();
                             double p = (localFlowField.getgamma_ref()-1) * localFlowField.Getrho()[ghost_idx]
                                        *(localFlowField.GetE()[ghost_idx] - (std::pow(localFlowField.GetU_Velocity()[ghost_idx],2) +   std::pow(localFlowField.GetV_Velocity()[ghost_idx],2) + std::pow(localFlowField.GetW_Velocity()[ghost_idx],2) )/2.0);
-
                             localFlowField.setP(ghost_idx, p);
                         }
 
@@ -250,7 +249,7 @@ void MPIHandler::updateFlowField(E3D::Solver::FlowField &localFlowField) const {
                             int ghost_idx = _senderID[localPartitionPos].second[i].getGhostCellID();
                             double a = std::sqrt(localFlowField.getgamma_ref()*(localFlowField.GetP()[ghost_idx]/localFlowField.Getrho()[ghost_idx])) ;
                             double V = std::sqrt(std::pow(localFlowField.GetU_Velocity()[ghost_idx],2) + std::pow(localFlowField.GetV_Velocity()[ghost_idx],2) + std::pow(localFlowField.GetW_Velocity()[ghost_idx],2));
-                            localFlowField.setP(ghost_idx, V/a);
+                            localFlowField.setM(ghost_idx, V/a);
                         }
 
                         break;

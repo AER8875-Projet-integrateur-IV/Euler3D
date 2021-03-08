@@ -102,6 +102,7 @@ void FlowField::Update(const std::vector<E3D::Solver::ConservativeVar>& delW_vec
 	// Update interior Cells
         for(size_t ielem=0; ielem<delW_vector.size();ielem++){
 		    double rho = delW_vector[ielem].rho ;
+
 		    _rho[ielem] += rho;
             _u[ielem] += delW_vector[ielem].rhoU / rho;
             _v[ielem] += delW_vector[ielem].rhoV / rho;
@@ -110,6 +111,7 @@ void FlowField::Update(const std::vector<E3D::Solver::ConservativeVar>& delW_vec
 		    _p[ielem] = (gamma_ref-1) * _rho[ielem] *(_E[ielem] - (std::pow(_u[ielem],2) + std::pow(_v[ielem],2) + std::pow(_w[ielem],2) )/2.0);
 		    _H[ielem] =  _E[ielem] + (_p[ielem] / _rho[ielem]);
 		    _M[ielem] = sqrt(gamma_ref*(_p[ielem]/_rho[ielem]))/sqrt((std::pow(_u[ielem],2) + std::pow(_v[ielem],2) + std::pow(_w[ielem],2)));
+
 	    }
 
 	    //Update Ghost Cells

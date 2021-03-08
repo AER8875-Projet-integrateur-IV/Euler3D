@@ -23,17 +23,17 @@ using namespace E3D::Solver;
 		for (int i = 0; i < nfacefelement; i++) {
 			iface = ptr[i];
 			E3D::Vector3<double> faceNormals = _localMetrics.getFaceNormals()[iface];
-			sumSx += abs(faceNormals.x * _localMetrics.getFaceSurfaces()[iface]);
-			sumSy += abs(faceNormals.y * _localMetrics.getFaceSurfaces()[iface]);
-			sumSz += abs(faceNormals.z * _localMetrics.getFaceSurfaces()[iface]);
+			sumSx += std::abs(faceNormals.x * _localMetrics.getFaceSurfaces()[iface]);
+			sumSy += std::abs(faceNormals.y * _localMetrics.getFaceSurfaces()[iface]);
+			sumSz += std::abs(faceNormals.z * _localMetrics.getFaceSurfaces()[iface]);
 		}
 
 
 		double c = sqrt(_localFlowField.getgamma_ref() * _localFlowField.GetP()[iElem] / _localFlowField.Getrho()[iElem]);
 
-		double lambdaCx = 0.5 * (abs(_localFlowField.GetU_Velocity()[iElem]) + c) * sumSx;
-		double lambdaCy = 0.5 * (abs(_localFlowField.GetV_Velocity()[iElem]) + c) * sumSy;
-		double lambdaCz = 0.5 * (abs(_localFlowField.GetW_Velocity()[iElem]) + c) * sumSz;
+		double lambdaCx = 0.5 * (std::abs(_localFlowField.GetU_Velocity()[iElem]) + c) * sumSx;
+		double lambdaCy = 0.5 * (std::abs(_localFlowField.GetV_Velocity()[iElem]) + c) * sumSy;
+		double lambdaCz = 0.5 * (std::abs(_localFlowField.GetW_Velocity()[iElem]) + c) * sumSz;
 
 		double localTimeStep = cfl * _localMetrics.getCellVolumes()[iElem] / (lambdaCx + lambdaCy + lambdaCz);
 		return localTimeStep;
@@ -46,6 +46,7 @@ E3D::Solver::ConservativeVar E3D::Solver::ExplicitEuler(E3D::Solver::ResidualVar
 
 	double coeff = -dt / _localMetrics.getCellVolumes()[iElem];
 	E3D::Solver::ResidualVar temp_deltaW = residual * coeff;
+
 	E3D::Solver::ConservativeVar deltaW { temp_deltaW.m_rhoV_residual,
 		                                  temp_deltaW.m_rho_uV_residual,
 		                                  temp_deltaW.m_rho_vV_residual,
