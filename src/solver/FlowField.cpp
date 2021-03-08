@@ -21,10 +21,9 @@ FlowField::FlowField(const E3D::Parser::SimConfig &config,
 	Initialize(totalElemCount);
 
 
-
 	MPI_Barrier(MPI_COMM_WORLD);
 	if (e3d_mpi.getRankID() == 0) {
-        double endInitializationTimer = MPI_Wtime();
+		double endInitializationTimer = MPI_Wtime();
 		printf("Initializing FlowField took %.5f seconds .\n", endInitializationTimer - startInitializationTimer);
 	}
 }
@@ -51,14 +50,12 @@ void FlowField::Initialize(const int totalElemCount) {
 	// Reserve
 	_rho.resize(totalElemCount, rho_inf);
 	_p.resize(totalElemCount, p_inf);
-	_u.resize(totalElemCount,u_inf);
-	_v.resize(totalElemCount,v_inf);
-	_w.resize(totalElemCount,w_inf);
-	_M.resize(totalElemCount,M_inf);
-	_E.resize(totalElemCount,E_inf);
-	_H.resize(totalElemCount,H_inf);
+	_u.resize(totalElemCount, u_inf);
+	_v.resize(totalElemCount, v_inf);
+	_w.resize(totalElemCount, w_inf);
+	_M.resize(totalElemCount, M_inf);
+	_E.resize(totalElemCount, E_inf);
+	_H.resize(totalElemCount, H_inf);
 
 	//TODO RESIZE AND INITIALIZATION FOR FORCE VECTORS
-
-
 }

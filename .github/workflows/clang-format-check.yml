@@ -1,0 +1,14 @@
+name: Run clang-format Linter
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: format check
+      shell: bash
+      run: $GITHUB_WORKSPACE/clang-format-check.bsh $GITHUB_WORKSPACE
