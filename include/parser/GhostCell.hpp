@@ -26,8 +26,8 @@ namespace E3D::Parser {
 		}
 
 		//Todo add < operator
-        bool operator<(const GhostCell &rhs) const {return _adjacentPartitionElementID < rhs._adjacentPartitionElementID;}
-        bool operator<=(const GhostCell &rhs) const {return _adjacentPartitionElementID <= rhs._adjacentPartitionElementID;}
+		bool operator<(const GhostCell &rhs) const { return _adjacentPartitionElementID < rhs._adjacentPartitionElementID; }
+		bool operator<=(const GhostCell &rhs) const { return _adjacentPartitionElementID <= rhs._adjacentPartitionElementID; }
 
 		inline int getthisPartitionElementID() const { return _thisPartitionElementID; }
 

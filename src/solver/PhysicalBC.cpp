@@ -40,50 +40,43 @@ void BC::FarfieldSupersonicOutflow(E3D::Solver::FlowField &flowfield,
 }
 
 
-
 void BC::FarfieldSubsonicInflow(E3D::Solver::FlowField &flowfield,
                                 const E3D::Metrics &localMetrics,
                                 const int GhostcellID,
                                 const int InteriorCellID,
                                 const int FaceID) {
 
-    // Calculate primitive Variables
+	// Calculate primitive Variables
 	double InteriorCellSpd = sqrt(flowfield.getgamma_ref() * (flowfield.GetP()[InteriorCellID] / flowfield.Getrho()[InteriorCellID]));
 
-	double p = 0.5 * (flowfield.getp_inf() + flowfield.GetP()[InteriorCellID]
-	                  - flowfield.Getrho()[InteriorCellID] * InteriorCellSpd
-	                            * ((localMetrics.getFaceNormalsUnit()[FaceID].x * (flowfield.getu_inf() - flowfield.GetU_Velocity()[InteriorCellID]))
-	                               + (localMetrics.getFaceNormalsUnit()[FaceID].y * (flowfield.getv_inf() - flowfield.GetV_Velocity()[InteriorCellID]))
-	                               + (localMetrics.getFaceNormalsUnit()[FaceID].z * (flowfield.getw_inf() - flowfield.GetW_Velocity()[InteriorCellID]))));
+	double p = 0.5 * (flowfield.getp_inf() + flowfield.GetP()[InteriorCellID] - flowfield.Getrho()[InteriorCellID] * InteriorCellSpd * ((localMetrics.getFaceNormalsUnit()[FaceID].x * (flowfield.getu_inf() - flowfield.GetU_Velocity()[InteriorCellID])) + (localMetrics.getFaceNormalsUnit()[FaceID].y * (flowfield.getv_inf() - flowfield.GetV_Velocity()[InteriorCellID])) + (localMetrics.getFaceNormalsUnit()[FaceID].z * (flowfield.getw_inf() - flowfield.GetW_Velocity()[InteriorCellID]))));
 
-	double rho = flowfield.getrho_inf() + (p-flowfield.getp_inf())/std::pow(InteriorCellSpd,2);
+	double rho = flowfield.getrho_inf() + (p - flowfield.getp_inf()) / std::pow(InteriorCellSpd, 2);
 
-	double u = flowfield.getu_inf() - localMetrics.getFaceNormalsUnit()[FaceID].x * (flowfield.getp_inf() - p)/(flowfield.Getrho()[InteriorCellID]*InteriorCellSpd);
+	double u = flowfield.getu_inf() - localMetrics.getFaceNormalsUnit()[FaceID].x * (flowfield.getp_inf() - p) / (flowfield.Getrho()[InteriorCellID] * InteriorCellSpd);
 
-    double v = flowfield.getv_inf() - localMetrics.getFaceNormalsUnit()[FaceID].y * (flowfield.getp_inf() - p)/(flowfield.Getrho()[InteriorCellID]*InteriorCellSpd);
+	double v = flowfield.getv_inf() - localMetrics.getFaceNormalsUnit()[FaceID].y * (flowfield.getp_inf() - p) / (flowfield.Getrho()[InteriorCellID] * InteriorCellSpd);
 
-    double w = flowfield.getw_inf() - localMetrics.getFaceNormalsUnit()[FaceID].z * (flowfield.getp_inf() - p)/(flowfield.Getrho()[InteriorCellID]*InteriorCellSpd);
+	double w = flowfield.getw_inf() - localMetrics.getFaceNormalsUnit()[FaceID].z * (flowfield.getp_inf() - p) / (flowfield.Getrho()[InteriorCellID] * InteriorCellSpd);
 
-    double M = std::sqrt(std::pow(u,2) + std::pow(v,2) + std::pow(w,2)) / InteriorCellSpd;
+	double M = std::sqrt(std::pow(u, 2) + std::pow(v, 2) + std::pow(w, 2)) / InteriorCellSpd;
 
 	double E = p / ((flowfield.getgamma_ref() - 1) * rho) + ((u * u + v * v + w * w) / 2);
 
-    double H = E + (p / rho);
+	double H = E + (p / rho);
 
 	// Update FlowField
-    flowfield.setRho(GhostcellID, rho);
+	flowfield.setRho(GhostcellID, rho);
 
-    flowfield.setU(GhostcellID, u);
-    flowfield.setV(GhostcellID, v);
-    flowfield.setW(GhostcellID, w);
-    flowfield.setM(GhostcellID, M);
+	flowfield.setU(GhostcellID, u);
+	flowfield.setV(GhostcellID, v);
+	flowfield.setW(GhostcellID, w);
+	flowfield.setM(GhostcellID, M);
 
-    flowfield.setP(GhostcellID, p);
-    flowfield.setE(GhostcellID, E);
-    flowfield.setH(GhostcellID, H);
-
+	flowfield.setP(GhostcellID, p);
+	flowfield.setE(GhostcellID, E);
+	flowfield.setH(GhostcellID, H);
 }
-
 
 
 void BC::FarfieldSubsonicOutflow(E3D::Solver::FlowField &flowfield,
@@ -92,45 +85,40 @@ void BC::FarfieldSubsonicOutflow(E3D::Solver::FlowField &flowfield,
                                  const int InteriorCellID,
                                  const int FaceID) {
 
-    // Calculate primitive Variables
+	// Calculate primitive Variables
 
-    double InteriorCellSpd = sqrt(flowfield.getgamma_ref() * (flowfield.GetP()[InteriorCellID] / flowfield.Getrho()[InteriorCellID]));
+	double InteriorCellSpd = sqrt(flowfield.getgamma_ref() * (flowfield.GetP()[InteriorCellID] / flowfield.Getrho()[InteriorCellID]));
 
 	double p = flowfield.getp_inf();
 
-	double rho = flowfield.Getrho()[InteriorCellID] + (p - flowfield.GetP()[InteriorCellID])/std::pow(InteriorCellSpd,2);
+	double rho = flowfield.Getrho()[InteriorCellID] + (p - flowfield.GetP()[InteriorCellID]) / std::pow(InteriorCellSpd, 2);
 
-	double u = flowfield.GetU_Velocity()[InteriorCellID]
-	           + localMetrics.getFaceNormalsUnit()[FaceID].x * (flowfield.GetP()[InteriorCellID]- p)/(flowfield.Getrho()[InteriorCellID]*InteriorCellSpd);
+	double u = flowfield.GetU_Velocity()[InteriorCellID] + localMetrics.getFaceNormalsUnit()[FaceID].x * (flowfield.GetP()[InteriorCellID] - p) / (flowfield.Getrho()[InteriorCellID] * InteriorCellSpd);
 
-    double v = flowfield.GetV_Velocity()[InteriorCellID]
-               + localMetrics.getFaceNormalsUnit()[FaceID].y * (flowfield.GetP()[InteriorCellID]- p)/(flowfield.Getrho()[InteriorCellID]*InteriorCellSpd);
+	double v = flowfield.GetV_Velocity()[InteriorCellID] + localMetrics.getFaceNormalsUnit()[FaceID].y * (flowfield.GetP()[InteriorCellID] - p) / (flowfield.Getrho()[InteriorCellID] * InteriorCellSpd);
 
-    double w = flowfield.GetW_Velocity()[InteriorCellID]
-               + localMetrics.getFaceNormalsUnit()[FaceID].z * (flowfield.GetP()[InteriorCellID]- p)/(flowfield.Getrho()[InteriorCellID]*InteriorCellSpd);
+	double w = flowfield.GetW_Velocity()[InteriorCellID] + localMetrics.getFaceNormalsUnit()[FaceID].z * (flowfield.GetP()[InteriorCellID] - p) / (flowfield.Getrho()[InteriorCellID] * InteriorCellSpd);
 
-    double M = std::sqrt(std::pow(u,2) + std::pow(v,2) + std::pow(w,2)) / InteriorCellSpd;
+	double M = std::sqrt(std::pow(u, 2) + std::pow(v, 2) + std::pow(w, 2)) / InteriorCellSpd;
 
-    double E = p / ((flowfield.getgamma_ref() - 1) * rho) + ((u * u + v * v + w * w) / 2);
+	double E = p / ((flowfield.getgamma_ref() - 1) * rho) + ((u * u + v * v + w * w) / 2);
 
-    double H = E + (p / rho);
+	double H = E + (p / rho);
 
 
-    // Update FlowField
-    flowfield.setRho(GhostcellID, rho);
+	// Update FlowField
+	flowfield.setRho(GhostcellID, rho);
 
-    flowfield.setU(GhostcellID, u);
-    flowfield.setV(GhostcellID, v);
-    flowfield.setW(GhostcellID, w);
-    flowfield.setM(GhostcellID, M);
+	flowfield.setU(GhostcellID, u);
+	flowfield.setV(GhostcellID, v);
+	flowfield.setW(GhostcellID, w);
+	flowfield.setM(GhostcellID, M);
 
-    flowfield.setP(GhostcellID, p);
-    flowfield.setE(GhostcellID, E);
-    flowfield.setH(GhostcellID, H);
+	flowfield.setP(GhostcellID, p);
+	flowfield.setE(GhostcellID, E);
+	flowfield.setH(GhostcellID, H);
 	//TODO MAYBE ADD LINEAR EXTRAPOLATION FROM STATES B AND D IF NEEDED
-
 }
-
 
 
 void BC::Wall(E3D::Solver::FlowField &flowfield,
@@ -139,42 +127,38 @@ void BC::Wall(E3D::Solver::FlowField &flowfield,
               const int InteriorCellID,
               const int FaceID) {
 
-    double InteriorCellSpd = sqrt(flowfield.getgamma_ref() * (flowfield.GetP()[InteriorCellID] / flowfield.Getrho()[InteriorCellID]));
+	double InteriorCellSpd = sqrt(flowfield.getgamma_ref() * (flowfield.GetP()[InteriorCellID] / flowfield.Getrho()[InteriorCellID]));
 
-    double V = flowfield.GetU_Velocity()[InteriorCellID]*localMetrics.getFaceNormalsUnit()[FaceID].x
-	           + flowfield.GetV_Velocity()[InteriorCellID]*localMetrics.getFaceNormalsUnit()[FaceID].y
-	           + flowfield.GetW_Velocity()[InteriorCellID]*localMetrics.getFaceNormalsUnit()[FaceID].z;
+	double V = flowfield.GetU_Velocity()[InteriorCellID] * localMetrics.getFaceNormalsUnit()[FaceID].x + flowfield.GetV_Velocity()[InteriorCellID] * localMetrics.getFaceNormalsUnit()[FaceID].y + flowfield.GetW_Velocity()[InteriorCellID] * localMetrics.getFaceNormalsUnit()[FaceID].z;
 
-    double u = flowfield.GetU_Velocity()[InteriorCellID] - 2*V*localMetrics.getFaceNormalsUnit()[FaceID].x;
+	double u = flowfield.GetU_Velocity()[InteriorCellID] - 2 * V * localMetrics.getFaceNormalsUnit()[FaceID].x;
 
-    double v = flowfield.GetV_Velocity()[InteriorCellID] - 2*V*localMetrics.getFaceNormalsUnit()[FaceID].y;
+	double v = flowfield.GetV_Velocity()[InteriorCellID] - 2 * V * localMetrics.getFaceNormalsUnit()[FaceID].y;
 
-    double w = flowfield.GetW_Velocity()[InteriorCellID] - 2*V*localMetrics.getFaceNormalsUnit()[FaceID].z;
+	double w = flowfield.GetW_Velocity()[InteriorCellID] - 2 * V * localMetrics.getFaceNormalsUnit()[FaceID].z;
 
 	double p = flowfield.GetP()[InteriorCellID];
 
 	double rho = flowfield.Getrho()[InteriorCellID];
 
-    double M = std::sqrt(std::pow(u,2) + std::pow(v,2) + std::pow(w,2)) / InteriorCellSpd;
+	double M = std::sqrt(std::pow(u, 2) + std::pow(v, 2) + std::pow(w, 2)) / InteriorCellSpd;
 
-    double E = p / ((flowfield.getgamma_ref() - 1) * rho) + ((u * u + v * v + w * w) / 2);
+	double E = p / ((flowfield.getgamma_ref() - 1) * rho) + ((u * u + v * v + w * w) / 2);
 
-    double H = E + (p / rho);
+	double H = E + (p / rho);
 
-    // Update FlowField
-    flowfield.setRho(GhostcellID, rho);
+	// Update FlowField
+	flowfield.setRho(GhostcellID, rho);
 
-    flowfield.setU(GhostcellID, u);
-    flowfield.setV(GhostcellID, v);
-    flowfield.setW(GhostcellID, w);
-    flowfield.setM(GhostcellID, M);
+	flowfield.setU(GhostcellID, u);
+	flowfield.setV(GhostcellID, v);
+	flowfield.setW(GhostcellID, w);
+	flowfield.setM(GhostcellID, M);
 
-    flowfield.setP(GhostcellID, p);
-    flowfield.setE(GhostcellID, E);
-    flowfield.setH(GhostcellID, H);
-
+	flowfield.setP(GhostcellID, p);
+	flowfield.setE(GhostcellID, E);
+	flowfield.setH(GhostcellID, H);
 }
-
 
 
 void BC::Symmetry(E3D::Solver::FlowField &flowfield,
@@ -183,9 +167,9 @@ void BC::Symmetry(E3D::Solver::FlowField &flowfield,
 
 	double u = flowfield.GetU_Velocity()[InteriorCellID];
 
-    double v = flowfield.GetV_Velocity()[InteriorCellID];
+	double v = flowfield.GetV_Velocity()[InteriorCellID];
 
-    double w = flowfield.GetW_Velocity()[InteriorCellID];
+	double w = flowfield.GetW_Velocity()[InteriorCellID];
 
 	double p = flowfield.GetP()[InteriorCellID];
 
@@ -197,16 +181,15 @@ void BC::Symmetry(E3D::Solver::FlowField &flowfield,
 
 	double M = flowfield.GetMach()[InteriorCellID];
 
-    // Update FlowField
-    flowfield.setRho(GhostcellID, rho);
+	// Update FlowField
+	flowfield.setRho(GhostcellID, rho);
 
-    flowfield.setU(GhostcellID, u);
-    flowfield.setV(GhostcellID, v);
-    flowfield.setW(GhostcellID, w);
-    flowfield.setM(GhostcellID, M);
+	flowfield.setU(GhostcellID, u);
+	flowfield.setV(GhostcellID, v);
+	flowfield.setW(GhostcellID, w);
+	flowfield.setM(GhostcellID, M);
 
-    flowfield.setP(GhostcellID, p);
-    flowfield.setE(GhostcellID, E);
-    flowfield.setH(GhostcellID, H);
-
+	flowfield.setP(GhostcellID, p);
+	flowfield.setE(GhostcellID, E);
+	flowfield.setH(GhostcellID, H);
 }

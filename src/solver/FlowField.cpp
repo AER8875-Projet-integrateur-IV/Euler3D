@@ -18,8 +18,8 @@ FlowField::FlowField(const E3D::Parser::SimConfig &config,
 	// Compute Number of cells connected airfoil or wall
 
 	std::vector<int> WallTagIDs;
-    // TOTAL number
-    int nbOfTags = 0;
+	// TOTAL number
+	int nbOfTags = 0;
 	for (auto &[TagName, NbElems] : localMesh.GetBoundaryConditionVector()) {
 
 		auto Tag = TagName;
@@ -38,18 +38,17 @@ FlowField::FlowField(const E3D::Parser::SimConfig &config,
 
 	double startInitializationTimer = MPI_Wtime();
 
-    int TotalNumberOfBoundaryElems=0;
-	for(int i =0 ; i < nbOfTags; i++){
-         TotalNumberOfBoundaryElems +=  localMesh.GetNumberOfElementsInTag(i);
+	int TotalNumberOfBoundaryElems = 0;
+	for (int i = 0; i < nbOfTags; i++) {
+		TotalNumberOfBoundaryElems += localMesh.GetNumberOfElementsInTag(i);
 	}
 
 
-	double totalElemCount = localMesh.GetMeshInteriorElemCount() + localMesh.GetMpiElemsCount() + localMesh.GetWallGhostCellsIDs().size()
-	        + localMesh.GetFarfieldGhostCellsIDs().size() + localMesh.GetSymmetryGhostCellsIDs().size();
-	_totalElemCount=totalElemCount;
+	double totalElemCount = localMesh.GetMeshInteriorElemCount() + localMesh.GetMpiElemsCount() + localMesh.GetWallGhostCellsIDs().size() + localMesh.GetFarfieldGhostCellsIDs().size() + localMesh.GetSymmetryGhostCellsIDs().size();
+	_totalElemCount = totalElemCount;
 
 
-	Initialize(totalElemCount,NbWallElems);
+	Initialize(totalElemCount, NbWallElems);
 
 
 	MPI_Barrier(MPI_COMM_WORLD);
@@ -69,7 +68,7 @@ void FlowField::Initialize(const int totalElemCount, const int ForceElemsCount) 
 	//TODO ADD ANGLE FOR SIDE FLOW (V_INF)
 
 
-    // update reference variables
+	// update reference variables
 
 	gamma_ref = _simConfig.getGamma();
 	M_inf = _simConfig.getMach();
@@ -80,7 +79,7 @@ void FlowField::Initialize(const int totalElemCount, const int ForceElemsCount) 
 	rho_ref = _simConfig.getDensity();
 	E_inf = p_inf / ((gamma_ref - 1) * rho_inf) + ((u_inf * u_inf + v_inf * v_inf + w_inf * w_inf) / 2);
 	H_inf = E_inf + (p_inf / rho_inf);
-  SoundSpd_ref = sqrt(gamma_ref*(p_ref/rho_ref));
+	SoundSpd_ref = sqrt(gamma_ref * (p_ref / rho_ref));
 
 	// resize vectors to infinite flowfield state
 	_rho.resize(totalElemCount, rho_inf);
@@ -93,8 +92,6 @@ void FlowField::Initialize(const int totalElemCount, const int ForceElemsCount) 
 	_H.resize(totalElemCount, H_inf);
 
 	_Fx.resize(ForceElemsCount, 0);
-    _Fy.resize(ForceElemsCount, 0);
-    _Fz.resize(ForceElemsCount, 0);
-
-
+	_Fy.resize(ForceElemsCount, 0);
+	_Fz.resize(ForceElemsCount, 0);
 }

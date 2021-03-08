@@ -90,7 +90,7 @@ namespace E3D::Partition {
      */
 		void FindPhysicalBorder(const mesh_type &mesh,
 		                        const std::vector<int> &Part2ElemStart,
-		                        const std::vector<int> &Part2Elem); 
+		                        const std::vector<int> &Part2Elem);
 
 	private:
 		const int *_localNode2globalPtr;
@@ -100,9 +100,9 @@ namespace E3D::Partition {
 	private:
 		E3D::Mesh<E3D::Parser::SU2MeshParser> *_m_meshGlobal;//   Mesh object to be partitionned, connectivity must already be solved
 
-		int _m_nPart;                      //   Nombre de partitions
+		int _m_nPart;//   Nombre de partitions
 
-		std::vector<idx_t> _m_elem2Part;   //   i position holds the partition number for global element number i (0 based)
+		std::vector<idx_t> _m_elem2Part;//   i position holds the partition number for global element number i (0 based)
 
 		std::vector<int> _m_Part2Elem;     //   contain the global element indexes for each partition in continuous blocks
 		std::vector<int> _m_Part2ElemStart;//   contain the start index of each block associated to a partition in _m_Part2Elem

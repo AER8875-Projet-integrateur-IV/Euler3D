@@ -50,7 +50,7 @@ namespace E3D::Solver::BC {
 	                            const int InteriorCellID,
 	                            const int FaceID);
 
-    /**
+	/**
     * @brief updates Ghost cell state with wall/airfoil equations;
     * @param flowfield  class FlowField by reference
     * @param GhostcellID ID of ghost cell
@@ -64,7 +64,7 @@ namespace E3D::Solver::BC {
 	          const int FaceID);
 
 
-    /**
+	/**
     * @brief updates Ghost cell state with Symmetry equations;
     * @param flowfield  class FlowField by reference
     * @param GhostcellID ID of ghost cell
@@ -72,8 +72,8 @@ namespace E3D::Solver::BC {
     * @param FaceID face between ghost cell and interior element
     */
 	void Symmetry(E3D::Solver::FlowField &flowfield,
-                  const int GhostcellID,
-                  const int InteriorCellID);
+	              const int GhostcellID,
+	              const int InteriorCellID);
 
 
 }// namespace E3D::Solver::BC
