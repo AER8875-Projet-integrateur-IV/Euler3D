@@ -11,7 +11,7 @@ jobs:
 
     - name: install clang-format
       shell: bash
-      run: sudo apt install -y clang-format-10
+      run: sudo apt install -y clang-format
 
     - name: help clang-format
       shell: bash
