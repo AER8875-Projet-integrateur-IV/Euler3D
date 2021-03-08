@@ -5,7 +5,6 @@
 #include <cmath>
 #include <numeric>
 
-
 using namespace E3D;
 E3D::Metrics::Metrics(const Mesh<Parser::MeshPartition> &localMesh, const Parallel::MPIHandler &e3d_mpi)
     : _localMesh(localMesh) {

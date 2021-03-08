@@ -50,7 +50,6 @@ FlowField::FlowField(const E3D::Parser::SimConfig &config,
 
 	Initialize(totalElemCount, NbWallElems);
 
-
 	MPI_Barrier(MPI_COMM_WORLD);
 	if (localMesh.getMeshRankID() == 0) {
 		double endInitializationTimer = MPI_Wtime();
