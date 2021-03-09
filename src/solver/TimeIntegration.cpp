@@ -37,7 +37,7 @@ using namespace E3D::Solver;
 
 		double localTimeStep = cfl * _localMetrics.getCellVolumes()[iElem] / (lambdaCx + lambdaCy + lambdaCz);
 		return localTimeStep;
-	};
+	}
 
 
 
