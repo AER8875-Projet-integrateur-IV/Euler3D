@@ -80,10 +80,14 @@ namespace E3D::Parser {
          */
 		inline int GetNDim() const { return this->_nDim; }
 
+
 		/**
          *
          * @return Vector of element object, for volume elements
          */
+
+		inline const std::vector<Element> &GetVolumeElems() const { return this->_InteriorElements; }
+
 
 		inline const std::vector<Element> &GetVolumeElems() const { return this->_InteriorElements; }
 

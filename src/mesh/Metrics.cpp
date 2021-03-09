@@ -2,8 +2,8 @@
 // Created by amin on 2/21/21.
 //
 #include "mesh/Metrics.hpp"
-#include <numeric>
 #include <cmath>
+#include <numeric>
 
 using namespace E3D;
 E3D::Metrics::Metrics(const Mesh<Parser::MeshPartition> &localMesh, const Parallel::MPIHandler &e3d_mpi)
@@ -32,16 +32,15 @@ E3D::Metrics::Metrics(const Mesh<Parser::MeshPartition> &localMesh, const Parall
 	double endMetricsTimer = MPI_Wtime();
 
 
-    double domainVolume=0;
+	double domainVolume = 0;
 
-    double PartitionVolume = std::accumulate(_cellVolumes.begin(),_cellVolumes.end(),0.0);
-    MPI_Reduce(&PartitionVolume,&domainVolume,1,MPI_DOUBLE_PRECISION,MPI_SUM,0,MPI_COMM_WORLD);
+	double PartitionVolume = std::accumulate(_cellVolumes.begin(), _cellVolumes.end(), 0.0);
+	MPI_Reduce(&PartitionVolume, &domainVolume, 1, MPI_DOUBLE_PRECISION, MPI_SUM, 0, MPI_COMM_WORLD);
 
 	MPI_Barrier(MPI_COMM_WORLD);
 	if (e3d_mpi.getRankID() == 0) {
-        printf("Total Domain Volume : %.3f \n", domainVolume);
+		printf("Total Domain Volume : %.3f \n", domainVolume);
 		printf("Computing Metrics took %.5f seconds .\n", endMetricsTimer - startMetricsTimer);
-
 	}
 }
 
@@ -164,7 +163,8 @@ void Metrics::computeCellMetrics() {
 
 		Vector3<double> cellCenter = std::accumulate(temp_LocalNodesCoords.begin(),
 		                                             temp_LocalNodesCoords.end(),
-		                                             Vector3<double>(0, 0, 0)) / temp_LocalNodesCoords.size();
+		                                             Vector3<double>(0, 0, 0)) /
+		                             temp_LocalNodesCoords.size();
 
 
 		for (int ifaceLocal = 0; ifaceLocal < numberOfConnectedFaces; ifaceLocal++) {
@@ -173,27 +173,26 @@ void Metrics::computeCellMetrics() {
 			Vector3<double> faceCenter = _faceCenters[p_localFaces[ifaceLocal]];
 			Vector3<double> faceUnitVector = _faceUnitNormals[p_localFaces[ifaceLocal]];
 			Vector3<double> faceToCellCenter = faceCenter - cellCenter;
-            double surfaceLength = faceNormalVector.length();
+			double surfaceLength = faceNormalVector.length();
 
-            // Check if cell normal vector is pointing outward the element
+			// Check if cell normal vector is pointing outward the element
 			// Cos(theta) between normal face vector and CellCenter-to-facecenter is computed
 			// if cos(theta) < 0 invert face Normal direction
-            double CosthetaCellCenterFace = Vector3<double>::dot(faceToCellCenter, faceNormalVector) / (faceToCellCenter.length() * faceNormalVector.length());
-            if (CosthetaCellCenterFace < 0) {
-                faceNormalVector *= -1;
-                faceUnitVector *= -1;
-            }
+			double CosthetaCellCenterFace = Vector3<double>::dot(faceToCellCenter, faceNormalVector) / (faceToCellCenter.length() * faceNormalVector.length());
+			if (CosthetaCellCenterFace < 0) {
+				faceNormalVector *= -1;
+				faceUnitVector *= -1;
+			}
 
 			// Compute Centroid
-            centroid_numerator += (faceCenter * Vector3<double>::dot(faceCenter, faceUnitVector) * surfaceLength) * 3;
-            centroid_denominator += (Vector3<double>::dot(faceCenter, faceUnitVector) * surfaceLength) * 4;
+			centroid_numerator += (faceCenter * Vector3<double>::dot(faceCenter, faceUnitVector) * surfaceLength) * 3;
+			centroid_denominator += (Vector3<double>::dot(faceCenter, faceUnitVector) * surfaceLength) * 4;
 
 
+			// Compute Cell Volume
 
-            // Compute Cell Volume
 			//TODO volume is double the correct value for tets
 			temp_volume += Vector3<double>::dot(faceCenter, faceNormalVector) * 0.33333333;
-
 		}
 
 		temp_centroid = centroid_numerator / centroid_denominator;

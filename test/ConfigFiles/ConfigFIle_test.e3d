@@ -9,10 +9,16 @@ Comments : For testing purposes (Not Stable)
 START
 
 ------------------- PRE-PROCESSING CONTROL -------------------
-#Path to partitioned mesh files (from executable directory)
+# Path to partitioned mesh files (from executable directory)
+INITIAL_MESH= StructuredBlock_64x64.su2
+
+# Path to partitioned mesh files (from executable directory)
 # Hashtag character will be replaced with file index, from 0 to Nb of partitions
 PARTITION_FILES= 4
 ../../test/mesh/StructuredBlock_8_p#.par
+
+# Path to log file for pre-processing
+PRE_LOG= prelog.txt
 
 ------------------- SIMULATION CONTROL -------------------
 
@@ -71,10 +77,16 @@ CFL= 3
 MIN_RESIDUAL= 1e-10
 
 # Number of maximum iterations to stop solver
-MAX_ITER= 99999
+MAX_ITER= 1
+
+# Path to log file for solver
+SOLVER_LOG= solverlog.txt
 
 -------------------- POST-PROCESSING CONTROL ----------------
 # Path to file output, from executable directory
 OUTPUT_FILE= output.dat
+
+# Path to log file for post-processor
+POST_LOG= solverlog.txt
 
 END
