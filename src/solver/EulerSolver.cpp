@@ -20,6 +20,9 @@ Solver::EulerSolver::EulerSolver(FlowField &localFlowField,
 	if (e3d_mpi.getRankID() == 0) {
 		std::cout << "\n\n"
 		          << std::string(24, '#') << "  Starting Solving Process !  " << std::string(24, '#') << "\n\n";
+		// Open file to write residual
+		residualFile.open("resdiual_" + _config.getTecplotFile());
+		residualFile << "Rho residual \n";
 	}
 }
 
@@ -28,7 +31,7 @@ void Solver::EulerSolver::Run() {
 	if (_e3d_mpi.getRankID() == 0) {
 		E3D::Solver::printHeader();
 	}
-
+    sortGhostCells();
 
 	// resize residual, deltaT and deltaW vectors
 	_residuals.resize(_localMesh.GetnElemTot(), ResidualVar(0.0,
@@ -51,8 +54,6 @@ void Solver::EulerSolver::Run() {
 
 		// loop Through Ghost cells (Boundary Cells)
 		updateBC();
-
-
 		computeResidual();
 
 
@@ -64,25 +65,29 @@ void Solver::EulerSolver::Run() {
 				double iterationEndTimer = MPI_Wtime();
 				double iterationwallTime = iterationEndTimer - iterationBeginTimer;
 				E3D::Solver::PrintSolverIteration(_CL, _CD, _maximumDomainRms, iterationwallTime, _nbInteration);
+                residualFile << _maximumDomainRms << "\n";
+				residualFile.close();
 			}
-			//break;
+			break;
 		}
 
 		updateDeltaTime();
 		TimeIntegration();
-
 		updateW();
 
 
-
-        MPI_Barrier(MPI_COMM_WORLD);
 		_nbInteration += 1;
 
 		if (_e3d_mpi.getRankID() == 0) {
+			if(_nbInteration%10 ==0){
 			double iterationEndTimer = MPI_Wtime();
 			double iterationwallTime = iterationEndTimer - iterationBeginTimer;
 			E3D::Solver::PrintSolverIteration(_CL, _CD, _maximumDomainRms, iterationwallTime, _nbInteration);
+			residualFile << _maximumDomainRms << "\n";
+            }
 		}
+
+        MPI_Barrier(MPI_COMM_WORLD);
 
 
 	}
@@ -186,13 +191,9 @@ void Solver::EulerSolver::computeResidual() {
 		double surfaceArea = _localMetrics.getFaceSurfaces()[EfaceID];
 
 
-		auto itWall = std::find(_WallGhostCellIDs.begin(), _WallGhostCellIDs.end(), element2);
-		auto itMpi = std::find(MPIghostCellElems.begin(), MPIghostCellElems.end(), element2);
-		auto itSym = std::find(_SymmetryGhostCellIDs.begin(), _SymmetryGhostCellIDs.end(), element2);
-
 
 		//If Wall
-		if (itWall != _WallGhostCellIDs.end()) {
+		if (std::binary_search(_sortedWallGhostCellIDs.begin(), _sortedWallGhostCellIDs.end(), element2)) {
 			double composant1 = _localMetrics.getFaceNormalsUnit()[EfaceID].x * _localFlowField.GetP()[element2];
 			double composant2 = _localMetrics.getFaceNormalsUnit()[EfaceID].y * _localFlowField.GetP()[element2];
 			double composant3 = _localMetrics.getFaceNormalsUnit()[EfaceID].z * _localFlowField.GetP()[element2];
@@ -203,7 +204,7 @@ void Solver::EulerSolver::computeResidual() {
 		}
 
 		// If MPI or Symmetry
-		else if (itMpi != MPIghostCellElems.end() || itSym != _SymmetryGhostCellIDs.end()) {
+		else if (std::binary_search(_sortedMPIGhostCellIDs.begin(), _sortedMPIGhostCellIDs.end(), element2) || std::binary_search(_sortedSymmetryGhostCellIDs.begin(), _sortedSymmetryGhostCellIDs.end(), element2)) {
 			ResidualVar residu = Solver::Roe(_localFlowField, _localMesh, _localMetrics, EfaceID, true);
 			_residuals[element1] += residu * surfaceArea;
 
@@ -227,11 +228,16 @@ void Solver::EulerSolver::updateDeltaTime() {
 
 void Solver::EulerSolver::TimeIntegration() {
 	for (int ielem = 0; ielem < _localMesh.GetnElemTot(); ielem++) {
+        if (isnan(_residuals[ielem].m_rhoV_residual)) {
+            std::cerr << "Nan encountred in solver ! \n" << std::endl;
+            exit(EXIT_FAILURE);
+        }
 		_deltaW[ielem] = Solver::ExplicitEuler(_residuals[ielem], _deltaT[ielem], _localMetrics, ielem);
 	}
 }
 
 void Solver::EulerSolver::updateW() {
+
 	_localFlowField.Update(_deltaW, MPIghostCellElems, _localMesh.getMPIadjacentToGhostCellIDs());
 }
 
@@ -250,4 +256,16 @@ void Solver::EulerSolver::resetResiduals() {
 	for (auto &residu : _residuals) {
 		residu.reset();
 	}
+}
+
+
+void Solver::EulerSolver::sortGhostCells(){
+	_sortedMPIGhostCellIDs = MPIghostCellElems;
+	_sortedFarfieldGhostCellIDs = _FarfieldGhostCellIDs;
+	_sortedSymmetryGhostCellIDs = _SymmetryGhostCellIDs;
+	_sortedWallGhostCellIDs = _WallGhostCellIDs;
+	std::sort(_sortedWallGhostCellIDs.begin(),_sortedWallGhostCellIDs.end());
+    std::sort(_sortedMPIGhostCellIDs.begin(),_sortedMPIGhostCellIDs.end());
+    std::sort(_sortedFarfieldGhostCellIDs.begin(),_sortedFarfieldGhostCellIDs.end());
+    std::sort(_sortedSymmetryGhostCellIDs.begin(),_sortedSymmetryGhostCellIDs.end());
 }

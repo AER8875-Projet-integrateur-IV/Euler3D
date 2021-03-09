@@ -2,6 +2,7 @@
 // Created by amin on 3/1/21.
 //
 #pragma once
+#include <fstream>
 #include "solver/FlowField.hpp"
 #include <utils/Vector3.h>
 #include "solver/PhysicalBC.h"
@@ -66,6 +67,11 @@ namespace E3D::Solver {
          */
         void updateW();
 
+		/**
+		 * @brief creates sorted sort cells to accelerate search (with binary search)
+		 */
+		void sortGhostCells();
+
         void resetResiduals();
 
         std::vector<E3D::Vector3<double>> _forces;
@@ -81,13 +87,18 @@ namespace E3D::Solver {
         const E3D::Mesh<E3D::Parser::MeshPartition>& _localMesh;
         const E3D::Parser::SimConfig& _config;
 		const E3D::Metrics& _localMetrics;
+        std::ofstream residualFile;
 
         const std::vector<std::pair<int, std::vector<int>>> _PairsMpiGhostCellIDs = _localMesh.VectorGetMPIGhostCellsIDs();
 		const std::vector<int> MPIghostCellElems = _localMesh.GetMPIGhostCellsIDs();
         const std::vector<int> _SymmetryGhostCellIDs = _localMesh.GetSymmetryGhostCellsIDs();
         const std::vector<int> _FarfieldGhostCellIDs = _localMesh.GetFarfieldGhostCellsIDs();
         const std::vector<int> _WallGhostCellIDs = _localMesh.GetWallGhostCellsIDs();
-		std::vector<int> InteriorandMPIandSymmetryElemsIDs;
+        std::vector<int> _sortedMPIGhostCellIDs;
+        std::vector<int> _sortedFarfieldGhostCellIDs;
+        std::vector<int> _sortedWallGhostCellIDs;
+        std::vector<int> _sortedSymmetryGhostCellIDs;
+
 
 		int _nbInteration=0;
         double _maximumDomainRms =10;
