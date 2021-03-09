@@ -122,8 +122,8 @@ void Metrics::computeFaceMetrics() {
 		}
 		_faceSurfaces.push_back(temp_area);
 		_faceCenters.push_back(temp_centroid);
-		_faceNormals.push_back(temp_Normal);
-		_faceUnitNormals.push_back(temp_unitVector);
+		_faceNormals.push_back(temp_Normal*-1);
+		_faceUnitNormals.push_back(temp_unitVector*-1);
 	}
 }
 
