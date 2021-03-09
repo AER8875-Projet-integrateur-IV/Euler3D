@@ -16,13 +16,13 @@ namespace E3D::Solver {
 	class WriteSolution {
 
 	public:
-		WriteSolution(const E3D::Solver::FlowField &flowField,
+		WriteSolution(E3D::Solver::FlowField &flowField,
 		              const E3D::Parser::SimConfig &config,
 		              const E3D::Parallel::MPIHandler &e3d_mpi);
 		~WriteSolution();
 
 	private:
-		const E3D::Solver::FlowField &_flowField;
+		E3D::Solver::FlowField & _flowField;
 		int _rank;
 		std::string _fileName;
 		std::ofstream _file;

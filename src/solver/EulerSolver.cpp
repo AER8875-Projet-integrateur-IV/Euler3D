@@ -117,14 +117,14 @@ void Solver::EulerSolver::updateBC() {
 
 		double M = _localFlowField.GetMach()[GhostIdx];
 
-		if (M > 1.0 && V > 0.0) {
+		if (M >= 1.0 && V > 0.0) {
 			Solver::BC::FarfieldSupersonicOutflow(_localFlowField, GhostIdx, InteriorGhostIdx);
 		} else if (M < 1.0 && V > 0.0) {
 			Solver::BC::FarfieldSubsonicOutflow(_localFlowField, _localMetrics, GhostIdx, InteriorGhostIdx, FaceGhostIdx);
-		} else if (M > 1.0 && V < 0.0) {
+		} else if (M >= 1.0 && V <= 0.0) {
 			Solver::BC::FarfieldSupersonicInflow(_localFlowField, GhostIdx);
 
-		} else if (M < 1.0 && V < 0.0) {
+		} else if (M < 1.0 && V <= 0.0) {
 			Solver::BC::FarfieldSubsonicInflow(_localFlowField, _localMetrics, GhostIdx, InteriorGhostIdx, FaceGhostIdx);
 		}
 	}
@@ -170,8 +170,8 @@ void Solver::EulerSolver::computeResidual() {
 
 
 		double surfaceArea = _localMetrics.getFaceSurfaces()[IfaceID];
-		_residuals[element1] -= residu * surfaceArea;
-		_residuals[element2] += residu * surfaceArea;
+		_residuals[element1] += residu * surfaceArea;
+		_residuals[element2] -= residu * surfaceArea;
 	}
 
 
@@ -198,21 +198,21 @@ void Solver::EulerSolver::computeResidual() {
 			double composant3 = _localMetrics.getFaceNormalsUnit()[EfaceID].z * _localFlowField.GetP()[element2];
 
 			ResidualVar residu = {0, composant1, composant2, composant3, 0};
-			_residuals[element1] -= residu * surfaceArea;
+			_residuals[element1] += residu * surfaceArea;
 
 		}
 
 		// If MPI or Symmetry
 		else if (itMpi != MPIghostCellElems.end() || itSym != _SymmetryGhostCellIDs.end()) {
 			ResidualVar residu = Solver::Roe(_localFlowField, _localMesh, _localMetrics, EfaceID, true);
-			_residuals[element1] -= residu * surfaceArea;
+			_residuals[element1] += residu * surfaceArea;
 
 		}
 
 		// if farfield
 		else {
 			ResidualVar residu = Solver::Roe(_localFlowField, _localMesh, _localMetrics, EfaceID, false);
-			_residuals[element1] -= residu * surfaceArea;
+			_residuals[element1] += residu * surfaceArea;
 		}
 	}
 }
@@ -220,7 +220,7 @@ void Solver::EulerSolver::computeResidual() {
 void Solver::EulerSolver::updateDeltaTime() {
 
 	for (int ielem = 0; ielem < _localMesh.GetnElemTot(); ielem++) {
-		_deltaT[ielem] = Solver::TimeStepMethod1(_localFlowField, _localMesh, _localMetrics, ielem);
+		_deltaT[ielem] = Solver::TimeStepMethod2(_localFlowField, _localMesh, _localMetrics, ielem);
 	}
 }
 

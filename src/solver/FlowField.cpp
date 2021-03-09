@@ -65,14 +65,15 @@ void FlowField::PrintTest() {
 
 
 void FlowField::Initialize(const int totalElemCount, const int ForceElemsCount) {
-	//TODO ADD ANGLE FOR SIDE FLOW (V_INF)
+	//TODO ADD ANGLE FOR SIDE FLOW (W_INF)
 
     // update reference variables
     cfl = _simConfig.getCFL();
 	gamma_ref = _simConfig.getGamma();
 	M_inf = _simConfig.getMach();
+	std::cout << M_inf << "\n";
 	u_inf = M_inf * sqrt(gamma_ref) * std::cos(_simConfig.getAoA() * (E3D_PI / 180));
-	w_inf = M_inf * sqrt(gamma_ref) * std::sin(_simConfig.getAoA() * (E3D_PI / 180));
+	v_inf = M_inf * sqrt(gamma_ref) * std::sin(_simConfig.getAoA() * (E3D_PI / 180));
 	p_ref = _simConfig.getPressure();
 	T_ref = _simConfig.getTemperature();
 	rho_ref = _simConfig.getDensity();

@@ -30,6 +30,7 @@ E3D::Metrics::Metrics(const Mesh<Parser::MeshPartition> &localMesh, const Parall
 	computeFaceMetrics();
 	computeCellMetrics();
 
+    //reorientFaceVectors();
 	double endMetricsTimer = MPI_Wtime();
 
 

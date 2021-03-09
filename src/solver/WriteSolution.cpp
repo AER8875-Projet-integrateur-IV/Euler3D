@@ -2,7 +2,7 @@
 
 using namespace E3D::Solver;
 
-WriteSolution::WriteSolution(const E3D::Solver::FlowField &flowField,
+WriteSolution::WriteSolution(E3D::Solver::FlowField &flowField,
                              const E3D::Parser::SimConfig &config,
                              const E3D::Parallel::MPIHandler &e3d_mpi) : _flowField(flowField) {
 	_fileName = config.getPartitionedMeshFiles()[e3d_mpi.getRankID()] + ".sol";
@@ -26,6 +26,7 @@ void WriteSolution::write() {
 	      << std::setw(20) << "pressure"
 	      << std::setw(20) << "energy"
 	      << std::endl;
+
 	std::vector<double> rho = _flowField.Getrho();
 	std::vector<double> u = _flowField.GetU_Velocity();
 	std::vector<double> v = _flowField.GetV_Velocity();

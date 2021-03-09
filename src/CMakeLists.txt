@@ -31,7 +31,7 @@ target_link_libraries(E3D_Solver PUBLIC MPI::MPI_CXX)
 # Post-traitement
 ADD_EXECUTABLE(E3D_POST postprocessor.cpp)
 target_include_directories(E3D_POST PUBLIC ../include ../extern)
-target_link_libraries(E3D_POST PUBLIC Parser Mesh Utils Post)
+target_link_libraries(E3D_POST PUBLIC Parser Mesh Utils Post Solver)
 
 
 
