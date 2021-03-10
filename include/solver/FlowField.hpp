@@ -16,7 +16,7 @@ namespace E3D::Solver {
 
 		void PrintTest();
 
-		void Update(std::vector<E3D::Solver::ConservativeVar> delW_vector);
+		void Update(const std::vector<E3D::Solver::ConservativeVar> &delW_vector, const std::vector<int> &, const std::vector<int> &);
 
 		// Return rho (density) of problem
 
@@ -31,13 +31,11 @@ namespace E3D::Solver {
 		// Return rhoW of problem
 		inline std::vector<double> &GetW_Velocity() { return this->_w; }
 
-
 		// Return rhoE of problem
 		inline const std::vector<double> &GetP() const { return this->_p; }
 
 		// Return rhoE of problem
 		inline std::vector<double> &GetE() { return this->_E; }
-
 
 		// Return rhoE of problem
 		inline const std::vector<double> &GetH() const { return this->_H; }
@@ -76,11 +74,15 @@ namespace E3D::Solver {
 
 		inline double getM_inf() const { return M_inf; }
 
+		inline double getCFL() const { return cfl; }
+
 		inline double getgamma_ref() const { return gamma_ref; }
 
 		inline double getSoundspd_ref() const { return SoundSpd_ref; }
 
 		inline int getTotalElemsCount() const { return _totalElemCount; }
+
+		inline int getTotalDomainCounts() const { return _TotalDomainElems; }
 
 		static constexpr const double E3D_PI = 3.141592653589793238;
 
@@ -115,12 +117,17 @@ namespace E3D::Solver {
 		std::vector<double> _w;
 		std::vector<double> _E;
 		std::vector<double> _H;
+		std::vector<double> _rhou;
+		std::vector<double> _rhov;
+		std::vector<double> _rhow;
+		std::vector<double> _rhoE;
 		std::vector<double> _p;
 		std::vector<double> _Fx;
 		std::vector<double> _Fy;
 		std::vector<double> _Fz;
 		std::vector<double> _M;
 
+		double cfl = 0.0;
 		double rho_ref = 0.0;
 		const double p_inf = 1.0;
 		const double rho_inf = 1.0;
@@ -135,6 +142,8 @@ namespace E3D::Solver {
 		double gamma_ref = 0.0;
 		double SoundSpd_ref = 0.0;
 		int _totalElemCount = 0;
+		int _interiorElemCount = 0;
+		int _TotalDomainElems = 0;
 
 
 		void Initialize(const int, const int);

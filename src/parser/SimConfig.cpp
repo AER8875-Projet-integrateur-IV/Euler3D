@@ -137,7 +137,7 @@ void SimConfig::parseConfigFile() {
 				} else if (line.find("OUTPUT_FILE") != std::string::npos) {
 					ss1.seekg(13) >> _tecplotFile;
 				} else if (line.find("POST_LOG=") != std::string::npos) {
-					ss1.seekg(9) >> _solverLog;
+					ss1.seekg(9) >> _postProcessorLog;
 				}
 			}
 			break;

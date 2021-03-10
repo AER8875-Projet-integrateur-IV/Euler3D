@@ -76,6 +76,13 @@ namespace E3D::Parser {
 
 		/**
          *
+         * @return Number of dimensions
+         */
+		inline int GetNDim() const { return this->_nDim; }
+
+
+		/**
+         *
          * @return Vector of element object, for volume elements
          */
 

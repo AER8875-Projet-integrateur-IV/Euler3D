@@ -5,6 +5,7 @@
 #include <cmath>
 #include <numeric>
 
+
 using namespace E3D;
 E3D::Metrics::Metrics(const Mesh<Parser::MeshPartition> &localMesh, const Parallel::MPIHandler &e3d_mpi)
     : _localMesh(localMesh) {
@@ -27,8 +28,12 @@ E3D::Metrics::Metrics(const Mesh<Parser::MeshPartition> &localMesh, const Parall
 	_cellVolumes.reserve(nElem);
 
 	computeFaceMetrics();
-	computeCellMetrics();
 
+	computeCellMetrics();
+	reorientFaceVectors();
+
+
+	//reorientFaceVectors();
 	double endMetricsTimer = MPI_Wtime();
 
 
@@ -163,7 +168,7 @@ void Metrics::computeCellMetrics() {
 
 		Vector3<double> cellCenter = std::accumulate(temp_LocalNodesCoords.begin(),
 		                                             temp_LocalNodesCoords.end(),
-		                                             Vector3<double>(0, 0, 0)) /
+		                                             Vector3<double>(0.0, 0.0, 0.0)) /
 		                             temp_LocalNodesCoords.size();
 
 
@@ -172,14 +177,14 @@ void Metrics::computeCellMetrics() {
 			Vector3<double> faceNormalVector = _faceNormals[p_localFaces[ifaceLocal]];
 			Vector3<double> faceCenter = _faceCenters[p_localFaces[ifaceLocal]];
 			Vector3<double> faceUnitVector = _faceUnitNormals[p_localFaces[ifaceLocal]];
-			Vector3<double> faceToCellCenter = faceCenter - cellCenter;
+			Vector3<double> faceToCellCenter = cellCenter - faceCenter;
 			double surfaceLength = faceNormalVector.length();
 
 			// Check if cell normal vector is pointing outward the element
 			// Cos(theta) between normal face vector and CellCenter-to-facecenter is computed
 			// if cos(theta) < 0 invert face Normal direction
 			double CosthetaCellCenterFace = Vector3<double>::dot(faceToCellCenter, faceNormalVector) / (faceToCellCenter.length() * faceNormalVector.length());
-			if (CosthetaCellCenterFace < 0) {
+			if (CosthetaCellCenterFace > 0) {
 				faceNormalVector *= -1;
 				faceUnitVector *= -1;
 			}
@@ -190,13 +195,63 @@ void Metrics::computeCellMetrics() {
 
 
 			// Compute Cell Volume
+
 			//TODO volume is double the correct value for tets
 			temp_volume += Vector3<double>::dot(faceCenter, faceNormalVector) * 0.33333333;
 		}
-
 		temp_centroid = centroid_numerator / centroid_denominator;
 
+		if (temp_localNodes.size() == 8) {
+			Vector3<double> AB = temp_LocalNodesCoords[1] - temp_LocalNodesCoords[0];
+			Vector3<double> AC = temp_LocalNodesCoords[2] - temp_LocalNodesCoords[0];
+			Vector3<double> AD = temp_LocalNodesCoords[3] - temp_LocalNodesCoords[0];
+
+			double temp_area = computeTriangleArea(AB, AC) + computeTriangleArea(AC, AD);
+			double distanceBetweenFaces = (temp_LocalNodesCoords[0] - temp_LocalNodesCoords[4]).length();
+			temp_volume = temp_area * distanceBetweenFaces;
+		}
+
 		_cellCentroids.push_back(temp_centroid);
+
 		_cellVolumes.push_back(temp_volume);
+	}
+}
+
+void Metrics::reorientFaceVectors() {
+
+	const int nFaces = _localMesh.GetnFace();
+
+	for (int iface = 0; iface < nFaces; iface++) {
+
+		int *ptr = _localMesh.GetFace2ElementID(iface);
+
+
+		int elem0 = ptr[0];
+		int elem1 = ptr[1];
+		E3D::Vector3<double> Coord0 = _faceCenters[iface];
+		E3D::Vector3<double> Coord1 = _cellCentroids[elem0];
+
+
+		E3D::Vector3<double> From0to1 = Coord1 - Coord0;
+
+		double CosthetaCellCenterFace = Vector3<double>::dot(From0to1, _faceNormals[iface]) / (From0to1.length() * _faceNormals[iface].length());
+		// IF connected to interior cell
+		if (elem1 < _localMesh.GetMeshInteriorElemCount()) {
+
+			E3D::Vector3<double> Coord2 = _cellCentroids[elem1];
+			E3D::Vector3<double> From0to2 = Coord2 - Coord0;
+			double CosthetaCellCenterFace2 = Vector3<double>::dot(From0to2, _faceNormals[iface]) / (From0to2.length() * _faceNormals[iface].length());
+			if (CosthetaCellCenterFace > 0 && CosthetaCellCenterFace2 < 0) {
+				_faceNormals[iface] *= -1;
+				_faceUnitNormals[iface] *= -1;
+			}
+		}
+		// If connected to ghost cell
+		else {
+			if (CosthetaCellCenterFace > 0) {
+				_faceNormals[iface] *= -1;
+				_faceUnitNormals[iface] *= -1;
+			}
+		}
 	}
 }

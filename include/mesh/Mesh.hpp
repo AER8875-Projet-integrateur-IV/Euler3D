@@ -105,9 +105,15 @@ namespace E3D {
 		}
 
 		// ------------------ Mesh parsing Info ----------------------
-		inline const std::vector<std::pair<int, std::vector<int>>> &GetMPIGhostCellsIDs() const {
+		inline const std::vector<std::pair<int, std::vector<int>>> &VectorGetMPIGhostCellsIDs() const {
 			if constexpr (std::is_same_v<T, E3D::Parser::MeshPartition>) {
-				return MPIGhostCellsIDs;
+				return MPIGhostCellsIDsPerPartition;
+			}
+		};
+
+		inline const std::vector<int> &GetMPIGhostCellsIDs() const {
+			if constexpr (std::is_same_v<T, E3D::Parser::MeshPartition>) {
+				return MPIGhostCellIDs;
 			}
 		};
 
@@ -221,6 +227,13 @@ namespace E3D {
 			}
 		}
 
+		inline const std::vector<int> &getMPIadjacentToGhostCellIDs() const {
+			if constexpr (std::is_same_v<T, E3D::Parser::MeshPartition>) {
+				return MPIadjacentToGhostCellIDs;
+			}
+		}
+
+
 		/**
 		 * @brief Get MPI rank of this mesh (parition)
 		 */
@@ -331,6 +344,10 @@ namespace E3D {
 			return connectivityObj._nFace;
 		}
 
+		inline int GetnFaceInt() const {
+			return connectivityObj._nFaceInt;
+		}
+
 		inline int GetnElemTot() const {
 			return connectivityObj._nElem;
 		}
@@ -409,7 +426,9 @@ namespace E3D {
 		std::vector<int> _connectivity;
 
 		// Variables for ghost cells
-		std::vector<std::pair<int, std::vector<int>>> MPIGhostCellsIDs;
+		std::vector<std::pair<int, std::vector<int>>> MPIGhostCellsIDsPerPartition;
+		std::vector<int> MPIGhostCellIDs;
+		std::vector<int> MPIadjacentToGhostCellIDs;
 		std::vector<int> WallGhostCellIDs;
 		std::vector<int> WallAdjacentToGhostCellIDs;
 		std::vector<int> WallAdjacentFaceIDs;
@@ -438,7 +457,7 @@ namespace E3D {
 
 		/**
          * @brief Finds Ghost cell associated to a MPI (inter partitions) Boundary Conditions.
-         * Populates member variables MPIGhostCellsIDs and member variable "_ghostCellID" of GhostCell objects
+         * Populates member variables MPIGhostCellsIDsPerPartition and member variable "_ghostCellID" of GhostCell objects
          * found in vector MPIBoundaryElems of class MeshPartition
 		 */
 		void updateMPIGhostCells() {
@@ -455,6 +474,8 @@ namespace E3D {
 						facesAroundGhostCells.push_back(faceID);
 					}
 				}
+				MPIGhostCellIDs.reserve(GetMpiElemsCount());
+				MPIadjacentToGhostCellIDs.reserve(GetMpiElemsCount());
 
 				// Get the vector of MPI ghost cells
 
@@ -487,6 +508,9 @@ namespace E3D {
 						// If local Element connected to only one ghost cell, the searching is done
 						if (potentialMPIGhostCell.size() == 1) {
 							MPIelem.setGhostCellID(potentialMPIGhostCell[0]);
+							MPIGhostCellIDs.push_back(potentialMPIGhostCell[0]);
+							MPIadjacentToGhostCellIDs.push_back(localElemID);
+
 						}
 
 						// If local Element connected to many ghost cells (farfield, wall..) , MPI ghost cell should be found with face node information
@@ -522,8 +546,9 @@ namespace E3D {
 								std::sort(SurrNodes.begin(), SurrNodes.end());
 								if (SurrNodes == localElemIDFaceNodes) {
 									MPIelem.setGhostCellID(potentialGhostCellID);
-
+									MPIGhostCellIDs.push_back(potentialGhostCellID);
 									ghostElemsOfAPartition.push_back(potentialGhostCellID);
+									MPIadjacentToGhostCellIDs.push_back(localElemID);
 									break;
 									foundElem = true;
 								}
@@ -531,7 +556,7 @@ namespace E3D {
 						}
 					}
 					PairghostElemsOfAPartition.second = ghostElemsOfAPartition;
-					MPIGhostCellsIDs.push_back(PairghostElemsOfAPartition);
+					MPIGhostCellsIDsPerPartition.push_back(PairghostElemsOfAPartition);
 				}
 			}
 		}

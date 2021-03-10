@@ -1,10 +1,17 @@
 add_subdirectory(parser)
 add_subdirectory(partition)
 add_subdirectory(mesh)
+add_subdirectory(connectivity)
+add_subdirectory(solver)
+add_subdirectory(post)
 add_subdirectory(parallelization)
 add_subdirectory(utils)
-add_subdirectory(connectivity)
-ADD_SUBDIRECTORY(solver)
+
+# Setting flags
+set(debug_flags -W -Wall -pedantic -O0 -g3)
+set(release_flags -W -Wall -pedantic -O3 )
+
+
 
 
 ADD_EXECUTABLE(E3D_PRE preprocessor.cpp )
@@ -20,6 +27,13 @@ target_link_libraries(E3D_Solver PUBLIC Parser Mesh Parallel_tools Utils Connect
 
 
 target_link_libraries(E3D_Solver PUBLIC MPI::MPI_CXX)
+
+# Post-traitement
+ADD_EXECUTABLE(E3D_POST postprocessor.cpp)
+target_include_directories(E3D_POST PUBLIC ../include ../extern)
+target_link_libraries(E3D_POST PUBLIC Parser Mesh Utils Post Solver)
+
+
 
 # INCLUDE MPI
 find_package(MPI REQUIRED)

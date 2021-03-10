@@ -143,9 +143,10 @@ void BC::Wall(E3D::Solver::FlowField &flowfield,
 
 	double M = std::sqrt(std::pow(u, 2) + std::pow(v, 2) + std::pow(w, 2)) / InteriorCellSpd;
 
-	double E = p / ((flowfield.getgamma_ref() - 1) * rho) + ((u * u + v * v + w * w) / 2);
+	double E = p / ((flowfield.getgamma_ref() - 1) * rho) + ((u * u + v * v + w * w) / 2.0);
 
 	double H = E + (p / rho);
+
 
 	// Update FlowField
 	flowfield.setRho(GhostcellID, rho);

@@ -1,24 +1,24 @@
 -------------------------------------------------------------------------------
 %%%%%%%%%%%%%%%%     EULER3D Software Input file    %%%%%%%%%%%%%%%%%%%%%
-Author : AMIN OULED-MOHAMED
-Simulation Title : TESTING
-Date : 04-02-2020
-Comments : For testing purposes (Not Stable)
+Author : Aziz
+Simulation Title : test FlowField and Tecplot Writing
+Date : 07-03-2021
+Comments : 
 -------------------------------------------------------------------------------
 
 START
 
 ------------------- PRE-PROCESSING CONTROL -------------------
 # Path to partitioned mesh files (from executable directory)
-INITIAL_MESH= StructuredBlock_64x64.su2
+INITIAL_MESH= unused
 
 # Path to partitioned mesh files (from executable directory)
 # Hashtag character will be replaced with file index, from 0 to Nb of partitions
-PARTITION_FILES= 4
-../../test/mesh/StructuredBlock_8_p#.par
+PARTITION_FILES= 2
+/home/aziz/Bureau/A2020/PI4/Codes/Euler3D/test/solver/flowfield/StructuredBlock_8_p#.par
 
 # Path to log file for pre-processing
-PRE_LOG= prelog.txt
+PRE_LOG= unused
 
 ------------------- SIMULATION CONTROL -------------------
 
@@ -29,7 +29,7 @@ PRE_LOG= prelog.txt
 SPEED_OPTION= 1
 
 # Velocity in m/s or Mach
-SPEED_VALUE= 250
+SPEED_VALUE= 250.0
 
 angle of attack in degrees
 AOA= 1
@@ -80,13 +80,13 @@ MIN_RESIDUAL= 1e-10
 MAX_ITER= 99999
 
 # Path to log file for solver
-SOLVER_LOG= solverlog.txt
+SOLVER_LOG= /home/aziz/Bureau/A2020/PI4/Codes/Euler3D/test/solver/flowfield/Output/solverlog.txt
 
 -------------------- POST-PROCESSING CONTROL ----------------
 # Path to file output, from executable directory
-OUTPUT_FILE= output.dat
+OUTPUT_FILE= /home/aziz/Bureau/A2020/PI4/Codes/Euler3D/test/solver/flowfield/Output/tecplotOut.dat
 
 # Path to log file for post-processor
-POST_LOG= solverlog.txt
+POST_LOG= /home/aziz/Bureau/A2020/PI4/Codes/Euler3D/test/solver/flowfield/Output/postlog.txt
 
 END
