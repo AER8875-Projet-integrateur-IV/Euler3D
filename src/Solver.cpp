@@ -7,8 +7,8 @@
 #include "mesh/Metrics.hpp"
 #include "parallelization/MPIHandler.hpp"
 #include "parser/SimConfig.hpp"
-#include "solver/FlowField.hpp"
 #include "solver/EulerSolver.hpp"
+#include "solver/FlowField.hpp"
 #include "solver/WriteSolution.hpp"
 
 using namespace E3D;
@@ -39,19 +39,19 @@ int main(int argc, char *argv[]) {
 	MPI_Barrier(MPI_COMM_WORLD);
 
 
-    e3d_mpi.updateRequesterID(localmesh.getMPIelements());
-    e3d_mpi.sortInterface();
+	e3d_mpi.updateRequesterID(localmesh.getMPIelements());
+	e3d_mpi.sortInterface();
 
 	Metrics localMeshMetrics(localmesh, e3d_mpi);
 	MPI_Barrier(MPI_COMM_WORLD);
 
-    E3D::Solver::FlowField localFlowField(config,localmesh);
+	E3D::Solver::FlowField localFlowField(config, localmesh);
 
-	E3D::Solver::EulerSolver solver(localFlowField,e3d_mpi,localmesh,config,localMeshMetrics);
+	E3D::Solver::EulerSolver solver(localFlowField, e3d_mpi, localmesh, config, localMeshMetrics);
 
 	solver.Run();
 
-    E3D::Solver::WriteSolution writeSolution(localFlowField, config, e3d_mpi);
+	E3D::Solver::WriteSolution writeSolution(localFlowField, config, e3d_mpi);
 
 	e3d_mpi.finalize();
 

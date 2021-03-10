@@ -43,7 +43,6 @@ namespace E3D {
 				}
 
 				double startConnectivityTimer = MPI_Wtime();
-
 			}
 
 
@@ -82,23 +81,23 @@ namespace E3D {
 				updateSymmetryGhostCell();
 
 				int NghostCellsFarfield = FarfieldGhostCellIDs.size();
-                int NghostCellsSymmetry = SymmetryGhostCellIDs.size();
-                int NghostCellsWall = WallGhostCellIDs.size();
-                int NghostCellsMpi = GetMpiElemsCount();
+				int NghostCellsSymmetry = SymmetryGhostCellIDs.size();
+				int NghostCellsWall = WallGhostCellIDs.size();
+				int NghostCellsMpi = GetMpiElemsCount();
 
-                std::array<int, 4> GhostCellStats{NghostCellsFarfield,NghostCellsWall,NghostCellsSymmetry,NghostCellsMpi};
-                std::array<int, 4> sumGhostCells{0, 0, 0,0};
-                MPI_Reduce(&GhostCellStats,&sumGhostCells,4,MPI_INT,MPI_SUM,0,MPI_COMM_WORLD);
+				std::array<int, 4> GhostCellStats{NghostCellsFarfield, NghostCellsWall, NghostCellsSymmetry, NghostCellsMpi};
+				std::array<int, 4> sumGhostCells{0, 0, 0, 0};
+				MPI_Reduce(&GhostCellStats, &sumGhostCells, 4, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
 
 				MPI_Barrier(MPI_COMM_WORLD);
 				if (_parser.getrankID() == 0) {
-                    double endConnectivityTimer = MPI_Wtime();
+					double endConnectivityTimer = MPI_Wtime();
 					printf("All processes solved connectivity of partitioned meshes !\n");
 
-                    printf("Number of Farfield Ghost Cells : %d\n", sumGhostCells[0]);
-                    printf("Number of Wall Ghost Cells :     %d\n", sumGhostCells[1]);
-                    printf("Number of Symmetry Ghost Cells : %d\n", sumGhostCells[2]);
-                    printf("Number of MPI Ghost Cells :      %d\n\n", sumGhostCells[3]);
+					printf("Number of Farfield Ghost Cells : %d\n", sumGhostCells[0]);
+					printf("Number of Wall Ghost Cells :     %d\n", sumGhostCells[1]);
+					printf("Number of Symmetry Ghost Cells : %d\n", sumGhostCells[2]);
+					printf("Number of MPI Ghost Cells :      %d\n\n", sumGhostCells[3]);
 
 					printf("Connectivity took %.5f seconds to solve.\n", endConnectivityTimer - startConnectivityTimer);
 				}
@@ -112,14 +111,14 @@ namespace E3D {
 			}
 		};
 
-        inline const std::vector<int> &GetMPIGhostCellsIDs() const {
-            if constexpr (std::is_same_v<T, E3D::Parser::MeshPartition>) {
-                return MPIGhostCellIDs;
-            }
-        };
+		inline const std::vector<int> &GetMPIGhostCellsIDs() const {
+			if constexpr (std::is_same_v<T, E3D::Parser::MeshPartition>) {
+				return MPIGhostCellIDs;
+			}
+		};
 
 
-        /**
+		/**
          * @return IDs of ghost cells associated with a wall BC
          */
 		inline const std::vector<int> &GetWallGhostCellsIDs() const {
@@ -128,7 +127,7 @@ namespace E3D {
 			}
 		};
 
-        /**
+		/**
          * @return IDs of Volume cells connected to a ghost cell
          * associated with a wall BC. They are placed in same order
          * -> WallADjacentToGhostCellIds[i] is connected to WallGhostCellIDs[i]
@@ -140,13 +139,13 @@ namespace E3D {
 		};
 
 
-        inline const std::vector<int> &GetWallAdjacentFaceIDs() const {
-            if constexpr (std::is_same_v<T, E3D::Parser::MeshPartition>) {
-                return WallAdjacentFaceIDs;
-            }
-        };
+		inline const std::vector<int> &GetWallAdjacentFaceIDs() const {
+			if constexpr (std::is_same_v<T, E3D::Parser::MeshPartition>) {
+				return WallAdjacentFaceIDs;
+			}
+		};
 
-        /**
+		/**
          * @return IDs of ghost cells associated with a Sym BC
          */
 		inline const std::vector<int> &GetSymmetryGhostCellsIDs() const {
@@ -155,7 +154,7 @@ namespace E3D {
 			}
 		};
 
-        /**
+		/**
          * @return IDs of Volume cells connected to a ghost cell
          * associated with a sym BC. They are placed in same order
          * -> SymmteryAdjacentToGhostCellIds[i] is connected to SymmetryGhostCellIDs[i]
@@ -167,14 +166,14 @@ namespace E3D {
 		};
 
 
-        inline const std::vector<int> &GetSymmetryAdjacentFaceIDs() const {
-            if constexpr (std::is_same_v<T, E3D::Parser::MeshPartition>) {
-                return SymmetryAdjacentFaceIDs;
-            }
-        };
+		inline const std::vector<int> &GetSymmetryAdjacentFaceIDs() const {
+			if constexpr (std::is_same_v<T, E3D::Parser::MeshPartition>) {
+				return SymmetryAdjacentFaceIDs;
+			}
+		};
 
 
-        /**
+		/**
          * @return IDs of ghost cells associated with a Farfield BC
          */
 		inline const std::vector<int> &GetFarfieldGhostCellsIDs() const {
@@ -183,7 +182,7 @@ namespace E3D {
 			}
 		};
 
-        /**
+		/**
          * @return IDs of Volume cells connected to a ghost cell
          * associated with a Farfield BC. They are placed in same order
          * -> FarfieldAdjacentToGhostCellIds[i] is connected to FarfieldGhostCellIDs[i]
@@ -195,14 +194,14 @@ namespace E3D {
 		};
 
 
-        inline const std::vector<int> &GetFarfieldAdjacentFaceIDs() const {
-            if constexpr (std::is_same_v<T, E3D::Parser::MeshPartition>) {
-                return FarfieldAdjacentFaceIDs;
-            }
-        };
+		inline const std::vector<int> &GetFarfieldAdjacentFaceIDs() const {
+			if constexpr (std::is_same_v<T, E3D::Parser::MeshPartition>) {
+				return FarfieldAdjacentFaceIDs;
+			}
+		};
 
 
-        inline int GetMpiElemsCount() const {
+		inline int GetMpiElemsCount() const {
 			if constexpr (std::is_same_v<T, E3D::Parser::MeshPartition>) {
 				return _parser.getMpiBoundaryElemsCount();
 
@@ -228,12 +227,11 @@ namespace E3D {
 			}
 		}
 
-        inline const std::vector<int> &getMPIadjacentToGhostCellIDs() const {
-            if constexpr (std::is_same_v<T, E3D::Parser::MeshPartition>) {
-                return MPIadjacentToGhostCellIDs;
-            }
-        }
-
+		inline const std::vector<int> &getMPIadjacentToGhostCellIDs() const {
+			if constexpr (std::is_same_v<T, E3D::Parser::MeshPartition>) {
+				return MPIadjacentToGhostCellIDs;
+			}
+		}
 
 
 		/**
@@ -429,17 +427,17 @@ namespace E3D {
 
 		// Variables for ghost cells
 		std::vector<std::pair<int, std::vector<int>>> MPIGhostCellsIDsPerPartition;
-        std::vector<int> MPIGhostCellIDs;
+		std::vector<int> MPIGhostCellIDs;
 		std::vector<int> MPIadjacentToGhostCellIDs;
 		std::vector<int> WallGhostCellIDs;
 		std::vector<int> WallAdjacentToGhostCellIDs;
-        std::vector<int> WallAdjacentFaceIDs;
+		std::vector<int> WallAdjacentFaceIDs;
 		std::vector<int> SymmetryGhostCellIDs;
 		std::vector<int> SymmetryAdjacentGhostCellIDs;
 		std::vector<int> SymmetryAdjacentFaceIDs;
 		std::vector<int> FarfieldGhostCellIDs;
 		std::vector<int> FarfieldAdjacentToGhostCellIDs;
-        std::vector<int> FarfieldAdjacentFaceIDs;
+		std::vector<int> FarfieldAdjacentFaceIDs;
 		std::vector<int> facesAroundGhostCells;
 
 		// variable calculees et assignees par connectivity
@@ -477,7 +475,7 @@ namespace E3D {
 					}
 				}
 				MPIGhostCellIDs.reserve(GetMpiElemsCount());
-                MPIadjacentToGhostCellIDs.reserve(GetMpiElemsCount());
+				MPIadjacentToGhostCellIDs.reserve(GetMpiElemsCount());
 
 				// Get the vector of MPI ghost cells
 
@@ -548,9 +546,9 @@ namespace E3D {
 								std::sort(SurrNodes.begin(), SurrNodes.end());
 								if (SurrNodes == localElemIDFaceNodes) {
 									MPIelem.setGhostCellID(potentialGhostCellID);
-                                    MPIGhostCellIDs.push_back(potentialGhostCellID);
+									MPIGhostCellIDs.push_back(potentialGhostCellID);
 									ghostElemsOfAPartition.push_back(potentialGhostCellID);
-                                    MPIadjacentToGhostCellIDs.push_back(localElemID);
+									MPIadjacentToGhostCellIDs.push_back(localElemID);
 									break;
 									foundElem = true;
 								}
@@ -575,9 +573,9 @@ namespace E3D {
 				// Transform it to be case insensitive
 				std::transform(Tag.begin(), Tag.end(), Tag.begin(), ::tolower);
 				if (Tag == "airfoil" || Tag == "wall") {
-                    WallGhostCellIDs.reserve(faces.size());
-                    WallAdjacentToGhostCellIDs.reserve(faces.size());
-                    WallAdjacentFaceIDs.reserve(faces.size());
+					WallGhostCellIDs.reserve(faces.size());
+					WallAdjacentToGhostCellIDs.reserve(faces.size());
+					WallAdjacentFaceIDs.reserve(faces.size());
 					for (auto face : faces) {
 
 						auto wallFaceNodes = face.getElemNodes();
@@ -594,7 +592,7 @@ namespace E3D {
 							if (tempNodes == wallFaceNodes) {
 								WallGhostCellIDs.push_back(GetFace2ElementID(faceConnectedToGC)[1]);
 								WallAdjacentToGhostCellIDs.push_back(GetFace2ElementID(faceConnectedToGC)[0]);
-                                WallAdjacentFaceIDs.push_back(faceConnectedToGC);
+								WallAdjacentFaceIDs.push_back(faceConnectedToGC);
 								break;
 							}
 						}
@@ -617,7 +615,7 @@ namespace E3D {
 				if (Tag == "farfield") {
 					FarfieldGhostCellIDs.reserve(faces.size());
 					FarfieldAdjacentToGhostCellIDs.reserve(faces.size());
-                    FarfieldAdjacentFaceIDs.reserve(faces.size());
+					FarfieldAdjacentFaceIDs.reserve(faces.size());
 					for (auto face : faces) {
 						auto wallFaceNodes = face.getElemNodes();
 						std::sort(wallFaceNodes.begin(), wallFaceNodes.end());
@@ -652,10 +650,10 @@ namespace E3D {
 				auto Tag = partitionTag;
 				// Transform it to be case insensitive
 				std::transform(Tag.begin(), Tag.end(), Tag.begin(), ::tolower);
-				if (Tag == "sym"){
-                    SymmetryGhostCellIDs.reserve(faces.size());
-                    SymmetryAdjacentGhostCellIDs.reserve(faces.size());
-                    SymmetryAdjacentFaceIDs.reserve(faces.size());
+				if (Tag == "sym") {
+					SymmetryGhostCellIDs.reserve(faces.size());
+					SymmetryAdjacentGhostCellIDs.reserve(faces.size());
+					SymmetryAdjacentFaceIDs.reserve(faces.size());
 					for (auto face : faces) {
 
 						auto wallFaceNodes = face.getElemNodes();

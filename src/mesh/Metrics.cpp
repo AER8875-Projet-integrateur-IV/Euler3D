@@ -30,7 +30,7 @@ E3D::Metrics::Metrics(const Mesh<Parser::MeshPartition> &localMesh, const Parall
 	computeFaceMetrics();
 
 	computeCellMetrics();
-    reorientFaceVectors();
+	reorientFaceVectors();
 
 
 	//reorientFaceVectors();
@@ -177,7 +177,7 @@ void Metrics::computeCellMetrics() {
 			Vector3<double> faceNormalVector = _faceNormals[p_localFaces[ifaceLocal]];
 			Vector3<double> faceCenter = _faceCenters[p_localFaces[ifaceLocal]];
 			Vector3<double> faceUnitVector = _faceUnitNormals[p_localFaces[ifaceLocal]];
-			Vector3<double> faceToCellCenter = cellCenter- faceCenter ;
+			Vector3<double> faceToCellCenter = cellCenter - faceCenter;
 			double surfaceLength = faceNormalVector.length();
 
 			// Check if cell normal vector is pointing outward the element
@@ -198,20 +198,18 @@ void Metrics::computeCellMetrics() {
 
 			//TODO volume is double the correct value for tets
 			temp_volume += Vector3<double>::dot(faceCenter, faceNormalVector) * 0.33333333;
-
 		}
 		temp_centroid = centroid_numerator / centroid_denominator;
 
-        if (temp_localNodes.size() == 8) {
-            Vector3<double> AB = temp_LocalNodesCoords[1] - temp_LocalNodesCoords[0];
-            Vector3<double> AC = temp_LocalNodesCoords[2] - temp_LocalNodesCoords[0];
-            Vector3<double> AD = temp_LocalNodesCoords[3] - temp_LocalNodesCoords[0];
+		if (temp_localNodes.size() == 8) {
+			Vector3<double> AB = temp_LocalNodesCoords[1] - temp_LocalNodesCoords[0];
+			Vector3<double> AC = temp_LocalNodesCoords[2] - temp_LocalNodesCoords[0];
+			Vector3<double> AD = temp_LocalNodesCoords[3] - temp_LocalNodesCoords[0];
 
-            double temp_area = computeTriangleArea(AB, AC) + computeTriangleArea(AC, AD);
-            double distanceBetweenFaces = (temp_LocalNodesCoords[0] - temp_LocalNodesCoords[4]).length();
-            temp_volume = temp_area * distanceBetweenFaces;
-
-        }
+			double temp_area = computeTriangleArea(AB, AC) + computeTriangleArea(AC, AD);
+			double distanceBetweenFaces = (temp_LocalNodesCoords[0] - temp_LocalNodesCoords[4]).length();
+			temp_volume = temp_area * distanceBetweenFaces;
+		}
 
 		_cellCentroids.push_back(temp_centroid);
 

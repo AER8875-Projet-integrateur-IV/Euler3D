@@ -45,10 +45,9 @@ namespace E3D::Solver {
 			this->m_rhoV_residual = 0.0;
 			this->m_rho_uV_residual = 0.0;
 			this->m_rho_vV_residual = 0.0;
-            this->m_rho_wV_residual = 0.0;
+			this->m_rho_wV_residual = 0.0;
 			this->m_rho_HV_residual = 0.0;
 		}
-
 
 
 		double m_rhoV_residual;

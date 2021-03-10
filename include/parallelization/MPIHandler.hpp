@@ -65,7 +65,7 @@ namespace E3D::Parallel {
 		inline const std::vector<std::pair<int, std::vector<E3D::Parser::GhostCell>>> &getRequesterID() const { return _requesterID; }
 
 
-        inline const std::vector<std::pair<int, std::vector<E3D::Parser::GhostCell>>> &getSenderID() const { return _senderID; }
+		inline const std::vector<std::pair<int, std::vector<E3D::Parser::GhostCell>>> &getSenderID() const { return _senderID; }
 		/**
          * @brief Finalize this MPI process
          */
@@ -92,7 +92,5 @@ namespace E3D::Parallel {
 		int _rankID = -1;            /** @brief rank id of this process */
 		int _poolSize = 0;           /** @brief Number of processes in the communicator */
 		int _nAdjacentPartition = 0; /** @brief number of partitions physically connected to this partitions */
-
-
 	};
 }// namespace E3D::Parallel

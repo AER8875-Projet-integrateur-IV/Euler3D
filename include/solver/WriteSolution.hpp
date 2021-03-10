@@ -22,7 +22,7 @@ namespace E3D::Solver {
 		~WriteSolution();
 
 	private:
-		E3D::Solver::FlowField & _flowField;
+		E3D::Solver::FlowField &_flowField;
 		int _rank;
 		std::string _fileName;
 		std::ofstream _file;

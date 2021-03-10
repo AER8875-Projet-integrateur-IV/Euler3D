@@ -89,7 +89,6 @@ namespace E3D::Parser {
 		inline const std::vector<Element> &GetVolumeElems() const { return this->_InteriorElements; }
 
 
-
 		/**
          *
          * @return Pairs of BC tags and number of elements associated to the tag. Ex : [("fairfield", 64), ("wall", 128)]
