@@ -10,8 +10,7 @@
  */
 #pragma once
 #include <iostream>
-#include <string.h>
-#include <unordered_map>
+#include <string>
 #include <vector>
 
 #include "parser/Element.hpp"
@@ -31,7 +30,6 @@ namespace E3D::Post {
 		std::string _outputFile;
 		/*Nombre de partitions*/
 		int _nPart;
-		bool _useMMS;
 
 		/**
          * Écrit la solution dans un fichier Tecplot
