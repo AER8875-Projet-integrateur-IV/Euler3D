@@ -82,6 +82,7 @@ void MPIHandler::sortInterface() {
  *  Communication is done by looping through each pair found in _uniquePairs
  */
 void MPIHandler::updateFlowField(E3D::Solver::FlowField &localFlowField) const {
+    MPI_Barrier(MPI_COMM_WORLD);
 	for (int PairIndex = 0; PairIndex < _uniquePairsSize; PairIndex += 2) {
 		if (_rankID == _uniquePairs[PairIndex] || _rankID == _uniquePairs[PairIndex + 1]) {
 			if (_rankID == _uniquePairs[PairIndex]) {
@@ -259,6 +260,5 @@ void MPIHandler::updateFlowField(E3D::Solver::FlowField &localFlowField) const {
 			}
 		}
 		MPI_Barrier(MPI_COMM_WORLD);
-
 	}
 }

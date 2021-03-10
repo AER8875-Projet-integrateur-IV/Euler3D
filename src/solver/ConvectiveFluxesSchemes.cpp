@@ -8,12 +8,12 @@
 using namespace E3D::Solver;
 
 E3D::Solver::ResidualVar E3D::Solver::Roe(E3D::Solver::FlowField &_localFlowField,
-                const E3D::Mesh<E3D::Parser::MeshPartition> &_localMesh,
-                const E3D::Metrics &_localMetrics,
-                const int iface,
-                bool isMPI) {
+                                          const E3D::Mesh<E3D::Parser::MeshPartition> &_localMesh,
+                                          const E3D::Metrics &_localMetrics,
+                                          const int iface,
+                                          bool isMPI) {
 
-    int *ptr = _localMesh.GetFace2ElementID(iface);
+	int *ptr = _localMesh.GetFace2ElementID(iface);
 	int leftElementId = ptr[0];
 	int rightElementId = ptr[1];
 
@@ -84,13 +84,32 @@ E3D::Solver::ResidualVar E3D::Solver::Roe(E3D::Solver::FlowField &_localFlowFiel
 	//calculate Flux
 	std::vector<double> flux = {0, 0, 0, 0, 0};
 
+
+////	//Par Amin
+//    std::vector<double> fluxAvg {0.0,0.0,0.0,0.0,0.0};
+//
+//	std::vector<double> Fcr = {rightRho * rightVContravariant,
+//	                           rightRho * rightVContravariant * rightU + rightP * faceNormals.x,
+//	                           rightRho * rightVContravariant * rightV + rightP * faceNormals.y,
+//                               rightRho * rightVContravariant * rightW + rightP * faceNormals.z,
+//                               rightRho * rightVContravariant * rightH};
+//    std::vector<double> Fcl = {leftRho * leftVContravariant,
+//                               leftRho * leftVContravariant * leftU + leftP * faceNormals.x,
+//                               leftRho * leftVContravariant * leftV + leftP * faceNormals.y,
+//                               leftRho * leftVContravariant * leftW + leftP * faceNormals.z,
+//                               leftRho * leftVContravariant * leftH};
+//    for (size_t i = 0; i < 5; i++) {
+//		fluxAvg[i] = (Fcr[i] + Fcl[i]) /2;
+//	}
+
+
 	if (iface >= _localMesh.GetnFaceInt() && !(isMPI)) {
 		for (size_t i = 0; i < 5; i++) {
 			flux[i] = fluxAvg[i];
 		}
 	} else {
 		double localC = sqrt(gamma * leftP / leftRho);
-		double HartensCorrector = 1.0 / 15.0 * localC;
+		double HartensCorrector = (1.0 / 15.0) * localC;
 		//hartens correction
 		double HartensCorrectionF1;
 		if (std::abs(VContravariantTilde - cTilde) > HartensCorrector) {
@@ -147,4 +166,26 @@ E3D::Solver::ResidualVar E3D::Solver::Roe(E3D::Solver::FlowField &_localFlowFiel
 		}
 	}
 	return E3D::Solver::ResidualVar(flux[0], flux[1], flux[2], flux[3], flux[4]);
+}
+
+E3D::Solver::ResidualVar E3D::Solver::Fc(E3D::Solver::FlowField &localFlowField,
+                                         const E3D::Metrics &localMetrics,
+                                         const int GhostID,
+                                         const int faceID,
+                                         double V) {
+
+	double rho = localFlowField.Getrho()[GhostID];
+	double u = localFlowField.GetU_Velocity()[GhostID];
+	double v = localFlowField.GetV_Velocity()[GhostID];
+	double w = localFlowField.GetW_Velocity()[GhostID];
+	double H = localFlowField.GetH()[GhostID];
+	double p = localFlowField.GetP()[GhostID];
+	Vector3<double> UnitFaceNormals = localMetrics.getFaceNormalsUnit()[faceID];
+	double Fc1 = rho * V;
+	double Fc2 = rho * u * V + p * UnitFaceNormals.x;
+	double Fc3 = rho * v * V + p * UnitFaceNormals.y;
+	double Fc4 = rho * w * V + p * UnitFaceNormals.z;
+	double Fc5 = rho * H * V;
+
+	return ResidualVar(Fc1, Fc2, Fc3, Fc4, Fc5);
 }

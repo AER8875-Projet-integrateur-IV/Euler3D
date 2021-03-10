@@ -50,6 +50,8 @@ FlowField::FlowField(const E3D::Parser::SimConfig &config,
 
 	Initialize(totalElemCount,NbWallElems);
 
+	MPI_Allreduce(&_interiorElemCount,&_TotalDomainElems,1,MPI_INT,MPI_SUM,MPI_COMM_WORLD);
+
 
 	MPI_Barrier(MPI_COMM_WORLD);
 	if (localMesh.getMeshRankID() == 0) {
@@ -71,7 +73,6 @@ void FlowField::Initialize(const int totalElemCount, const int ForceElemsCount) 
     cfl = _simConfig.getCFL();
 	gamma_ref = _simConfig.getGamma();
 	M_inf = _simConfig.getMach();
-	std::cout << M_inf << "\n";
 	u_inf = M_inf * sqrt(gamma_ref) * std::cos(_simConfig.getAoA() * (E3D_PI / 180));
 	v_inf = M_inf * sqrt(gamma_ref) * std::sin(_simConfig.getAoA() * (E3D_PI / 180));
 	p_ref = _simConfig.getPressure();
@@ -109,6 +110,7 @@ void FlowField::Update(const std::vector<E3D::Solver::ConservativeVar>& delW_vec
 
 		    _rho[ielem] += delW_vector[ielem].rho;
 
+
 		    _rhou[ielem] += delW_vector[ielem].rhoU;
 
 		    _rhov[ielem] += delW_vector[ielem].rhoV;
@@ -123,7 +125,6 @@ void FlowField::Update(const std::vector<E3D::Solver::ConservativeVar>& delW_vec
 		    _H[ielem] =  _E[ielem] + (_p[ielem] / _rho[ielem]);
 
 		    _M[ielem] = sqrt(gamma_ref*(_p[ielem]/_rho[ielem]))/sqrt((std::pow(_u[ielem],2) + std::pow(_v[ielem],2) + std::pow(_w[ielem],2)));
-
 
 	    }
 

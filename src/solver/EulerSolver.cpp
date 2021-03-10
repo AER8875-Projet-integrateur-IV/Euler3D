@@ -31,7 +31,7 @@ void Solver::EulerSolver::Run() {
 	if (_e3d_mpi.getRankID() == 0) {
 		E3D::Solver::printHeader();
 	}
-    sortGhostCells();
+	sortGhostCells();
 
 	// resize residual, deltaT and deltaW vectors
 	_residuals.resize(_localMesh.GetnElemTot(), ResidualVar(0.0,
@@ -46,6 +46,7 @@ void Solver::EulerSolver::Run() {
 	                                                         0.0,
 	                                                         0.0));
 
+
 	while (_nbInteration < _config.getMaxNumberIterations()) {
 		resetResiduals();
 
@@ -58,14 +59,16 @@ void Solver::EulerSolver::Run() {
 
 
 		//TODO Exchange max RMS between partition;
-		double rms = computeRMS();
-		MPI_Allreduce(&rms, &_maximumDomainRms, 1, MPI_DOUBLE, MPI_MAX, MPI_COMM_WORLD);
+		double error = computeRMS();
+		double _sumerrors = 0;
+		MPI_Allreduce(&error, &_sumerrors, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+		double _maximumDomainRms = std::sqrt(_sumerrors / _localFlowField.getTotalDomainCounts());
 		if (_maximumDomainRms < _config.getMinResidual()) {
 			if (_e3d_mpi.getRankID() == 0) {
 				double iterationEndTimer = MPI_Wtime();
 				double iterationwallTime = iterationEndTimer - iterationBeginTimer;
 				E3D::Solver::PrintSolverIteration(_CL, _CD, _maximumDomainRms, iterationwallTime, _nbInteration);
-                residualFile << _maximumDomainRms << "\n";
+				residualFile << _maximumDomainRms << "\n";
 				residualFile.close();
 			}
 			break;
@@ -79,19 +82,17 @@ void Solver::EulerSolver::Run() {
 		_nbInteration += 1;
 
 		if (_e3d_mpi.getRankID() == 0) {
-			if(_nbInteration%10 ==0){
-			double iterationEndTimer = MPI_Wtime();
-			double iterationwallTime = iterationEndTimer - iterationBeginTimer;
-			E3D::Solver::PrintSolverIteration(_CL, _CD, _maximumDomainRms, iterationwallTime, _nbInteration);
-			residualFile << _maximumDomainRms << "\n";
-            }
+			if (_nbInteration % 20 == 0) {
+				double _maximumDomainRms = std::sqrt(_sumerrors / _localFlowField.getTotalDomainCounts());
+				double iterationEndTimer = MPI_Wtime();
+				double iterationwallTime = iterationEndTimer - iterationBeginTimer;
+				E3D::Solver::PrintSolverIteration(_CL, _CD, _maximumDomainRms, iterationwallTime, _nbInteration);
+				residualFile << _maximumDomainRms << "\n";
+			}
 		}
 
-        MPI_Barrier(MPI_COMM_WORLD);
-
-
+		MPI_Barrier(MPI_COMM_WORLD);
 	}
-
 
 	// If loop exited because of reaching maximum number of iteration, print this message
 	if (_e3d_mpi.getRankID() == 0) {
@@ -99,7 +100,7 @@ void Solver::EulerSolver::Run() {
 		if (_config.getMaxNumberIterations() <= _nbInteration) {
 			std::cout << "Solution not converged :  exceeded maximum number of iterations !";
 		} else {
-			std::cout << "Solution converged !";
+			std::cout << "Solution converged OR a NAN encountred !";
 		}
 	}
 }
@@ -135,7 +136,6 @@ void Solver::EulerSolver::updateBC() {
 	}
 
 
-
 	// Update Wall
 	for (size_t GhostID = 0; GhostID < _WallGhostCellIDs.size(); GhostID++) {
 		int GhostIdx = _WallGhostCellIDs[GhostID];
@@ -144,8 +144,6 @@ void Solver::EulerSolver::updateBC() {
 
 		Solver::BC::Wall(_localFlowField, _localMetrics, GhostIdx, InteriorGhostIdx, FaceGhostIdx);
 	}
-
-
 
 
 	// Update Symmetry
@@ -177,6 +175,7 @@ void Solver::EulerSolver::computeResidual() {
 		double surfaceArea = _localMetrics.getFaceSurfaces()[IfaceID];
 		_residuals[element1] += residu * surfaceArea;
 		_residuals[element2] -= residu * surfaceArea;
+
 	}
 
 
@@ -186,11 +185,10 @@ void Solver::EulerSolver::computeResidual() {
 		int *ptr = _localMesh.GetFace2ElementID(EfaceID);
 		int element1 = ptr[0];
 		int element2 = ptr[1];
-
-
 		double surfaceArea = _localMetrics.getFaceSurfaces()[EfaceID];
-
-
+		double V = _localFlowField.GetU_Velocity()[element2] * _localMetrics.getFaceNormalsUnit()[EfaceID].x +
+		           _localFlowField.GetV_Velocity()[element2] * _localMetrics.getFaceNormalsUnit()[EfaceID].y +
+		           _localFlowField.GetW_Velocity()[element2] * _localMetrics.getFaceNormalsUnit()[EfaceID].z;
 
 		//If Wall
 		if (std::binary_search(_sortedWallGhostCellIDs.begin(), _sortedWallGhostCellIDs.end(), element2)) {
@@ -203,16 +201,16 @@ void Solver::EulerSolver::computeResidual() {
 
 		}
 
+
 		// If MPI or Symmetry
 		else if (std::binary_search(_sortedMPIGhostCellIDs.begin(), _sortedMPIGhostCellIDs.end(), element2) || std::binary_search(_sortedSymmetryGhostCellIDs.begin(), _sortedSymmetryGhostCellIDs.end(), element2)) {
 			ResidualVar residu = Solver::Roe(_localFlowField, _localMesh, _localMetrics, EfaceID, true);
 			_residuals[element1] += residu * surfaceArea;
-
 		}
 
 		// if farfield
 		else {
-			ResidualVar residu = Solver::Roe(_localFlowField, _localMesh, _localMetrics, EfaceID, false);
+			ResidualVar residu = Solver::Fc(_localFlowField, _localMetrics, element2, EfaceID, V);
 			_residuals[element1] += residu * surfaceArea;
 		}
 	}
@@ -228,10 +226,7 @@ void Solver::EulerSolver::updateDeltaTime() {
 
 void Solver::EulerSolver::TimeIntegration() {
 	for (int ielem = 0; ielem < _localMesh.GetnElemTot(); ielem++) {
-        if (isnan(_residuals[ielem].m_rhoV_residual)) {
-            std::cerr << "Nan encountred in solver ! \n" << std::endl;
-            exit(EXIT_FAILURE);
-        }
+
 		_deltaW[ielem] = Solver::ExplicitEuler(_residuals[ielem], _deltaT[ielem], _localMetrics, ielem);
 	}
 }
@@ -242,14 +237,12 @@ void Solver::EulerSolver::updateW() {
 }
 
 double Solver::EulerSolver::computeRMS() {
-	double erreur = 0;
-	double nElem = _localMesh.GetnElemTot();
+	double erreur = 0.0;
 	//TODO LOOP THROUGH RESIDUALS OR DW ?
 	for (const auto &residu : _residuals) {
-		erreur += std::pow(residu.m_rho_HV_residual, 2);
+		erreur += std::pow(residu.m_rhoV_residual, 2);
 	}
-	double rms = sqrt(erreur / nElem);
-	return rms;
+	return erreur;
 }
 
 void Solver::EulerSolver::resetResiduals() {
@@ -259,13 +252,13 @@ void Solver::EulerSolver::resetResiduals() {
 }
 
 
-void Solver::EulerSolver::sortGhostCells(){
+void Solver::EulerSolver::sortGhostCells() {
 	_sortedMPIGhostCellIDs = MPIghostCellElems;
 	_sortedFarfieldGhostCellIDs = _FarfieldGhostCellIDs;
 	_sortedSymmetryGhostCellIDs = _SymmetryGhostCellIDs;
 	_sortedWallGhostCellIDs = _WallGhostCellIDs;
-	std::sort(_sortedWallGhostCellIDs.begin(),_sortedWallGhostCellIDs.end());
-    std::sort(_sortedMPIGhostCellIDs.begin(),_sortedMPIGhostCellIDs.end());
-    std::sort(_sortedFarfieldGhostCellIDs.begin(),_sortedFarfieldGhostCellIDs.end());
-    std::sort(_sortedSymmetryGhostCellIDs.begin(),_sortedSymmetryGhostCellIDs.end());
+	std::sort(_sortedWallGhostCellIDs.begin(), _sortedWallGhostCellIDs.end());
+	std::sort(_sortedMPIGhostCellIDs.begin(), _sortedMPIGhostCellIDs.end());
+	std::sort(_sortedFarfieldGhostCellIDs.begin(), _sortedFarfieldGhostCellIDs.end());
+	std::sort(_sortedSymmetryGhostCellIDs.begin(), _sortedSymmetryGhostCellIDs.end());
 }

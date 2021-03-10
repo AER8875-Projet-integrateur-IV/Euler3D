@@ -33,14 +33,11 @@ namespace E3D::Solver
         // Return rhoW of problem
         inline  std::vector<double>& GetW_Velocity() {return this->_w; }
 
-
         // Return rhoE of problem
         inline const std::vector<double>& GetP() const {return this->_p; }
 
         // Return rhoE of problem
         inline std::vector<double>& GetE() {return this->_E; }
-
-
 
         // Return rhoE of problem
         inline const std::vector<double>& GetH() const {return this->_H; }
@@ -86,6 +83,8 @@ namespace E3D::Solver
 		inline double getSoundspd_ref() const {return SoundSpd_ref;}
 
 		inline int getTotalElemsCount() const {return _totalElemCount;}
+
+		inline int getTotalDomainCounts() const {return _TotalDomainElems;}
 
 		static constexpr const double E3D_PI = 3.141592653589793238;
 
@@ -146,6 +145,7 @@ namespace E3D::Solver
 		double SoundSpd_ref = 0.0;
 		int _totalElemCount = 0;
 		int _interiorElemCount = 0;
+		int _TotalDomainElems = 0;
 
 
 		void Initialize(const int, const int);

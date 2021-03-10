@@ -77,7 +77,7 @@ CFL= 0.2
 MIN_RESIDUAL= 1e-10
 
 # Number of maximum iterations to stop solver
-MAX_ITER= 15
+MAX_ITER= 99999
 
 # Path to log file for solver
 SOLVER_LOG= solverlog.txt

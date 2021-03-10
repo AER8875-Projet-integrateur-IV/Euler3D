@@ -74,6 +74,7 @@ namespace E3D::Solver {
 
         void resetResiduals();
 
+
         std::vector<E3D::Vector3<double>> _forces;
 		std::vector<E3D::Solver::ResidualVar> _residuals;
 		std::vector<double> _deltaT;
@@ -101,7 +102,7 @@ namespace E3D::Solver {
 
 
 		int _nbInteration=0;
-        double _maximumDomainRms =10;
+		double _rms=10;
 
 		double _CL=0;
 		double _CD=0;

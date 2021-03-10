@@ -29,8 +29,9 @@ E3D::Metrics::Metrics(const Mesh<Parser::MeshPartition> &localMesh, const Parall
 
 	computeFaceMetrics();
 	computeCellMetrics();
+	reorientFaceVectors();
 
-    //reorientFaceVectors();
+	//reorientFaceVectors();
 	double endMetricsTimer = MPI_Wtime();
 
 
@@ -122,8 +123,8 @@ void Metrics::computeFaceMetrics() {
 		}
 		_faceSurfaces.push_back(temp_area);
 		_faceCenters.push_back(temp_centroid);
-		_faceNormals.push_back(temp_Normal*-1);
-		_faceUnitNormals.push_back(temp_unitVector*-1);
+		_faceNormals.push_back(temp_Normal);
+		_faceUnitNormals.push_back(temp_unitVector);
 	}
 }
 
@@ -165,7 +166,7 @@ void Metrics::computeCellMetrics() {
 
 		Vector3<double> cellCenter = std::accumulate(temp_LocalNodesCoords.begin(),
 		                                             temp_LocalNodesCoords.end(),
-		                                             Vector3<double>(0, 0, 0)) /
+		                                             Vector3<double>(0.0, 0.0, 0.0)) /
 		                             temp_LocalNodesCoords.size();
 
 
@@ -195,40 +196,69 @@ void Metrics::computeCellMetrics() {
 
 			//TODO volume is double the correct value for tets
 			temp_volume += Vector3<double>::dot(faceCenter, faceNormalVector) * 0.33333333;
+			if (temp_localNodes.size() == 4) {
+				temp_volume /= 2;
+			} else if (temp_localNodes.size() == 8) {
+				Vector3<double> AB = temp_LocalNodesCoords[1] - temp_LocalNodesCoords[0];
+				Vector3<double> AC = temp_LocalNodesCoords[2] - temp_LocalNodesCoords[0];
+				Vector3<double> AD = temp_LocalNodesCoords[3] - temp_LocalNodesCoords[0];
+
+				double temp_area = computeTriangleArea(AB, AC) + computeTriangleArea(AC, AD);
+				double distanceBetweenFaces = (temp_LocalNodesCoords[0] - temp_LocalNodesCoords[4]).length();
+				temp_volume = temp_area * distanceBetweenFaces;
+				Vector3<double> sumCoordinates{0.0, 0.0, 0.0};
+				for (int i = 0; i < 8; i++) {
+					sumCoordinates += temp_LocalNodesCoords[i];
+				}
+				temp_centroid = temp_centroid / 8;
+			}
 		}
 
 		temp_centroid = centroid_numerator / centroid_denominator;
 
 		_cellCentroids.push_back(temp_centroid);
-		if(temp_localNodes.size() == 4){
-            _cellVolumes.push_back(temp_volume/2);
-        }
-		else{
-            _cellVolumes.push_back(temp_volume);
-		}
+
+		_cellVolumes.push_back(temp_volume);
 	}
 }
 
-void Metrics::reorientFaceVectors(){
+void Metrics::reorientFaceVectors() {
 
-    const int nFaces = _localMesh.GetnFace();
+	const int nFaces = _localMesh.GetnFace();
 
-    for (int iface = 0; iface < nFaces; iface++){
+	for (int iface = 0; iface < nFaces; iface++) {
 
-		    int* ptr = _localMesh.GetFace2ElementID(iface);
+		int *ptr = _localMesh.GetFace2ElementID(iface);
 
-		    int elem0 = ptr[0];
-		    int elem1 = ptr[1];
 
-		    E3D::Vector3<double> Coord0 = _cellCentroids[elem0];
-            E3D::Vector3<double> Coord1 = _cellCentroids[elem1];
+		int elem0 = ptr[0];
+		int elem1 = ptr[1];
+		E3D::Vector3<double> Coord0 = _faceCenters[iface];
+		E3D::Vector3<double> Coord1 = _cellCentroids[elem0];
 
-		    E3D::Vector3<double> From0to1 = Coord1 - Coord0;
-            double CosthetaCellCenterFace = Vector3<double>::dot(From0to1, _faceNormals[iface]) / (From0to1.length() * _faceNormals[iface].length());
 
-		    if (CosthetaCellCenterFace > 0) {
+		E3D::Vector3<double> From0to1 = Coord1 - Coord0;
+
+		double CosthetaCellCenterFace = Vector3<double>::dot(From0to1, _faceNormals[iface]) / (From0to1.length() * _faceNormals[iface].length());
+		// IF connected to interior cell
+		if (elem1 < _localMesh.GetMeshInteriorElemCount()) {
+
+			E3D::Vector3<double> Coord2 = _cellCentroids[elem1];
+            E3D::Vector3<double> From0to2 = Coord2 - Coord0;
+            double CosthetaCellCenterFace2 = Vector3<double>::dot(From0to2, _faceNormals[iface]) / (From0to2.length() * _faceNormals[iface].length());
+			if (CosthetaCellCenterFace > 0 && CosthetaCellCenterFace2 < 0) {
+				_faceNormals[iface] *= -1;
+				_faceUnitNormals[iface] *= -1;
+			}
+		}
+		// If connected to ghost cell
+		else{
+            if (CosthetaCellCenterFace > 0) {
                 _faceNormals[iface] *= -1;
                 _faceUnitNormals[iface] *= -1;
             }
-	    }
+		}
+
+
+	}
 }
