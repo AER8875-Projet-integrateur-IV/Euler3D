@@ -82,12 +82,12 @@ void Solver::EulerSolver::Run() {
 		_nbInteration += 1;
 
 		if (_e3d_mpi.getRankID() == 0) {
+            residualFile << _maximumDomainRms << "\n";
 			if (_nbInteration % 20 == 0) {
 				double _maximumDomainRms = std::sqrt(_sumerrors / _localFlowField.getTotalDomainCounts());
 				double iterationEndTimer = MPI_Wtime();
 				double iterationwallTime = iterationEndTimer - iterationBeginTimer;
 				E3D::Solver::PrintSolverIteration(_CL, _CD, _maximumDomainRms, iterationwallTime, _nbInteration);
-				residualFile << _maximumDomainRms << "\n";
 			}
 		}
 
@@ -186,9 +186,7 @@ void Solver::EulerSolver::computeResidual() {
 		int element1 = ptr[0];
 		int element2 = ptr[1];
 		double surfaceArea = _localMetrics.getFaceSurfaces()[EfaceID];
-		double V = _localFlowField.GetU_Velocity()[element2] * _localMetrics.getFaceNormalsUnit()[EfaceID].x +
-		           _localFlowField.GetV_Velocity()[element2] * _localMetrics.getFaceNormalsUnit()[EfaceID].y +
-		           _localFlowField.GetW_Velocity()[element2] * _localMetrics.getFaceNormalsUnit()[EfaceID].z;
+
 
 		//If Wall
 		if (std::binary_search(_sortedWallGhostCellIDs.begin(), _sortedWallGhostCellIDs.end(), element2)) {
@@ -210,7 +208,7 @@ void Solver::EulerSolver::computeResidual() {
 
 		// if farfield
 		else {
-			ResidualVar residu = Solver::Fc(_localFlowField, _localMetrics, element2, EfaceID, V);
+			ResidualVar residu = Solver::Roe(_localFlowField, _localMesh, _localMetrics, EfaceID, false);
 			_residuals[element1] += residu * surfaceArea;
 		}
 	}
