@@ -210,11 +210,7 @@ void Metrics::computeCellMetrics() {
             double temp_area = computeTriangleArea(AB, AC) + computeTriangleArea(AC, AD);
             double distanceBetweenFaces = (temp_LocalNodesCoords[0] - temp_LocalNodesCoords[4]).length();
             temp_volume = temp_area * distanceBetweenFaces;
-            Vector3<double> sumCoordinates{0.0, 0.0, 0.0};
-            for (int i = 0; i < 8; i++) {
-                sumCoordinates += temp_LocalNodesCoords[i];
-            }
-            temp_centroid = temp_centroid / 8;
+
         }
 
 		_cellCentroids.push_back(temp_centroid);

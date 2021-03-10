@@ -26,10 +26,10 @@ PRE_LOG= prelog.txt
 # Options : MACH -> 0
 #           Velocity -> 1
 
-SPEED_OPTION= 0
+SPEED_OPTION= 1
 
 # Velocity in m/s or Mach
-SPEED_VALUE= 1.5
+SPEED_VALUE= 250
 
 angle of attack in degrees
 AOA= 1
@@ -71,7 +71,7 @@ SCHEME= 1
 TIME_INTEGRATION= 2
 
 # Courant_Friedrichs-Lewy Number (CFL)
-CFL= 0.2
+CFL= 3
 
 # Minimum residual to stop solver (RMS of density)
 MIN_RESIDUAL= 1e-10
