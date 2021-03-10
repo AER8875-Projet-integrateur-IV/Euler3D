@@ -196,12 +196,12 @@ void Metrics::computeCellMetrics() {
 
 			// Compute Cell Volume
 
-			//TODO volume is double the correct value for tets
-			temp_volume += Vector3<double>::dot(faceCenter, faceNormalVector) * 0.33333333;
-
 		}
 		temp_centroid = centroid_numerator / centroid_denominator;
 
+		// Compute volumes
+
+		// For Hexahedron
         if (temp_localNodes.size() == 8) {
             Vector3<double> AB = temp_LocalNodesCoords[1] - temp_LocalNodesCoords[0];
             Vector3<double> AC = temp_LocalNodesCoords[2] - temp_LocalNodesCoords[0];
@@ -211,6 +211,49 @@ void Metrics::computeCellMetrics() {
             double distanceBetweenFaces = (temp_LocalNodesCoords[0] - temp_LocalNodesCoords[4]).length();
             temp_volume = temp_area * distanceBetweenFaces;
 
+        }
+
+		else if (temp_localNodes.size() == 6){
+            Vector3<double> AB = temp_LocalNodesCoords[1] - temp_LocalNodesCoords[0];
+            Vector3<double> AC = temp_LocalNodesCoords[2] - temp_LocalNodesCoords[0];
+
+            double temp_area = computeTriangleArea(AB, AC);
+            double distanceBetweenFaces = (temp_LocalNodesCoords[0] - temp_LocalNodesCoords[3]).length();
+            temp_volume = temp_area * distanceBetweenFaces;
+		}
+
+
+        else if (temp_LocalNodesCoords.size() == 4){
+
+			Vector3<double> sumNodes= {0.0,0.0,0.0};
+			for(int i=0; i < 4 ;i++){
+				sumNodes += temp_LocalNodesCoords[i];
+			}
+			temp_centroid = sumNodes/4.0;
+
+            double U = (temp_LocalNodesCoords[0] - temp_LocalNodesCoords[1]).length();
+            double V = (temp_LocalNodesCoords[1] - temp_LocalNodesCoords[2]).length();
+            double W = (temp_LocalNodesCoords[2] - temp_LocalNodesCoords[0]).length();
+            double u = (temp_LocalNodesCoords[2] - temp_LocalNodesCoords[3]).length();
+            double v = (temp_LocalNodesCoords[0] - temp_LocalNodesCoords[3]).length();
+            double w = (temp_LocalNodesCoords[1] - temp_LocalNodesCoords[3]).length();
+
+           double uPow = std::pow(u, 2);
+           double vPow = std::pow(v, 2);
+           double wPow = std::pow(w, 2);
+           double UPow = std::pow(U, 2);
+           double VPow = std::pow(V, 2);
+           double WPow = std::pow(W, 2);
+
+            double a = 4 * (uPow * vPow * wPow)
+                   - uPow * std::pow((vPow + wPow - UPow), 2)
+                   - vPow * std::pow((wPow + uPow - VPow), 2)
+                   - wPow * std::pow((uPow + vPow - WPow), 2)
+                   + (vPow + wPow - UPow) * (wPow + uPow - VPow)
+                     * (uPow + vPow - WPow);
+            double vol = std::sqrt(a);
+            vol /= 12;
+			temp_volume = vol;
         }
 
 		_cellCentroids.push_back(temp_centroid);
