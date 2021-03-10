@@ -82,7 +82,7 @@ void Solver::EulerSolver::Run() {
 		_nbInteration += 1;
 
 		if (_e3d_mpi.getRankID() == 0) {
-            residualFile << _maximumDomainRms << "\n";
+			residualFile << _maximumDomainRms << "\n";
 			if (_nbInteration % 20 == 0) {
 				double _maximumDomainRms = std::sqrt(_sumerrors / _localFlowField.getTotalDomainCounts());
 				double iterationEndTimer = MPI_Wtime();
@@ -175,7 +175,6 @@ void Solver::EulerSolver::computeResidual() {
 		double surfaceArea = _localMetrics.getFaceSurfaces()[IfaceID];
 		_residuals[element1] += residu * surfaceArea;
 		_residuals[element2] -= residu * surfaceArea;
-
 	}
 
 

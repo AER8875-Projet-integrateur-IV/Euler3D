@@ -51,11 +51,11 @@ namespace E3D {
 			this->z += v.z;
 		}
 
-        void operator+=(Vector3 &v) {
-            this->x += v.x;
-            this->y += v.y;
-            this->z += v.z;
-        }
+		void operator+=(Vector3 &v) {
+			this->x += v.x;
+			this->y += v.y;
+			this->z += v.z;
+		}
 
 		void operator*=(int &&v) {
 			this->x *= v;
