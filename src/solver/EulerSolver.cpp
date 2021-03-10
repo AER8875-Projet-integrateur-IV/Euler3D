@@ -212,6 +212,7 @@ void Solver::EulerSolver::computeResidual() {
                        _localFlowField.GetW_Velocity()[element2] * _localMetrics.getFaceNormalsUnit()[EfaceID].z;
 
 			ResidualVar residu = Solver::Fc(_localFlowField, _localMetrics, element2, EfaceID, V);
+
 			_residuals[element1] += residu * surfaceArea;
 		}
 	}
