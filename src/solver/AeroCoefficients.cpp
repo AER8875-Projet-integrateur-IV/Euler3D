@@ -23,21 +23,25 @@ AeroCoefficients::AeroCoefficients(double pInf,
                                    const E3D::Metrics &metrics) {
 
 	// Make sure all faceVectors are facing towards the outside of the domain
-	const std::vector<int> &GhostCells = mesh.GetWallAdjacentGhostCellIDs();
-	const std::vector<int> &BorderCells = mesh.GetWallGhostCellsIDs();
+	// const std::vector<int> &GhostCells = mesh.GetWallGhostCellsIDs();
+	_BorderCells = mesh.GetWallAdjacentGhostCellIDs();
 	const std::vector<int> &BorderFaces = mesh.GetWallAdjacentFaceIDs();
-	const std::vector<E3D::Vector3<double>> &centroids = metrics.getCellCentroids();
+	// const std::vector<E3D::Vector3<double>> &centroids = metrics.getCellCentroids();
 	const std::vector<E3D::Vector3<double>> &normals = metrics.getFaceNormals();
 
-	_nElem = GhostCells.size();
+	std::cout << uInf.x << " | " << uInf.y << " | " << uInf.z << std::endl;
+
+	_nElem = _BorderCells.size();
 	_FaceVectors.reserve(_nElem);
 	double uInfSquared = E3D::Vector3<double>::dot(uInf, uInf);
 	_pInf = pInf;
 	_cpFactor = 1 / (0.5 * rhoInf * uInfSquared);
 	_ForceCoeff = E3D::Vector3<double>(0., 0., 0.);
 	_cp.resize(_nElem);
-
-	// E3D::Vector3<double> TEST(0, 0, 0);
+	std::cout << "_pInf: " << _pInf << "\n";
+	std::cout << "_cpfactor: " << _cpFactor << "\n";
+	std::cout << "number of wall elements: " << _nElem << "\n";
+	E3D::Vector3<double> TEST(0, 0, 0);
 
 	for (int iElem = 0; iElem < _nElem; iElem++) {
 		// E3D::Vector3<double> outerFacingVector;
@@ -45,18 +49,18 @@ AeroCoefficients::AeroCoefficients(double pInf,
 
 		faceVector = normals[BorderFaces[iElem]];
 
-		const E3D::Vector3<double> outerFacingVector = centroids[GhostCells[iElem]] - centroids[BorderCells[iElem]];
+		// const E3D::Vector3<double> outerFacingVector = centroids[GhostCells[iElem]] - centroids[BorderCells[iElem]];
 
-		if (E3D::Vector3<double>::dot(outerFacingVector, faceVector) > 0) {
-			// facing out of the domain
-			_FaceVectors.push_back(faceVector);
-		} else {
-			//facing in the domain
-			_FaceVectors.push_back(faceVector * -1);
-		}
-		// TEST += _FaceVectors[iElem];
+		// if (E3D::Vector3<double>::dot(outerFacingVector, faceVector) > 0) {
+		// 	// facing out of the domain
+		_FaceVectors.push_back(faceVector);
+		// } else {
+		// 	//facing in the domain
+		// 	_FaceVectors.push_back(faceVector * -1);
+		// }
+		TEST += _FaceVectors[iElem];
 	}
-	// std::cout << TEST.x << " | " << TEST.y << " | " << TEST.z << std::endl;
+	std::cout << TEST.x << " | " << TEST.y << " | " << TEST.z << std::endl;
 }
 
 void AeroCoefficientspreProcessing(double pInf,
@@ -65,10 +69,10 @@ void AeroCoefficientspreProcessing(double pInf,
 }
 
 E3D::Vector3<double> &AeroCoefficients::SolveCoefficients(const std::vector<double> &pressure) {
-
 	_ForceCoeff *= 0;
 	for (int i = 0; i < _nElem; i++) {
-		_cp[i] = _cpFactor * (pressure[i] - _pInf);
+		int cellID = _BorderCells[i];
+		_cp[i] = _cpFactor * (pressure[cellID] - _pInf);
 		_ForceCoeff += _FaceVectors[i] * _cp[i];
 	}
 

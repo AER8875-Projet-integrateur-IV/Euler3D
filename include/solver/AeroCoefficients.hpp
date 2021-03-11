@@ -22,6 +22,7 @@ namespace E3D::Solver {
 		E3D::Vector3<double> _MomentCoeff;
 		E3D::Vector3<double> _force();
 		std::vector<E3D::Vector3<double>> _FaceVectors;
+		std::vector<int> _BorderCells;
 		int _nElem;
 
 		// Factor in the cp equation = 1/(0.5*rho_inf*square(v_inf))
