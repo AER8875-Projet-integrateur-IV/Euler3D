@@ -356,7 +356,7 @@ void Partition::PhysicalPartitionSolve() {
 
 std::vector<E3D::Partition::SU2Mesh> &Partition::Write(
         const std::vector<std::string> &SU2OuputPath,
-        const std::vector<int> &elem2Part) {
+        std::vector<int> elem2Part) {
 	auto logger = E3D::Logger::Getspdlog();
 	std::cout << std::string(24, '#') << "  Partitionning  " << std::string(24, '#') << "\n"
 	          << std::endl;
@@ -368,6 +368,11 @@ std::vector<E3D::Partition::SU2Mesh> &Partition::Write(
 	          << "\n";
 
 	solveElem2Node();
+	// skip METIS if using only one partition
+	if (_m_nPart == 1) {
+		elem2Part = std::vector<int>(_m_meshGlobal->GetInteriorElementVector().size(), 0);
+	}
+
 	if (elem2Part.empty()) {
 		spdlog::stopwatch METISsw;
 		RunMetis();
