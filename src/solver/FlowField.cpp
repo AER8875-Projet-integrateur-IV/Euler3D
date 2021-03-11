@@ -124,5 +124,4 @@ void FlowField::Update(const std::vector<E3D::Solver::ConservativeVar> &delW_vec
 
 		_M[ielem] = sqrt(gamma_ref * (_p[ielem] / _rho[ielem])) / sqrt((std::pow(_u[ielem], 2) + std::pow(_v[ielem], 2) + std::pow(_w[ielem], 2)));
 	}
-
 }
