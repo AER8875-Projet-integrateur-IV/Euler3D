@@ -85,7 +85,6 @@ void Solver::EulerSolver::Run() {
 		TimeIntegration();
 		updateW();
 
-
 		_nbInteration += 1;
 
 		updateAerodynamicCoefficients();

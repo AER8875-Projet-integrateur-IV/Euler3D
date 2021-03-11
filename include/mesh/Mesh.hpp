@@ -539,6 +539,7 @@ namespace E3D {
 								int SurrNodeCount = 0;
 								int *p_connectedNodes = GetFace2NodeID(FaceID, SurrNodeCount);
 								std::vector<int> SurrNodes;
+                                SurrNodes.reserve(SurrNodeCount);
 
 								for (int j = 0; j < SurrNodeCount; j++) {
 									SurrNodes.push_back(p_connectedNodes[j]);
@@ -549,8 +550,10 @@ namespace E3D {
 									MPIGhostCellIDs.push_back(potentialGhostCellID);
 									ghostElemsOfAPartition.push_back(potentialGhostCellID);
 									MPIadjacentToGhostCellIDs.push_back(localElemID);
+                                    foundElem = true;
+
 									break;
-									foundElem = true;
+
 								}
 							}
 						}
