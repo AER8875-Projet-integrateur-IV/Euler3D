@@ -205,16 +205,16 @@ void Metrics::computeCellMetrics() {
 			double distanceBetweenFaces = (temp_LocalNodesCoords[0] - temp_LocalNodesCoords[4]).length();
 			temp_volume = temp_area * distanceBetweenFaces;
 
-			double sumx=0.0;
-            double sumy=0.0;
-            double sumz=0.0;
-            for (int i = 0; i < 8; i++) {
-                sumx += temp_LocalNodesCoords[i].x;
+			double sumx = 0.0;
+			double sumy = 0.0;
+			double sumz = 0.0;
+			for (int i = 0; i < 8; i++) {
+				sumx += temp_LocalNodesCoords[i].x;
 				sumy += temp_LocalNodesCoords[i].y;
 				sumz += temp_LocalNodesCoords[i].z;
-            }
+			}
 
-            temp_centroid.x = sumx / 8.0;
+			temp_centroid.x = sumx / 8.0;
 			temp_centroid.y = sumy / 8.0;
 			temp_centroid.z = sumz / 8.0;
 		}
