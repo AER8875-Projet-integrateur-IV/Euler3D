@@ -78,7 +78,6 @@ void Solver::EulerSolver::Run() {
 		TimeIntegration();
 		updateW();
 
-
 		_nbInteration += 1;
 
 		if (_e3d_mpi.getRankID() == 0) {
@@ -207,9 +206,9 @@ void Solver::EulerSolver::computeResidual() {
 
 		// if farfield
 		else {
-            double V = _localFlowField.GetU_Velocity()[element2] * _localMetrics.getFaceNormalsUnit()[EfaceID].x +
-                       _localFlowField.GetV_Velocity()[element2] * _localMetrics.getFaceNormalsUnit()[EfaceID].y +
-                       _localFlowField.GetW_Velocity()[element2] * _localMetrics.getFaceNormalsUnit()[EfaceID].z;
+			double V = _localFlowField.GetU_Velocity()[element2] * _localMetrics.getFaceNormalsUnit()[EfaceID].x +
+			           _localFlowField.GetV_Velocity()[element2] * _localMetrics.getFaceNormalsUnit()[EfaceID].y +
+			           _localFlowField.GetW_Velocity()[element2] * _localMetrics.getFaceNormalsUnit()[EfaceID].z;
 
 			ResidualVar residu = Solver::Fc(_localFlowField, _localMetrics, element2, EfaceID, V);
 
