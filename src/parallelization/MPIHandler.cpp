@@ -260,3 +260,50 @@ void MPIHandler::updateFlowField(E3D::Solver::FlowField &localFlowField) const {
 		MPI_Barrier(MPI_COMM_WORLD);
 	}
 }
+
+E3D::Vector3<double> MPIHandler::UpdateAerodynamicCoefficients(const E3D::Vector3<double> &aerodynamicCoeff) const {
+	std::array<double, 3> coeffsSender = {aerodynamicCoeff.x,
+	                                      aerodynamicCoeff.y,
+	                                      aerodynamicCoeff.z};
+	// std::array<double, 3> coeffsSender = {_rankID,
+	//                                       _rankID,
+	//                                       _rankID};
+	int nCoeff = 3;
+	int nTotalCoeff = _poolSize * nCoeff;
+	std::vector<double> coeffsRecv(nTotalCoeff);// Could be modified to only create
+	                                            // a buffer for rank 0
+	// std::cout << "sent from part " << _rankID << std::endl;
+
+	// for (int i = 0; i < coeffsSender.size(); i++)
+	// 	std::cout << coeffsSender.at(i) << ' ';
+
+	// std::cout << std::endl;
+	MPI_Gather(&coeffsSender[0], nCoeff, MPI_DOUBLE,
+	           &coeffsRecv[0], nCoeff, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+
+	// Ranks other than 0 do not have to update their coefficients
+	if (_rankID == 0) {
+		// std::cout << "coeffsRecv:" << std::endl;
+		// for (int i = 0; i < coeffsRecv.size(); i++)
+		// 	std::cout << coeffsRecv.at(i) << ' ';
+		// std::cout << std::endl;
+		int bufferIndex = 3;
+		// std::cout << _poolSize << std::endl;
+		for (int i = 1; i < _poolSize; i++) {
+			// CL
+			coeffsSender[0] += coeffsRecv[bufferIndex];
+			bufferIndex++;
+			// CD
+			coeffsSender[1] += coeffsRecv[bufferIndex];
+			bufferIndex++;
+			//
+			coeffsSender[2] += coeffsRecv[bufferIndex];
+			bufferIndex++;
+		}
+		// std::cout << "coeff:" << std::endl;
+		// for (int i = 0; i < 3; i++)
+		// 	std::cout << coeffsSender.at(i) << ' ';
+		// std::cout << std::endl;
+	}
+	return E3D::Vector3<double>(coeffsSender[0], coeffsSender[1], coeffsSender[2]);
+}
