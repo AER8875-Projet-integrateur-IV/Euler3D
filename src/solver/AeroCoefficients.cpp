@@ -29,7 +29,7 @@ AeroCoefficients::AeroCoefficients(double pInf,
 	// const std::vector<E3D::Vector3<double>> &centroids = metrics.getCellCentroids();
 	const std::vector<E3D::Vector3<double>> &normals = metrics.getFaceNormals();
 
-	std::cout << uInf.x << " | " << uInf.y << " | " << uInf.z << std::endl;
+	// std::cout << uInf.x << " | " << uInf.y << " | " << uInf.z << std::endl;
 
 	_nElem = _BorderCells.size();
 	_FaceVectors.reserve(_nElem);
@@ -38,10 +38,10 @@ AeroCoefficients::AeroCoefficients(double pInf,
 	_cpFactor = 1 / (0.5 * rhoInf * uInfSquared);
 	_ForceCoeff = E3D::Vector3<double>(0., 0., 0.);
 	_cp.resize(_nElem);
-	std::cout << "_pInf: " << _pInf << "\n";
-	std::cout << "_cpfactor: " << _cpFactor << "\n";
-	std::cout << "number of wall elements: " << _nElem << "\n";
-	E3D::Vector3<double> TEST(0, 0, 0);
+	// std::cout << "_pInf: " << _pInf << "\n";
+	// std::cout << "_cpfactor: " << _cpFactor << "\n";
+	// std::cout << "number of wall elements: " << _nElem << "\n";
+	// E3D::Vector3<double> TEST(0, 0, 0);
 
 	for (int iElem = 0; iElem < _nElem; iElem++) {
 		// E3D::Vector3<double> outerFacingVector;
@@ -58,9 +58,9 @@ AeroCoefficients::AeroCoefficients(double pInf,
 		// 	//facing in the domain
 		// 	_FaceVectors.push_back(faceVector * -1);
 		// }
-		TEST += _FaceVectors[iElem];
+		// TEST += _FaceVectors[iElem];
 	}
-	std::cout << TEST.x << " | " << TEST.y << " | " << TEST.z << std::endl;
+	// std::cout << TEST.x << " | " << TEST.y << " | " << TEST.z << std::endl;
 }
 
 void AeroCoefficientspreProcessing(double pInf,
