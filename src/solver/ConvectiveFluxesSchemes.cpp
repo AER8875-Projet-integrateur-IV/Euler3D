@@ -17,6 +17,7 @@ E3D::Solver::ResidualVar E3D::Solver::Roe(E3D::Solver::FlowField &_localFlowFiel
 	int leftElementId = ptr[0];
 	int rightElementId = ptr[1];
 
+
 	//get variables from FlowField
 	double gamma = _localFlowField.getgamma_ref();
 
@@ -67,40 +68,39 @@ E3D::Solver::ResidualVar E3D::Solver::Roe(E3D::Solver::FlowField &_localFlowFiel
 	double deltaP = rightP - leftP;
 	double deltaVContravariant = rightVContravariant - leftVContravariant;
 
-	//calculate average variables
-	double rhoAvg = 0.5 * (rightRho + leftRho);
-	double uAvg = 0.5 * (rightU + leftU);
-	double vAvg = 0.5 * (rightV + leftV);
-	double wAvg = 0.5 * (rightW + leftW);
-	double pAvg = 0.5 * (rightP + leftP);
-	double hAvg = 0.5 * (rightH + leftH);
-	double VContravariantAvg = uAvg * faceNormals.x + vAvg * faceNormals.y + wAvg * faceNormals.z;
-	std::vector<double> fluxAvg = {rhoAvg * VContravariantAvg,
-	                               rhoAvg * VContravariantAvg * uAvg + pAvg * faceNormals.x,
-	                               rhoAvg * VContravariantAvg * vAvg + pAvg * faceNormals.y,
-	                               rhoAvg * VContravariantAvg * wAvg + pAvg * faceNormals.z,
-	                               rhoAvg * VContravariantAvg * hAvg};
+//	//calculate average variables
+//	double rhoAvg = 0.5 * (rightRho + leftRho);
+//	double uAvg = 0.5 * (rightU + leftU);
+//	double vAvg = 0.5 * (rightV + leftV);
+//	double wAvg = 0.5 * (rightW + leftW);
+//	double pAvg = 0.5 * (rightP + leftP);
+//	double hAvg = 0.5 * (rightH + leftH);
+//	double VContravariantAvg = uAvg * faceNormals.x + vAvg * faceNormals.y + wAvg * faceNormals.z;
+//	std::vector<double> fluxAvg = {rhoAvg * VContravariantAvg,
+//	                               rhoAvg * VContravariantAvg * uAvg + pAvg * faceNormals.x,
+//	                               rhoAvg * VContravariantAvg * vAvg + pAvg * faceNormals.y,
+//	                               rhoAvg * VContravariantAvg * wAvg + pAvg * faceNormals.z,
+//	                               rhoAvg * VContravariantAvg * hAvg};
 
 	//calculate Flux
 	std::vector<double> flux = {0, 0, 0, 0, 0};
 
-
 	////	//Par Amin
-	//    std::vector<double> fluxAvg {0.0,0.0,0.0,0.0,0.0};
-	//
-	//	std::vector<double> Fcr = {rightRho * rightVContravariant,
-	//	                           rightRho * rightVContravariant * rightU + rightP * faceNormals.x,
-	//	                           rightRho * rightVContravariant * rightV + rightP * faceNormals.y,
-	//                               rightRho * rightVContravariant * rightW + rightP * faceNormals.z,
-	//                               rightRho * rightVContravariant * rightH};
-	//    std::vector<double> Fcl = {leftRho * leftVContravariant,
-	//                               leftRho * leftVContravariant * leftU + leftP * faceNormals.x,
-	//                               leftRho * leftVContravariant * leftV + leftP * faceNormals.y,
-	//                               leftRho * leftVContravariant * leftW + leftP * faceNormals.z,
-	//                               leftRho * leftVContravariant * leftH};
-	//    for (size_t i = 0; i < 5; i++) {
-	//		fluxAvg[i] = (Fcr[i] + Fcl[i]) /2;
-	//	}
+	    std::vector<double> fluxAvg {0.0,0.0,0.0,0.0,0.0};
+
+		std::vector<double> Fcr = {rightRho * rightVContravariant,
+		                           rightRho * rightVContravariant * rightU + rightP * faceNormals.x,
+		                           rightRho * rightVContravariant * rightV + rightP * faceNormals.y,
+	                               rightRho * rightVContravariant * rightW + rightP * faceNormals.z,
+	                               rightRho * rightVContravariant * rightH};
+	    std::vector<double> Fcl = {leftRho * leftVContravariant,
+	                               leftRho * leftVContravariant * leftU + leftP * faceNormals.x,
+	                               leftRho * leftVContravariant * leftV + leftP * faceNormals.y,
+	                               leftRho * leftVContravariant * leftW + leftP * faceNormals.z,
+	                               leftRho * leftVContravariant * leftH};
+	    for (size_t i = 0; i < 5; i++) {
+			fluxAvg[i] = (Fcr[i] + Fcl[i]) /2;
+		}
 
 
 	if (iface >= _localMesh.GetnFaceInt() && !(isMPI)) {
