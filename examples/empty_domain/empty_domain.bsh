@@ -1,0 +1,12 @@
+#! /bin/bash 
+
+printf "Empty Domain example"
+mkdir output
+
+../E3D_PRE empty_domain.e3d
+
+mpiexec -np 2 ../E3D_Solver empty_domain.e3d
+
+../E3D_POST empty_domain.e3d
+
+

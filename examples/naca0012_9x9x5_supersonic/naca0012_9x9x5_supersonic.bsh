@@ -1,0 +1,12 @@
+#! /bin/bash 
+
+printf "naca0012_9x9x5_supersonic example"
+mkdir output
+
+../E3D_PRE naca0012_9x9x5_supersonic.e3d
+
+mpiexec -np 4 ../E3D_Solver naca0012_9x9x5_supersonic.e3d
+
+../E3D_POST naca0012_9x9x5_supersonic.e3d
+
+
