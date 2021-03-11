@@ -16,22 +16,21 @@ set(release_flags -W -Wall -pedantic -O3 )
 
 ADD_EXECUTABLE(E3D_PRE preprocessor.cpp )
 target_include_directories(E3D_PRE PUBLIC ../include ../extern)
-
 target_link_libraries(E3D_PRE PUBLIC Parser Mesh Utils Connectivity Partition)
+target_compile_features(E3D_PRE PRIVATE cxx_std_17)
 
 
 ADD_EXECUTABLE(E3D_Solver Solver.cpp)
 target_include_directories(E3D_Solver PUBLIC ../include)
-
 target_link_libraries(E3D_Solver PUBLIC Parser Mesh Parallel_tools Utils Connectivity Solver)
-
-
 target_link_libraries(E3D_Solver PUBLIC MPI::MPI_CXX)
+target_compile_features(E3D_Solver PRIVATE cxx_std_17)
 
 # Post-traitement
 ADD_EXECUTABLE(E3D_POST postprocessor.cpp)
 target_include_directories(E3D_POST PUBLIC ../include ../extern)
 target_link_libraries(E3D_POST PUBLIC Parser Mesh Utils Post Solver)
+target_compile_features(E3D_POST PRIVATE cxx_std_17)
 
 
 
