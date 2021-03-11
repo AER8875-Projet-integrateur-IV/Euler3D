@@ -3,6 +3,7 @@
 //
 #pragma once
 #include "mesh/Metrics.hpp"
+#include "solver/AeroCoefficients.hpp"
 #include "solver/ConvectiveFluxesSchemes.h"
 #include "solver/FlowField.hpp"
 #include "solver/PhysicalBC.h"
@@ -75,12 +76,13 @@ namespace E3D::Solver {
 		void resetResiduals();
 
 
-		std::vector<E3D::Vector3<double>> _forces;
 		std::vector<E3D::Solver::ResidualVar> _residuals;
+		E3D::Vector3<double> _forces;
+
 		std::vector<double> _deltaT;
 		std::vector<ConservativeVar> _deltaW;
-		std::vector<double> _cp;
-
+		// std::vector<double> _cp;
+		E3D::Solver::AeroCoefficients _coeff;
 
 		FlowField &_localFlowField;
 		const E3D::Parallel::MPIHandler &_e3d_mpi;

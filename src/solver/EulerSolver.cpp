@@ -5,6 +5,7 @@
 #include "solver/EulerSolver.hpp"
 #include "utils/SolverPrint.hpp"
 #include "utils/Vector3.h"
+#include <iomanip>
 #include <math.h>
 
 using namespace E3D;
@@ -24,6 +25,12 @@ Solver::EulerSolver::EulerSolver(FlowField &localFlowField,
 		residualFile.open("resdiual_" + _config.getTecplotFile());
 		residualFile << "Rho residual \n";
 	}
+	E3D::Vector3<double> uInf(localFlowField.getu_inf(), localFlowField.getv_inf(), localFlowField.getw_inf());
+	_coeff = E3D::Solver::AeroCoefficients(localFlowField.getp_inf(),
+	                                       localFlowField.getrho_inf(),
+	                                       uInf,
+	                                       localMesh,
+	                                       localMetrics);
 }
 
 void Solver::EulerSolver::Run() {
@@ -78,9 +85,9 @@ void Solver::EulerSolver::Run() {
 		TimeIntegration();
 		updateW();
 
-
 		_nbInteration += 1;
 
+		updateAerodynamicCoefficients();
 		if (_e3d_mpi.getRankID() == 0) {
 			residualFile << _maximumDomainRms << "\n";
 			if (_nbInteration % 20 == 0) {
@@ -263,4 +270,10 @@ void Solver::EulerSolver::sortGhostCells() {
 	std::sort(_sortedMPIGhostCellIDs.begin(), _sortedMPIGhostCellIDs.end());
 	std::sort(_sortedFarfieldGhostCellIDs.begin(), _sortedFarfieldGhostCellIDs.end());
 	std::sort(_sortedSymmetryGhostCellIDs.begin(), _sortedSymmetryGhostCellIDs.end());
+}
+void Solver::EulerSolver::updateAerodynamicCoefficients() {
+	_forces = _coeff.SolveCoefficients(_localFlowField.GetP());
+	_forces = _e3d_mpi.UpdateAerodynamicCoefficients(_forces);
+	_CL = _forces.y;
+	_CD = _forces.x;
 }

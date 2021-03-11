@@ -68,15 +68,15 @@ namespace E3D {
 		}
 
 
-		Vector3 operator-(Vector3 &v) {
+		Vector3 const operator-(const Vector3 &v) const {
 			return Vector3(x - v.x, y - v.y, z - v.z);
 		}
 
-		static T dot(Vector3 &v1, Vector3 &v2) {
+		static T dot(const Vector3 &v1, const Vector3 &v2) {
 			return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
 		}
 
-		static Vector3<T> crossProduct(Vector3 &A, Vector3 &B) {
+		static Vector3<T> crossProduct(const Vector3 &A, const Vector3 &B) {
 			return Vector3(A.y * B.z - A.z * B.y,
 			               A.z * B.x - A.x * B.z,
 			               A.x * B.y - A.y * B.x);

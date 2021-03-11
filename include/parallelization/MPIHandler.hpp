@@ -2,6 +2,7 @@
 
 #include "parser/GhostCell.hpp"
 #include "solver/FlowField.hpp"
+#include "utils/Vector3.h"
 #include <mpi.h>
 #include <vector>
 
@@ -56,6 +57,13 @@ namespace E3D::Parallel {
           */
 		void updateRMS();
 
+		/**
+		 * @brief Add all the aerodynamics coefficients from each partition into
+		 * 		rank 0
+		 * 
+		 * @param aerodynamicCoeff 
+		 */
+		E3D::Vector3<double> UpdateAerodynamicCoefficients(const E3D::Vector3<double> &aerodynamicCoeff) const;
 
 		inline int getRankID() const { return _rankID; }
 

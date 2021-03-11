@@ -213,7 +213,7 @@ namespace E3D::Partition {
      *      supplied
      */
 		std::vector<E3D::Partition::SU2Mesh> &Write(const std::vector<std::string> &SU2OuputPath,
-		                                            const std::vector<int> &elem2Part = std::vector<int>());
+		                                            std::vector<int> elem2Part = std::vector<int>());
 
 
 		/**
