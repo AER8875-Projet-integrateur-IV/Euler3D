@@ -1,7 +1,7 @@
 -------------------------------------------------------------------------------
 %%%%%%%%%%%%%%%%     EULER3D Software Input file    %%%%%%%%%%%%%%%%%%%%%
 Author : Abraham Bhérer-Constant
-Simulation Title : naca0012 5x5x9 subsonic
+Simulation Title : naca0012 5x5x9 supersonic
 Date : 10-03-2020
 Comments : -
 -------------------------------------------------------------------------------
@@ -12,7 +12,7 @@ INITIAL_MESH= naca0012_euler_9x9x5_O_1B.su2
 
 # Path to partitioned mesh files (from executable directory)
 # Hashtag character will be replaced with file index, from 0 to Nb of partitions
-PARTITION_FILES= 4
+PARTITION_FILES= 6
 output/part#.par
 
 # Path to log file for pre-processing
@@ -25,10 +25,10 @@ PRE_LOG= output/prelog.txt
 SPEED_OPTION= 0
 
 # Velocity in m/s or Mach
-SPEED_VALUE= 0.8
+SPEED_VALUE= 1.25
 
 angle of attack in degrees
-AOA= 1.25
+AOA= 1
 
 # Airflow pressure in Pa
 AIRFLOW_PRESSURE= 101325
@@ -77,7 +77,7 @@ SOLVER_LOG= output/solverlog.txt
 
 -------------------- POST-PROCESSING CONTROL ----------------
 # Path to file output, from executable directory
-OUTPUT_FILE= output/naca0012_9x9x5_sub.dat
+OUTPUT_FILE= output/naca0012_9x9x5.dat
 
 # Path to log file for post-processor
 POST_LOG= output/postlog.txt

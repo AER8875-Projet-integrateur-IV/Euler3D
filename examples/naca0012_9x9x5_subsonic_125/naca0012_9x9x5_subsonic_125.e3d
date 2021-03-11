@@ -8,7 +8,7 @@ Comments : -
 START
 ------------------- PRE-PROCESSING CONTROL -------------------
 # Path to partitioned mesh files (from executable directory)
-INITIAL_MESH= mesh_ONERAM6_inv_ffd.su2
+INITIAL_MESH= naca0012_euler_9x9x5_O_1B.su2
 
 # Path to partitioned mesh files (from executable directory)
 # Hashtag character will be replaced with file index, from 0 to Nb of partitions
@@ -25,7 +25,7 @@ PRE_LOG= output/prelog.txt
 SPEED_OPTION= 0
 
 # Velocity in m/s or Mach
-SPEED_VALUE= 0.8
+SPEED_VALUE= 0.5
 
 angle of attack in degrees
 AOA= 1.25

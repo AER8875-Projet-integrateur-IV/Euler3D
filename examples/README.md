@@ -19,6 +19,8 @@ compilation
     $   cp ../build/src/E3D_POST E3D_POST
 ```
 
+You can always add the `--plot-residuals` flag to a case.bsh file to automatically plot the residual with python, numpy and matplotlib
+
 # Available examples
 
 ## Empty domain 
@@ -31,7 +33,7 @@ Run instructions:
     $   ./empty_domain.bsh
 ```
 
-## naca0012 9x9x5 subsonic
+## naca0012 9x9x5 subsonic 1.25 deg
 
 Mach = 0.5
 
@@ -39,11 +41,11 @@ AOA= 1.25
 
 Run instructions:
 ```
-    $   cd naca0012_9x9x5_subsonic
-    $   ./naca0012_9x9x5_subsonic.bsh
+    $   cd naca0012_9x9x5_subsonic_125
+    $   ./naca0012_9x9x5_subsonic_125.bsh
 ```
 
-## naca0012 9x9x5 transsonic
+## naca0012 9x9x5 transsonic 1.25 deg
 
 Mach = 0.8
 
@@ -51,11 +53,23 @@ AOA= 1.25
 
 Run instructions:
 ```
-    $   cd naca0012_9x9x5_transsonic
-    $   ./naca0012_9x9x5_transsonic.bsh
+    $   cd naca0012_9x9x5_transsonic_125
+    $   ./naca0012_9x9x5_transsonic_125.bsh
 ```
 
-## naca0012 9x9x5 supersonic
+## naca0012 9x9x5 transsonic 0.00 deg
+
+Mach = 0.8
+
+AOA= 0.00
+
+Run instructions:
+```
+    $   cd naca0012_9x9x5_transsonic_000
+    $   ./naca0012_9x9x5_transsonic_000.bsh
+```
+
+## naca0012 9x9x5 supersonic 1.25
 
 Mach = 1.25
 
@@ -63,11 +77,11 @@ AOA= 1.25
 
 Run instructions:
 ```
-    $   cd naca0012_9x9x5_supersonic
-    $   ./naca0012_9x9x5_supersonic.bsh
+    $   cd naca0012_9x9x5_supersonic_125
+    $   ./naca0012_9x9x5_supersonic_125.bsh
 ```
 
-## ONERA M6 transsonic
+## ONERA M6 transsonic 1.25 deg
 
 Mach = 0.8
 
@@ -75,6 +89,6 @@ AOA= 1.25
 
 Run instructions:
 ```
-    $   cd ONERA_transsonic
-    $   ./ONERA_transsonic.bsh
+    $   cd ONERA_transsonic_125
+    $   ./ONERA_transsonic_125.bsh
 ```
