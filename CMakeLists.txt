@@ -20,6 +20,7 @@ add_link_options(-flto)
 
 add_compile_options_config(RELEASE "-Wall" "-Wextra" "-Ofast" "-pedantic")
 add_compile_options_config(DEBUG "-Wall" "-Wextra" "-g3" "-pedantic")
+add_compile_options_config(RELEASEWITHDEBINFO "-Wall" "-Wextra" "-Ofast" "-pedantic" "-g")
 
 ADD_SUBDIRECTORY(src)
 

@@ -117,6 +117,11 @@ namespace E3D {
 			}
 		};
 
+        inline const std::vector<int> &GetMPIadjacentFaceIds() const {
+            if constexpr (std::is_same_v<T, E3D::Parser::MeshPartition>) {
+                return MPIAdjacentFaceIDs;
+            }
+        };
 
 		/**
          * @return IDs of ghost cells associated with a wall BC
@@ -429,6 +434,7 @@ namespace E3D {
 		std::vector<std::pair<int, std::vector<int>>> MPIGhostCellsIDsPerPartition;
 		std::vector<int> MPIGhostCellIDs;
 		std::vector<int> MPIadjacentToGhostCellIDs;
+		std::vector<int> MPIAdjacentFaceIDs;
 		std::vector<int> WallGhostCellIDs;
 		std::vector<int> WallAdjacentToGhostCellIDs;
 		std::vector<int> WallAdjacentFaceIDs;
@@ -476,6 +482,7 @@ namespace E3D {
 				}
 				MPIGhostCellIDs.reserve(GetMpiElemsCount());
 				MPIadjacentToGhostCellIDs.reserve(GetMpiElemsCount());
+				MPIAdjacentFaceIDs.reserve(GetMpiElemsCount());
 
 				// Get the vector of MPI ghost cells
 
@@ -510,6 +517,14 @@ namespace E3D {
 							MPIelem.setGhostCellID(potentialMPIGhostCell[0]);
 							MPIGhostCellIDs.push_back(potentialMPIGhostCell[0]);
 							MPIadjacentToGhostCellIDs.push_back(localElemID);
+
+							int nface;
+							int* elem2face_ptr = GetElement2FaceID(localElemID,nface);
+							for(int i=0;i<nface;i++){
+								if(GetFace2ElementID(elem2face_ptr[i])[1] > GetMeshInteriorElemCount() ){
+									MPIAdjacentFaceIDs.push_back(elem2face_ptr[i]);
+								}
+							}
 
 						}
 
@@ -550,6 +565,8 @@ namespace E3D {
 									MPIGhostCellIDs.push_back(potentialGhostCellID);
 									ghostElemsOfAPartition.push_back(potentialGhostCellID);
 									MPIadjacentToGhostCellIDs.push_back(localElemID);
+									MPIAdjacentFaceIDs.push_back(FaceID);
+
 									foundElem = true;
 
 									break;

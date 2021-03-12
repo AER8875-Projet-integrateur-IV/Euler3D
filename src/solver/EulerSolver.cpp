@@ -169,7 +169,7 @@ void Solver::EulerSolver::updateBC() {
 
 void Solver::EulerSolver::computeResidual() {
 
-	//loop Thougth internal faces
+	// Loop Thougth internal faces
 	for (int IfaceID = 0; IfaceID < _localMesh.GetnFaceInt(); IfaceID++) {
 
 		int *ptr = _localMesh.GetFace2ElementID(IfaceID);
@@ -184,45 +184,59 @@ void Solver::EulerSolver::computeResidual() {
 		_residuals[element2] -= residu * surfaceArea;
 	}
 
+    // loop through wall faces
+    for(auto& wallface : _localMesh.GetWallAdjacentFaceIDs()){
+        int *ptr = _localMesh.GetFace2ElementID(wallface);
+        int element1 = ptr[0];
+        int element2 = ptr[1];
+        double surfaceArea = _localMetrics.getFaceSurfaces()[wallface];
+        double composant1 = _localMetrics.getFaceNormalsUnit()[wallface].x * _localFlowField.GetP()[element2];
+        double composant2 = _localMetrics.getFaceNormalsUnit()[wallface].y * _localFlowField.GetP()[element2];
+        double composant3 = _localMetrics.getFaceNormalsUnit()[wallface].z * _localFlowField.GetP()[element2];
 
-	// loop through external faces
-	for (int EfaceID = _localMesh.GetnFaceInt(); EfaceID < _localMesh.GetnFace(); EfaceID++) {
+        ResidualVar residu = {0, composant1, composant2, composant3, 0};
+        _residuals[element1] += residu * surfaceArea;
 
-		int *ptr = _localMesh.GetFace2ElementID(EfaceID);
-		int element1 = ptr[0];
-		int element2 = ptr[1];
-		double surfaceArea = _localMetrics.getFaceSurfaces()[EfaceID];
-
-
-		//If Wall
-		if (std::binary_search(_sortedWallGhostCellIDs.begin(), _sortedWallGhostCellIDs.end(), element2)) {
-			double composant1 = _localMetrics.getFaceNormalsUnit()[EfaceID].x * _localFlowField.GetP()[element2];
-			double composant2 = _localMetrics.getFaceNormalsUnit()[EfaceID].y * _localFlowField.GetP()[element2];
-			double composant3 = _localMetrics.getFaceNormalsUnit()[EfaceID].z * _localFlowField.GetP()[element2];
-
-			ResidualVar residu = {0, composant1, composant2, composant3, 0};
-			_residuals[element1] += residu * surfaceArea;
-
-		}
-
-
-		// If MPI or Symmetry
-		else if (std::binary_search(_sortedMPIGhostCellIDs.begin(), _sortedMPIGhostCellIDs.end(), element2) || std::binary_search(_sortedSymmetryGhostCellIDs.begin(), _sortedSymmetryGhostCellIDs.end(), element2)) {
-			ResidualVar residu = Solver::Roe(_localFlowField, _localMesh, _localMetrics, EfaceID, true);
-			_residuals[element1] += residu * surfaceArea;
-		}
-
-		// if farfield
-		else {
-			double V = _localFlowField.GetU_Velocity()[element2] * _localMetrics.getFaceNormalsUnit()[EfaceID].x +
-			           _localFlowField.GetV_Velocity()[element2] * _localMetrics.getFaceNormalsUnit()[EfaceID].y +
-			           _localFlowField.GetW_Velocity()[element2] * _localMetrics.getFaceNormalsUnit()[EfaceID].z;
-
-			ResidualVar residu = Solver::Fc(_localFlowField, _localMetrics, element2, EfaceID, V);
-
-			_residuals[element1] += residu * surfaceArea;
-		}
 	}
+
+	// Loop through symmetry faces
+    for(auto& symface : _localMesh.GetSymmetryAdjacentFaceIDs()){
+        int *ptr = _localMesh.GetFace2ElementID(symface);
+        int element1 = ptr[0];
+
+        double surfaceArea = _localMetrics.getFaceSurfaces()[symface];
+
+        ResidualVar residu = Solver::Roe(_localFlowField, _localMesh, _localMetrics, symface, true);
+        _residuals[element1] += residu * surfaceArea;
+	}
+
+	// Loop through farfield faces
+    for(auto& farfieldface : _localMesh.GetFarfieldAdjacentFaceIDs()){
+        int *ptr = _localMesh.GetFace2ElementID(farfieldface);
+        int element1 = ptr[0];
+        int element2 = ptr[1];
+        double surfaceArea = _localMetrics.getFaceSurfaces()[farfieldface];
+
+        double V = _localFlowField.GetU_Velocity()[element2] * _localMetrics.getFaceNormalsUnit()[farfieldface].x +
+                   _localFlowField.GetV_Velocity()[element2] * _localMetrics.getFaceNormalsUnit()[farfieldface].y +
+                   _localFlowField.GetW_Velocity()[element2] * _localMetrics.getFaceNormalsUnit()[farfieldface].z;
+
+        ResidualVar residu = Solver::Fc(_localFlowField, _localMetrics, element2, farfieldface, V);
+
+        _residuals[element1] += residu * surfaceArea;
+
+	}
+
+	// Loop through MPI faces
+    for(auto& mpiface : _localMesh.GetMPIadjacentFaceIds()){
+        int *ptr = _localMesh.GetFace2ElementID(mpiface);
+        int element1 = ptr[0];
+        double surfaceArea = _localMetrics.getFaceSurfaces()[mpiface];
+
+        ResidualVar residu = Solver::Roe(_localFlowField, _localMesh, _localMetrics, mpiface, true);
+        _residuals[element1] += residu * surfaceArea;
+	}
+
 }
 
 void Solver::EulerSolver::updateDeltaTime() {
@@ -242,7 +256,7 @@ void Solver::EulerSolver::TimeIntegration() {
 
 void Solver::EulerSolver::updateW() {
 
-	_localFlowField.Update(_deltaW, MPIghostCellElems, _localMesh.getMPIadjacentToGhostCellIDs());
+	_localFlowField.Update(_deltaW);
 }
 
 double Solver::EulerSolver::computeRMS() {
