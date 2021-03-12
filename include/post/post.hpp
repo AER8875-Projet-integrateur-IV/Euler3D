@@ -38,6 +38,7 @@ namespace E3D::Post {
          */
 		void WriteTecplotASCII();
 		void WriteTecplotBinary();
+		void WriteTecplotSurfaceASCII();
 
 	public:
 		Post(const E3D::Parser::SimConfig &config);

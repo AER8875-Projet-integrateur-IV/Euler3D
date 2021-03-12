@@ -267,3 +267,93 @@ void Post::WriteTecplotBinary() {
 	I = tecend142();
 	return;
 }
+
+
+void Post::WriteTecplotSurfaceASCII() {
+
+	// Création du fichier
+	std::string fileName = _outputFile + ".surf.dat";
+	FILE *fid = fopen(fileName.c_str(), "w");
+	// Entête du fichier
+	fprintf(fid, "VARIABLES=\"X\",\"Y\",\"Z\",\"Rho\",\"U\",\"V\",\"W\",\"P\",\"E\",\"Cp\"\n");
+	for (int iPart = 0; iPart < _nPart; iPart++) {
+		// Lecture de la partition
+		E3D::Parser::SU2MeshParser iMesh = E3D::Parser::SU2MeshParser(_meshPartitionPath[iPart]);
+		std::vector<std::pair<std::string, int>> tags = iMesh.GetTags();
+
+		// Entête de la zone
+		int nNodes = iMesh.GetPointsCount();
+		int nElements = iMesh.GetVolumeElemCount();
+		fprintf(fid, "ZONE T=\"Element\"\nNodes=%d, Elements=%d, ZONETYPE=FEBRICK\nDATAPACKING=BLOCK, VARLOCATION=([4-9]=CELLCENTERED)\n", nNodes, nElements);
+
+		// Coordonnées des noeuds de la partition
+		for (int nodeI = 0; nodeI < nNodes; nodeI++) {
+			E3D::Parser::Node node = iMesh.GetPoints()[nodeI];
+			fprintf(fid, "%.12e\n", node.getX());
+		}
+		for (int nodeI = 0; nodeI < nNodes; nodeI++) {
+			E3D::Parser::Node node = iMesh.GetPoints()[nodeI];
+			fprintf(fid, "%.12e\n", node.getY());
+		}
+		for (int nodeI = 0; nodeI < nNodes; nodeI++) {
+			E3D::Parser::Node node = iMesh.GetPoints()[nodeI];
+			fprintf(fid, "%.12e\n", node.getZ());
+		}
+
+		// Lecture des solutions
+		E3D::Parser::SolutionPost isolution(_solutionPartitionPath[iPart], nElements);
+		for (int iElem = 0; iElem < nElements; iElem++) {
+			fprintf(fid, "%.12e\n", isolution.GetRho(iElem));
+		}
+		for (int iElem = 0; iElem < nElements; iElem++) {
+			fprintf(fid, "%.12e\n", isolution.GetU(iElem));
+		}
+		for (int iElem = 0; iElem < nElements; iElem++) {
+			fprintf(fid, "%.12e\n", isolution.GetV(iElem));
+		}
+		for (int iElem = 0; iElem < nElements; iElem++) {
+			fprintf(fid, "%.12e\n", isolution.GetW(iElem));
+		}
+		for (int iElem = 0; iElem < nElements; iElem++) {
+			fprintf(fid, "%.12e\n", isolution.GetPression(iElem));
+		}
+		for (int iElem = 0; iElem < nElements; iElem++) {
+			fprintf(fid, "%.12e\n", isolution.GetEnergy(iElem));
+		}
+
+		// Connectivité des éléments de la partition
+		for (const E3D::Parser::Element &elem : iMesh.GetVolumeElems()) {
+			if (elem.getVtkID() == 12)// Hexaedre
+			{
+				fprintf(fid, "%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\n",
+				        elem.getElemNodes()[0] + 1, elem.getElemNodes()[1] + 1, elem.getElemNodes()[2] + 1, elem.getElemNodes()[3] + 1,
+				        elem.getElemNodes()[4] + 1, elem.getElemNodes()[5] + 1, elem.getElemNodes()[6] + 1, elem.getElemNodes()[7] + 1);
+			} else if (elem.getVtkID() == 10)// Tetraedre
+			{
+				fprintf(fid, "%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\n",
+				        elem.getElemNodes()[0] + 1, elem.getElemNodes()[1] + 1, elem.getElemNodes()[2] + 1, elem.getElemNodes()[2] + 1,
+				        elem.getElemNodes()[3] + 1, elem.getElemNodes()[3] + 1, elem.getElemNodes()[3] + 1, elem.getElemNodes()[3] + 1);
+			} else if (elem.getVtkID() == 14)// Pyramid
+			{
+				fprintf(fid, "%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\n",
+				        elem.getElemNodes()[0] + 1, elem.getElemNodes()[1] + 1, elem.getElemNodes()[2] + 1, elem.getElemNodes()[3] + 1,
+				        elem.getElemNodes()[4] + 1, elem.getElemNodes()[4] + 1, elem.getElemNodes()[4] + 1, elem.getElemNodes()[4] + 1);
+			} else if (elem.getVtkID() == 13)// Prism
+			{
+				fprintf(fid, "%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\n",
+				        elem.getElemNodes()[0] + 1, elem.getElemNodes()[1] + 1, elem.getElemNodes()[1] + 1, elem.getElemNodes()[2] + 1,
+				        elem.getElemNodes()[3] + 1, elem.getElemNodes()[4] + 1, elem.getElemNodes()[4] + 1, elem.getElemNodes()[5] + 1);
+			} else {
+
+				for (const int &iNode : elem.getElemNodes()) {
+					fprintf(fid, "%d\t", iNode + 1);
+				}
+				fprintf(fid, "\n");
+			}
+		}
+	}
+
+	// Fermeture du fichier
+	fclose(fid);
+	return;
+}
