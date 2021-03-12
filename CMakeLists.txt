@@ -15,6 +15,7 @@ endfunction()
 # Add static analysis tool and sanitizers when needed ( "-fanalyzer", "-fsanitize=leak" ...)
 
 # add_link_options(-fsanitize=leak,undefined,address)
+add_link_options(-flto)
 # ---  Add same flag to compile options ----
 
 add_compile_options_config(RELEASE "-Wall" "-Wextra" "-Ofast" "-pedantic")

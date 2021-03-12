@@ -1,0 +1,16 @@
+#! /bin/bash 
+
+case=naca0012_9x9x5_supersonic_125
+printf "$case example"
+mkdir output
+
+../E3D_PRE $case.e3d
+
+mpiexec -np 6 ../E3D_Solver $case.e3d
+
+../E3D_POST $case.e3d
+
+if [[ "$1" == "--plot-residuals" ]]
+then
+    python ../PlotResiduals.py output/residuals.dat $case
+fi

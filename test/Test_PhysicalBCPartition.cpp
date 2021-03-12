@@ -9,10 +9,10 @@
 #include "connectivity/Connectivity.hpp"
 #include "mesh/Mesh.hpp"
 #include "partition/Partition.hpp"
+#include "utils/Logger.hpp"
 #include <catch2/catch.hpp>
 #include <string>
 #include <vector>
-#include "utils/Logger.hpp"
 
 /**
  * @details Test the partitionning of physical border conditions for a 2D test
@@ -102,7 +102,7 @@ TEST_CASE("Solve physical border conditions for 2 tetrahedron", "[partition]") {
 	REQUIRE(redSol == redExp);
 	REQUIRE(blueSol == blueExp);
 	REQUIRE(size == 3);
-	
+
 	redExp = std::vector<E3D::Parser::Element>{E3D::Parser::Element(5, std::vector<int>{0, 3, 2})};
 	blueExp = std::vector<E3D::Parser::Element>{E3D::Parser::Element(5, std::vector<int>{2, 3, 1})};
 	redSol = parts[1].Markers["red"];
@@ -112,4 +112,3 @@ TEST_CASE("Solve physical border conditions for 2 tetrahedron", "[partition]") {
 	REQUIRE(blueSol == blueExp);
 	REQUIRE(size == 3);
 }
-

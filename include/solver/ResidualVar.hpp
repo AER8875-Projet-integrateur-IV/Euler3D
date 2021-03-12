@@ -2,35 +2,59 @@
 
 #include <vector>
 
-namespace E3D::Solver{
-    class ResidualVar{
+namespace E3D::Solver {
+	class ResidualVar {
 
-    public:
-        ResidualVar();
-        void ComputeResiduals(int elem);
-        void ResetResiduals(int elem);
-        void UpdateResiduals(int elem);
+		// ResidualVar Vector
+	public:
+		ResidualVar()
+		    : m_rhoV_residual(0), m_rho_uV_residual(0), m_rho_vV_residual(0), m_rho_wV_residual(0), m_rho_HV_residual(0){};
+		ResidualVar(double rhoV_residual, double rho_uV_residual, double rho_vV_residual, double rho_wV_residual, double rho_HV_residual)
+		    : m_rhoV_residual(rhoV_residual), m_rho_uV_residual(rho_uV_residual), m_rho_vV_residual(rho_vV_residual), m_rho_wV_residual(rho_wV_residual), m_rho_HV_residual(rho_HV_residual){};
 
-        // Get the value of rhoV_res
-        inline double GetrhoV_res() const {return _rhoV_res; }
 
-        // Get the value of rhouV_res
-        inline double GetrhouV_res() const {return _rhouV_res; }
+		inline ResidualVar &operator+=(ResidualVar v) {
+			this->m_rhoV_residual += v.m_rhoV_residual;
+			this->m_rho_uV_residual += v.m_rho_uV_residual;
+			this->m_rho_vV_residual += v.m_rho_vV_residual;
+			this->m_rho_wV_residual += v.m_rho_wV_residual;
+			this->m_rho_HV_residual += v.m_rho_HV_residual;
+			return *this;
+		}
 
-        // Get the value of rhovV_res
-        inline double GetrhovV_res() const {return _rhovV_res; }
 
-        // Get the value of rhowV_res
-        inline double GetrhowV_res() const {return _rhowV_res; }
+		inline ResidualVar &operator-=(ResidualVar v) {
+			this->m_rhoV_residual -= v.m_rhoV_residual;
+			this->m_rho_uV_residual -= v.m_rho_uV_residual;
+			this->m_rho_vV_residual -= v.m_rho_vV_residual;
+			this->m_rho_wV_residual -= v.m_rho_wV_residual;
+			this->m_rho_HV_residual -= v.m_rho_HV_residual;
+			return *this;
+		}
 
-        // Get the value of rhoHV_res
-        inline double GetrhoHV_res() const {return _rhoHV_res; }
 
-    private:
-        double _rhoV_res;
-        double _rhouV_res;
-        double _rhovV_res;
-        double _rhowV_res;
-        double _rhoHV_res;
-    };
-}
+		inline ResidualVar operator*(double &d) {
+			return ResidualVar(m_rhoV_residual * d,
+			                   m_rho_uV_residual * d,
+			                   m_rho_vV_residual * d,
+			                   m_rho_wV_residual * d,
+			                   m_rho_HV_residual * d);
+		}
+
+		inline void reset() {
+			this->m_rhoV_residual = 0.0;
+			this->m_rho_uV_residual = 0.0;
+			this->m_rho_vV_residual = 0.0;
+			this->m_rho_wV_residual = 0.0;
+			this->m_rho_HV_residual = 0.0;
+		}
+
+
+		double m_rhoV_residual;
+		double m_rho_uV_residual;
+		double m_rho_vV_residual;
+		double m_rho_wV_residual;
+		double m_rho_HV_residual;
+	};
+
+}// namespace E3D::Solver

@@ -30,7 +30,6 @@ namespace E3D::Post {
 		std::string _outputFile;
 		/*Nombre de partitions*/
 		int _nPart;
-
 		/**
          * Écrit la solution dans un fichier Tecplot
          *

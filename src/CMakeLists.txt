@@ -2,10 +2,11 @@ add_subdirectory(parser)
 add_subdirectory(solver)
 add_subdirectory(partition)
 add_subdirectory(mesh)
+add_subdirectory(connectivity)
+add_subdirectory(solver)
 add_subdirectory(post)
 add_subdirectory(parallelization)
 add_subdirectory(utils)
-add_subdirectory(connectivity)
 
 # Setting flags
 set(debug_flags -W -Wall -pedantic -O0 -g3)
@@ -52,4 +53,3 @@ install(TARGETS E3D_PRE
 install(TARGETS E3D_PRE
         CONFIGURATIONS Release
         RUNTIME DESTINATION ${PROJECT_SOURCE_DIR}/include/)
-

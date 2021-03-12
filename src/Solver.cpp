@@ -7,7 +7,10 @@
 #include "mesh/Metrics.hpp"
 #include "parallelization/MPIHandler.hpp"
 #include "parser/SimConfig.hpp"
+#include "solver/EulerSolver.hpp"
 #include "solver/FlowField.hpp"
+#include "solver/WriteSolution.hpp"
+
 using namespace E3D;
 
 int main(int argc, char *argv[]) {
@@ -27,22 +30,29 @@ int main(int argc, char *argv[]) {
 	std::string configFile = argv[1];
 	Parser::SimConfig config(configFile, e3d_mpi.getRankID(), e3d_mpi.getPoolSize());
 
-	E3D::Mesh<E3D::Parser::MeshPartition> localmesh(config.getPartitionedMeshFiles()[e3d_mpi.getRankID()], e3d_mpi);
+	E3D::Mesh<E3D::Parser::MeshPartition> localmesh(config.getPartitionedMeshFiles()[e3d_mpi.getRankID()], e3d_mpi.getRankID());
 
 
 	// Parsing Partitions (mesh files)
-	double startConnectivityTimer = MPI_Wtime();
+
 	localmesh.solveConnectivity();
 	MPI_Barrier(MPI_COMM_WORLD);
-	if (e3d_mpi.getRankID() == 0) {
-		double endConnectivityTimer = MPI_Wtime();
 
-		printf("Connectivity took %.5f seconds to solve.\n", endConnectivityTimer - startConnectivityTimer);
-	}
+
+	e3d_mpi.updateRequesterID(localmesh.getMPIelements());
+	e3d_mpi.sortInterface();
+
 	Metrics localMeshMetrics(localmesh, e3d_mpi);
 	MPI_Barrier(MPI_COMM_WORLD);
 
-    E3D::Solver::FlowField localFlowField(config,localmesh,e3d_mpi);
+	E3D::Solver::FlowField localFlowField(config, localmesh);
+
+	E3D::Solver::EulerSolver solver(localFlowField, e3d_mpi, localmesh, config, localMeshMetrics);
+
+	solver.Run();
+
+	E3D::Solver::WriteSolution writeSolution(localFlowField, config, e3d_mpi);
+
 	e3d_mpi.finalize();
 
 

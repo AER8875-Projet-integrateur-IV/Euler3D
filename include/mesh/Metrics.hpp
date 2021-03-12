@@ -3,6 +3,7 @@
 //
 #pragma once
 #include "mesh/Mesh.hpp"
+#include "parallelization/MPIHandler.hpp"
 #include "utils/Vector3.h"
 #include <parser/MeshPartition.hpp>
 
@@ -12,7 +13,7 @@ namespace E3D {
 		/**
 		 * Ctor takes Mesh class with a parser of type MeshPartition
 		 */
-		Metrics(const Mesh<Parser::MeshPartition>&, const Parallel::MPIHandler& e3d_mpi);
+		Metrics(const Mesh<Parser::MeshPartition> &, const Parallel::MPIHandler &e3d_mpi);
 
 		inline const std::vector<Vector3<double>> &getFaceNormals() const { return _faceNormals; }
 
@@ -24,25 +25,31 @@ namespace E3D {
 
 		inline const std::vector<double> &getCellVolumes() const { return _cellVolumes; }
 
+		inline const std::vector<Vector3<double>> &getFaceNormalsUnit() const { return _faceUnitNormals; }
+
 	private:
 		/**
 		 * @brief Compute face metrics by populating member variables _FaceNormals, _FaceCenters and _faceSurfaces
 		 */
 		void computeFaceMetrics();
 
-        /**
+		/**
          * @brief Compute cell metrics by populating member variables _CellVolumes and _CellCentroids
          */
 		void computeCellMetrics();
+
+		/**
+         * @brief orient face vectors from cell with lower id to greater id
+         */
+		void reorientFaceVectors();
 
 
 		const Mesh<Parser::MeshPartition> &_localMesh;
 		std::vector<Vector3<double>> _faceNormals;
 		std::vector<Vector3<double>> _faceCenters;
 		std::vector<Vector3<double>> _cellCentroids;
-        	std::vector<Vector3<double>> _faceUnitNormals;
+		std::vector<Vector3<double>> _faceUnitNormals;
 		std::vector<double> _faceSurfaces;
 		std::vector<double> _cellVolumes;
-
 	};
 }// namespace E3D
