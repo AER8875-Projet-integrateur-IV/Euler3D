@@ -495,11 +495,13 @@ namespace E3D {
 					PairghostElemsOfAPartition.first = partitionID;
 					std::vector<int> ghostElemsOfAPartition;
 					ghostElemsOfAPartition.reserve(elems.size());
-
+                    std::vector<int> potentialMPIGhostCell;
+                    std::vector<int> localElemIDFaceNodes;
+                    std::vector<int> SurrNodes;
 					// Loop though Ghost Cells (MPIelem)
 					for (auto &MPIelem : elems) {
 
-						std::vector<int> potentialMPIGhostCell;
+						potentialMPIGhostCell.clear();
 						int localElemID = MPIelem.getthisPartitionElementID();
 						int SurrElemCount = 0;
 						int *p_localElem = GetElement2ElementID(localElemID, SurrElemCount);
@@ -530,7 +532,7 @@ namespace E3D {
 
 						// If local Element connected to many ghost cells (farfield, wall..) , MPI ghost cell should be found with face node information
 						else if (potentialMPIGhostCell.size() > 1) {
-							std::vector<int> localElemIDFaceNodes;
+							localElemIDFaceNodes.clear();
 							localElemIDFaceNodes.reserve(MPIelem.getfaceNodeIDs().size());
 							for (size_t i = 0; i < MPIelem.getfaceNodeIDs().size(); i++) {
 								localElemIDFaceNodes.push_back(MPIelem.getfaceNodeIDs()[i]);
@@ -553,7 +555,8 @@ namespace E3D {
 								}
 								int SurrNodeCount = 0;
 								int *p_connectedNodes = GetFace2NodeID(FaceID, SurrNodeCount);
-								std::vector<int> SurrNodes;
+
+								SurrNodes.clear();
 								SurrNodes.reserve(SurrNodeCount);
 
 								for (int j = 0; j < SurrNodeCount; j++) {
@@ -595,14 +598,15 @@ namespace E3D {
 					WallGhostCellIDs.reserve(faces.size());
 					WallAdjacentToGhostCellIDs.reserve(faces.size());
 					WallAdjacentFaceIDs.reserve(faces.size());
-					for (auto face : faces) {
+                    std::vector<int> tempNodes;
+					for (const auto& face : faces) {
 
 						auto wallFaceNodes = face.getElemNodes();
 						std::sort(wallFaceNodes.begin(), wallFaceNodes.end());
 						for (auto &faceConnectedToGC : facesAroundGhostCells) {
 							int numNodes = 0;
 							int *p_faceToNodes = GetFace2NodeID(faceConnectedToGC, numNodes);
-							std::vector<int> tempNodes;
+							tempNodes.clear();
 							tempNodes.reserve(numNodes);
 							for (int i = 0; i < numNodes; i++) {
 								tempNodes.push_back(p_faceToNodes[i]);
@@ -635,13 +639,14 @@ namespace E3D {
 					FarfieldGhostCellIDs.reserve(faces.size());
 					FarfieldAdjacentToGhostCellIDs.reserve(faces.size());
 					FarfieldAdjacentFaceIDs.reserve(faces.size());
+                    std::vector<int> tempNodes;
 					for (auto face : faces) {
 						auto wallFaceNodes = face.getElemNodes();
 						std::sort(wallFaceNodes.begin(), wallFaceNodes.end());
 						for (auto &faceConnectedToGC : facesAroundGhostCells) {
 							int numNodes = 0;
 							int *p_faceToNodes = GetFace2NodeID(faceConnectedToGC, numNodes);
-							std::vector<int> tempNodes;
+							tempNodes.clear();
 							tempNodes.reserve(numNodes);
 							for (int i = 0; i < numNodes; i++) {
 								tempNodes.push_back(p_faceToNodes[i]);
@@ -673,14 +678,15 @@ namespace E3D {
 					SymmetryGhostCellIDs.reserve(faces.size());
 					SymmetryAdjacentGhostCellIDs.reserve(faces.size());
 					SymmetryAdjacentFaceIDs.reserve(faces.size());
-					for (auto face : faces) {
+                    std::vector<int> tempNodes;
+					for (const auto& face : faces) {
 
 						auto wallFaceNodes = face.getElemNodes();
 						std::sort(wallFaceNodes.begin(), wallFaceNodes.end());
 						for (auto &faceConnectedToGC : facesAroundGhostCells) {
 							int numNodes = 0;
 							int *p_faceToNodes = GetFace2NodeID(faceConnectedToGC, numNodes);
-							std::vector<int> tempNodes;
+							tempNodes.clear();
 							tempNodes.reserve(numNodes);
 							for (int i = 0; i < numNodes; i++) {
 								tempNodes.push_back(p_faceToNodes[i]);

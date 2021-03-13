@@ -123,7 +123,7 @@ E3D::Solver::ResidualVar E3D::Solver::Roe(E3D::Solver::FlowField &_localFlowFiel
 	}
 
 	//calculate F1, F234, F5 matrices
-	std::vector<double> deltaF1 = {1.0,
+    std::array<double, 5> deltaF1 = {1.0,
 	                               uTilde - cTilde * faceNormals.x,
 	                               vTilde - cTilde * faceNormals.y,
 	                               wTilde - cTilde * faceNormals.z,
