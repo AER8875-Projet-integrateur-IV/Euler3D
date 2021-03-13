@@ -180,7 +180,7 @@ void Solver::EulerSolver::computeResidual() {
 		int element1 = ptr[0];
 		int element2 = ptr[1];
 
-		ResidualVar residu = Solver::Roe(_localFlowField, _localMesh, _localMetrics, IfaceID, false);
+		ResidualVar residu = Solver::Roe(_localFlowField, _localMesh, _localMetrics, IfaceID);
 
 
 		double surfaceArea = _localMetrics.getFaceSurfaces()[IfaceID];
@@ -210,7 +210,7 @@ void Solver::EulerSolver::computeResidual() {
 
         double surfaceArea = _localMetrics.getFaceSurfaces()[symface];
 
-        ResidualVar residu = Solver::Roe(_localFlowField, _localMesh, _localMetrics, symface, true);
+        ResidualVar residu = Solver::Roe(_localFlowField, _localMesh, _localMetrics, symface);
         _residuals[element1] += residu * surfaceArea;
 	}
 
@@ -237,7 +237,7 @@ void Solver::EulerSolver::computeResidual() {
         int element1 = ptr[0];
         double surfaceArea = _localMetrics.getFaceSurfaces()[mpiface];
 
-        ResidualVar residu = Solver::Roe(_localFlowField, _localMesh, _localMetrics, mpiface, true);
+        ResidualVar residu = Solver::Roe(_localFlowField, _localMesh, _localMetrics, mpiface);
         _residuals[element1] += residu * surfaceArea;
 	}
 

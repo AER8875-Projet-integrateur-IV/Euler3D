@@ -17,8 +17,7 @@ namespace E3D::Solver {
 	E3D::Solver::ResidualVar Roe(E3D::Solver::FlowField &,
 	                             const E3D::Mesh<E3D::Parser::MeshPartition> &,
 	                             const E3D::Metrics &,
-	                             const int iface,
-	                             bool isMPI);
+	                             const int iface);
 
 	/**
      * @brief Discretization of Convective Fluxes using AUSM scheme

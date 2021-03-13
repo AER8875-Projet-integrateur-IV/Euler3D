@@ -10,8 +10,7 @@ using namespace E3D::Solver;
 E3D::Solver::ResidualVar E3D::Solver::Roe(E3D::Solver::FlowField &_localFlowField,
                                           const E3D::Mesh<E3D::Parser::MeshPartition> &_localMesh,
                                           const E3D::Metrics &_localMetrics,
-                                          const int iface,
-                                          bool isMPI) {
+                                          const int iface) {
 
 	int *ptr = _localMesh.GetFace2ElementID(iface);
 	int leftElementId = ptr[0];
@@ -23,6 +22,12 @@ E3D::Solver::ResidualVar E3D::Solver::Roe(E3D::Solver::FlowField &_localFlowFiel
 
 	double leftRho = _localFlowField.Getrho()[leftElementId];//weird de donner tout le vector, pourquoi pas juste la valeur?
 	double rightRho = _localFlowField.Getrho()[rightElementId];
+
+    double sqrtLeftRho = sqrt(leftRho);
+    double sqrtRightRho = sqrt(rightRho);
+
+    //calculate variables for flowfield
+    double rhoTilde = sqrt(leftRho * rightRho);
 
 	double leftU = _localFlowField.GetU_Velocity()[leftElementId];
 	double rightU = _localFlowField.GetU_Velocity()[rightElementId];
@@ -40,22 +45,19 @@ E3D::Solver::ResidualVar E3D::Solver::Roe(E3D::Solver::FlowField &_localFlowFiel
 	double rightP = _localFlowField.GetP()[rightElementId];
 
 
-	//get variables from metrics
-	E3D::Vector3<double> faceNormals = _localMetrics.getFaceNormalsUnit()[iface];
-
-	//calculate variables for flowfield
-	double rhoTilde = sqrt(leftRho * rightRho);
-
-	double sqrtLeftRho = sqrt(leftRho);
-	double sqrtRightRho = sqrt(rightRho);
-
 	double uTilde = (leftU * sqrtLeftRho + rightU * sqrtRightRho) / (sqrtLeftRho + sqrtRightRho);
 	double vTilde = (leftV * sqrtLeftRho + rightV * sqrtRightRho) / (sqrtLeftRho + sqrtRightRho);
 	double wTilde = (leftW * sqrtLeftRho + rightW * sqrtRightRho) / (sqrtLeftRho + sqrtRightRho);
 	double hTilde = (leftH * sqrtLeftRho + rightH * sqrtRightRho) / (sqrtLeftRho + sqrtRightRho);
 
+
+
 	double qTildeSquare = std::pow(uTilde, 2.0) + std::pow(vTilde, 2.0) + std::pow(wTilde, 2.0);
 	double cTilde = sqrt((gamma - 1.0) * (hTilde - qTildeSquare / 2));
+
+    //get variables from metrics
+    E3D::Vector3<double> faceNormals = _localMetrics.getFaceNormalsUnit()[iface];
+
 	double VContravariantTilde = uTilde * faceNormals.x + vTilde * faceNormals.y + wTilde * faceNormals.z;
 	double leftVContravariant = leftU * faceNormals.x + leftV * faceNormals.y + leftW * faceNormals.z;
 	double rightVContravariant = rightU * faceNormals.x + rightV * faceNormals.y + rightW * faceNormals.z;
@@ -83,88 +85,83 @@ E3D::Solver::ResidualVar E3D::Solver::Roe(E3D::Solver::FlowField &_localFlowFiel
 	//	                               rhoAvg * VContravariantAvg * hAvg};
 
 	//calculate Flux
-	std::vector<double> flux = {0, 0, 0, 0, 0};
+	std::array<double, 5> flux = {0, 0, 0, 0, 0};
 
 	////	//Par Amin
-	std::vector<double> fluxAvg{0.0, 0.0, 0.0, 0.0, 0.0};
+	std::array<double, 5> fluxAvg{0.0, 0.0, 0.0, 0.0, 0.0};
 
-	std::vector<double> Fcr = {rightRho * rightVContravariant,
-	                           rightRho * rightVContravariant * rightU + rightP * faceNormals.x,
-	                           rightRho * rightVContravariant * rightV + rightP * faceNormals.y,
-	                           rightRho * rightVContravariant * rightW + rightP * faceNormals.z,
-	                           rightRho * rightVContravariant * rightH};
-	std::vector<double> Fcl = {leftRho * leftVContravariant,
-	                           leftRho * leftVContravariant * leftU + leftP * faceNormals.x,
-	                           leftRho * leftVContravariant * leftV + leftP * faceNormals.y,
-	                           leftRho * leftVContravariant * leftW + leftP * faceNormals.z,
-	                           leftRho * leftVContravariant * leftH};
+	std::array<double, 5> Fcr = {rightRho * rightVContravariant,
+	                             rightRho * rightVContravariant * rightU + rightP * faceNormals.x,
+	                             rightRho * rightVContravariant * rightV + rightP * faceNormals.y,
+	                             rightRho * rightVContravariant * rightW + rightP * faceNormals.z,
+	                             rightRho * rightVContravariant * rightH};
+	std::array<double, 5> Fcl = {leftRho * leftVContravariant,
+	                             leftRho * leftVContravariant * leftU + leftP * faceNormals.x,
+	                             leftRho * leftVContravariant * leftV + leftP * faceNormals.y,
+	                             leftRho * leftVContravariant * leftW + leftP * faceNormals.z,
+	                             leftRho * leftVContravariant * leftH};
 	for (size_t i = 0; i < 5; i++) {
-		fluxAvg[i] = (Fcr[i] + Fcl[i]) / 2;
+		fluxAvg[i] = (Fcr[i] + Fcl[i]) * 0.5;
 	}
 
 
-	if (iface >= _localMesh.GetnFaceInt() && !(isMPI)) {
-		for (size_t i = 0; i < 5; i++) {
-			flux[i] = fluxAvg[i];
-		}
+	double localC = sqrt(gamma * leftP / leftRho);
+	double HartensCorrector = (1.0 / 15.0) * localC;
+	//hartens correction
+	double HartensCorrectionF1;
+	if (std::abs(VContravariantTilde - cTilde) > HartensCorrector) {
+		HartensCorrectionF1 = std::abs(VContravariantTilde - cTilde);
 	} else {
-		double localC = sqrt(gamma * leftP / leftRho);
-		double HartensCorrector = (1.0 / 15.0) * localC;
-		//hartens correction
-		double HartensCorrectionF1;
-		if (std::abs(VContravariantTilde - cTilde) > HartensCorrector) {
-			HartensCorrectionF1 = std::abs(VContravariantTilde - cTilde);
-		} else {
-			HartensCorrectionF1 = (std::pow(VContravariantTilde - cTilde, 2) + std::pow(HartensCorrector, 2)) / (2.0 * HartensCorrector);
-		}
-
-		double HartensCorrectionF5;
-		if (std::abs(VContravariantTilde + cTilde) > HartensCorrector) {
-			HartensCorrectionF5 = std::abs(VContravariantTilde + cTilde);
-		} else {
-			HartensCorrectionF5 = (std::pow(VContravariantTilde + cTilde, 2) + std::pow(HartensCorrector, 2)) / (2.0 * HartensCorrector);
-		}
-
-		//calculate F1, F234, F5 matrices
-		std::vector<double> deltaF1 = {1.0,
-		                               uTilde - cTilde * faceNormals.x,
-		                               vTilde - cTilde * faceNormals.y,
-		                               wTilde - cTilde * faceNormals.z,
-		                               hTilde - cTilde * VContravariantTilde};
-		for (size_t i = 0; i < 5; i++) {
-			deltaF1[i] = deltaF1[i] * HartensCorrectionF1 * (deltaP - rhoTilde * cTilde * deltaVContravariant) / (2.0 * std::pow(cTilde, 2.0));
-		}
-
-		std::vector<double> deltaF234 = {1.0,
-		                                 uTilde,
-		                                 vTilde,
-		                                 wTilde,
-		                                 qTildeSquare / 2.0};
-		for (size_t i = 0; i < 5; i++) {
-			deltaF234[i] = deltaF234[i] * (deltaRho - deltaP / std::pow(cTilde, 2));
-		}
-		std::vector<double> deltaF234_2term = {0.0,
-		                                       rhoTilde * (deltaU - deltaVContravariant * faceNormals.x),
-		                                       rhoTilde * (deltaV - deltaVContravariant * faceNormals.y),
-		                                       rhoTilde * (deltaW - deltaVContravariant * faceNormals.z),
-		                                       rhoTilde * (uTilde * deltaU + vTilde * deltaV + wTilde * deltaW - VContravariantTilde * deltaVContravariant)};
-		for (size_t i = 0; i < 5; i++) {
-			deltaF234[i] = (deltaF234[i] + deltaF234_2term[i]) * std::abs(VContravariantTilde);
-		}
-
-		std::vector<double> deltaF5 = {1.0,
-		                               uTilde + cTilde * faceNormals.x,
-		                               vTilde + cTilde * faceNormals.y,
-		                               wTilde + cTilde * faceNormals.z,
-		                               hTilde + cTilde * VContravariantTilde};
-		for (size_t i = 0; i < 5; i++) {
-			deltaF5[i] = deltaF5[i] * HartensCorrectionF5 * (deltaP + rhoTilde * cTilde * deltaVContravariant) / (2.0 * std::pow(cTilde, 2.0));
-		}
-
-		for (size_t i = 0; i < 5; i++) {
-			flux[i] = fluxAvg[i] - 0.5 * (deltaF1[i] + deltaF234[i] + deltaF5[i]);
-		}
+		HartensCorrectionF1 = (std::pow(VContravariantTilde - cTilde, 2) + std::pow(HartensCorrector, 2)) / (2.0 * HartensCorrector);
 	}
+
+	double HartensCorrectionF5;
+	if (std::abs(VContravariantTilde + cTilde) > HartensCorrector) {
+		HartensCorrectionF5 = std::abs(VContravariantTilde + cTilde);
+	} else {
+		HartensCorrectionF5 = (std::pow(VContravariantTilde + cTilde, 2) + std::pow(HartensCorrector, 2)) / (2.0 * HartensCorrector);
+	}
+
+	//calculate F1, F234, F5 matrices
+	std::vector<double> deltaF1 = {1.0,
+	                               uTilde - cTilde * faceNormals.x,
+	                               vTilde - cTilde * faceNormals.y,
+	                               wTilde - cTilde * faceNormals.z,
+	                               hTilde - cTilde * VContravariantTilde};
+	for (size_t i = 0; i < 5; i++) {
+		deltaF1[i] = deltaF1[i] * HartensCorrectionF1 * (deltaP - rhoTilde * cTilde * deltaVContravariant) / (2.0 * std::pow(cTilde, 2.0));
+	}
+
+	std::array<double, 5> deltaF234 = {1.0,
+	                                   uTilde,
+	                                   vTilde,
+	                                   wTilde,
+	                                   qTildeSquare * 0.5};
+	for (size_t i = 0; i < 5; i++) {
+		deltaF234[i] = deltaF234[i] * (deltaRho - deltaP / std::pow(cTilde, 2));
+	}
+	std::array<double, 5> deltaF234_2term = {0.0,
+	                                         rhoTilde * (deltaU - deltaVContravariant * faceNormals.x),
+	                                         rhoTilde * (deltaV - deltaVContravariant * faceNormals.y),
+	                                         rhoTilde * (deltaW - deltaVContravariant * faceNormals.z),
+	                                         rhoTilde * (uTilde * deltaU + vTilde * deltaV + wTilde * deltaW - VContravariantTilde * deltaVContravariant)};
+	for (size_t i = 0; i < 5; i++) {
+		deltaF234[i] = (deltaF234[i] + deltaF234_2term[i]) * std::abs(VContravariantTilde);
+	}
+
+	std::array<double, 5> deltaF5 = {1.0,
+	                                 uTilde + cTilde * faceNormals.x,
+	                                 vTilde + cTilde * faceNormals.y,
+	                                 wTilde + cTilde * faceNormals.z,
+	                                 hTilde + cTilde * VContravariantTilde};
+	for (size_t i = 0; i < 5; i++) {
+		deltaF5[i] = deltaF5[i] * HartensCorrectionF5 * (deltaP + rhoTilde * cTilde * deltaVContravariant) / (2.0 * std::pow(cTilde, 2.0));
+	}
+
+	for (size_t i = 0; i < 5; i++) {
+		flux[i] = fluxAvg[i] - 0.5 * (deltaF1[i] + deltaF234[i] + deltaF5[i]);
+	}
+
 	return E3D::Solver::ResidualVar(flux[0], flux[1], flux[2], flux[3], flux[4]);
 }
 
