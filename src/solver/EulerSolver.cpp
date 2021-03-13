@@ -5,6 +5,7 @@
 #include "solver/EulerSolver.hpp"
 #include "utils/SolverPrint.hpp"
 #include "utils/Vector3.h"
+#include <filesystem>
 #include <iomanip>
 #include <math.h>
 
@@ -22,7 +23,10 @@ Solver::EulerSolver::EulerSolver(FlowField &localFlowField,
 		std::cout << "\n\n"
 		          << std::string(24, '#') << "  Starting Solving Process !  " << std::string(24, '#') << "\n\n";
 		// Open file to write residual
-		residualFile.open("resdiual_" + _config.getTecplotFile());
+		std::filesystem::path outputPath(_config.getTecplotFile());
+		std::filesystem::path residualsPath;
+		residualsPath = outputPath.replace_filename("residuals.dat");
+		residualFile.open(residualsPath);
 		residualFile << "Rho residual \n";
 	}
 	E3D::Vector3<double> uInf(localFlowField.getu_inf(), localFlowField.getv_inf(), localFlowField.getw_inf());
