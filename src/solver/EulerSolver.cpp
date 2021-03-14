@@ -188,6 +188,16 @@ void Solver::EulerSolver::computeResidual() {
 		_residuals[element2] -= residu * surfaceArea;
 	}
 
+    // Loop through MPI faces
+    for(auto& mpiface : _localMesh.GetMPIadjacentFaceIds()){
+        int *ptr = _localMesh.GetFace2ElementID(mpiface);
+        int element1 = ptr[0];
+        double surfaceArea = _localMetrics.getFaceSurfaces()[mpiface];
+
+        ResidualVar residu = Solver::Roe(_localFlowField, _localMesh, _localMetrics, mpiface);
+        _residuals[element1] += residu * surfaceArea;
+    }
+
     // loop through wall faces
     for(auto& wallface : _localMesh.GetWallAdjacentFaceIDs()){
         int *ptr = _localMesh.GetFace2ElementID(wallface);
@@ -231,15 +241,7 @@ void Solver::EulerSolver::computeResidual() {
 
 	}
 
-	// Loop through MPI faces
-    for(auto& mpiface : _localMesh.GetMPIadjacentFaceIds()){
-        int *ptr = _localMesh.GetFace2ElementID(mpiface);
-        int element1 = ptr[0];
-        double surfaceArea = _localMetrics.getFaceSurfaces()[mpiface];
 
-        ResidualVar residu = Solver::Roe(_localFlowField, _localMesh, _localMetrics, mpiface);
-        _residuals[element1] += residu * surfaceArea;
-	}
 
 }
 
