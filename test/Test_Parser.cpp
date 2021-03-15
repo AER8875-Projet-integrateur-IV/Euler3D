@@ -5,6 +5,7 @@
 #include "utils/Vector3.h"
 #include <catch2/catch.hpp>
 #include <iostream>
+#include <utility>
 
 TEST_CASE("SU2MeshParser class test", "[parser]") {
 
@@ -152,6 +153,13 @@ TEST_CASE("SimConfig class test", "[parser]") {
 	}
 
 	// Simulation parameters
+	REQUIRE(config.getMeshOrientationCL().first == 2);
+	REQUIRE(config.getMeshOrientationCL().second == -1);
+	REQUIRE(config.getMeshOrientationCD().first == 0);
+	REQUIRE(config.getMeshOrientationCD().second == -1);
+	REQUIRE(config.getMeshOrientationCM().first == 1);
+	REQUIRE(config.getMeshOrientationCM().second == -1);
+	REQUIRE(config.getMeshRefPoint() == E3D::Vector3<double>(1., 2., 3.));
 	REQUIRE(config.getMach() == Approx(0.7346523151));
 	REQUIRE(config.getVelocity() == 250);
 	REQUIRE(config.getAoA() == 1);
