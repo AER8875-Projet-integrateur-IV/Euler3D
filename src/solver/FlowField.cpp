@@ -100,9 +100,7 @@ void FlowField::Initialize(const int totalElemCount, const int ForceElemsCount) 
 	_Fz.resize(ForceElemsCount, 0);
 }
 
-void FlowField::Update(const std::vector<E3D::Solver::ConservativeVar> &delW_vector,
-                       const std::vector<int> &MPIids,
-                       const std::vector<int> &adjacentToMPIids) {
+void FlowField::Update(const std::vector<E3D::Solver::ConservativeVar> &delW_vector) {
 	// Update interior Cells
 	for (size_t ielem = 0; ielem < delW_vector.size(); ielem++) {
 
