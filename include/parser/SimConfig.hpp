@@ -123,6 +123,8 @@ namespace E3D::Parser {
 		inline std::pair<int, int> getMeshOrientationCD() const { return _meshOrientationCD; }
 		inline std::pair<int, int> getMeshOrientationCM() const { return _meshOrientationCM; }
 		inline E3D::Vector3<double> getMeshRefPoint() const { return _meshRefPoint; }
+		inline int getSamplingPeriod() const { return _samplingPeriod; }
+
 
 	private:
 		std::ifstream _configFileStream;
@@ -145,6 +147,7 @@ namespace E3D::Parser {
 		double _gasConstant;
 		double _cfl;
 		double _minResidual;
+		int _samplingPeriod;
 		TemporalScheme _temporalScheme;
 		SolverScheme _solverScheme;
 		SpeedType _spdoption;

@@ -160,6 +160,7 @@ TEST_CASE("SimConfig class test", "[parser]") {
 	REQUIRE(config.getMeshOrientationCM().first == 1);
 	REQUIRE(config.getMeshOrientationCM().second == -1);
 	REQUIRE(config.getMeshRefPoint() == E3D::Vector3<double>(1., 2., 3.));
+	REQUIRE(config.getSamplingPeriod() == 500);
 	REQUIRE(config.getMach() == Approx(0.7346523151));
 	REQUIRE(config.getVelocity() == 250);
 	REQUIRE(config.getAoA() == 1);
