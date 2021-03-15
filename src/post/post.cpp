@@ -279,115 +279,64 @@ void Post::WriteTecplotSurfaceASCII() {
 	fprintf(fid, "VARIABLES=\"X\",\"Y\",\"Z\",\"Rho\",\"U\",\"V\",\"W\",\"P\",\"E\",\"Cp\"\n");
 	for (int iPart = 0; iPart < _nPart; iPart++) {
 		// Lecture de la partition
-		//E3D::Parser::SU2MeshParser iMesh = E3D::Parser::SU2MeshParser(_meshPartitionPath[iPart]);
-		E3D::Mesh<E3D::Parser::SU2MeshParser> iMesh(_meshPartitionPath[iPart]);
-		iMesh.solveConnectivity();
-		std::vector<int> WallGhostCellIDs;
-		std::vector<int> WallAdjacentToGhostCellIDs;
-		std::vector<int> WallAdjacentFaceIDs;
-		// std::vector<int> facesAroundGhostCells;
-
-		// int interiorElemsCount = iMesh.GetMeshInteriorElemCount();
-		// for (int faceID = 0; faceID < iMesh.GetnFace(); faceID++) {
-		// 	int *p_face2elem = iMesh.GetFace2ElementID(faceID);
-		// 	if (p_face2elem[1] >= interiorElemsCount) {
-		// 		facesAroundGhostCells.push_back(faceID);
-		// 	}
-		// }
-		// std::cout << "Ghost Size: " << facesAroundGhostCells.size() << std::endl;
-		// for (auto &[partitionTag, faces] : iMesh.GetBoundaryConditionVector()) {
-		// 	auto Tag = partitionTag;
-		// 	// Transform it to be case insensitive
-		// 	std::transform(Tag.begin(), Tag.end(), Tag.begin(), ::tolower);
-		// 	if (Tag == "airfoil" || Tag == "wall") {
-		// 		WallGhostCellIDs.reserve(faces.size());
-		// 		WallAdjacentToGhostCellIDs.reserve(faces.size());
-		// 		WallAdjacentFaceIDs.reserve(faces.size());
-		// 		for (auto face : faces) {
-
-		// 			auto wallFaceNodes = face.getElemNodes();
-		// 			std::sort(wallFaceNodes.begin(), wallFaceNodes.end());
-		// 			for (auto &faceConnectedToGC : facesAroundGhostCells) {
-		// 				int numNodes = 0;
-		// 				int *p_faceToNodes = iMesh.GetFace2NodeID(faceConnectedToGC, numNodes);
-		// 				if (numNodes > 0) {
-		// 					std::vector<int> tempNodes;
-		// 					// std::cout << "NNodes: " << numNodes << "Face GC id: " << faceConnectedToGC << std::endl;
-		// 					tempNodes.reserve(numNodes);
-		// 					for (int i = 0; i < numNodes; i++) {
-		// 						tempNodes.push_back(p_faceToNodes[i]);
-		// 					}
-		// 					std::sort(tempNodes.begin(), tempNodes.end());
-		// 					if (tempNodes == wallFaceNodes) {
-		// 						WallGhostCellIDs.push_back(iMesh.GetFace2ElementID(faceConnectedToGC)[1]);
-		// 						WallAdjacentToGhostCellIDs.push_back(iMesh.GetFace2ElementID(faceConnectedToGC)[0]);
-		// 						WallAdjacentFaceIDs.push_back(faceConnectedToGC);
-		// 						break;
-		// 					}
-		// 				} else {
-		// 					continue;
-		// 				}
-		// 			}
-		// 		}
-		// 	}
-		// }
-
-		int nNodes = iMesh.GetMeshNodeCount();
-		int nElements = WallGhostCellIDs.size();
+		E3D::Parser::SU2MeshParser iMesh = E3D::Parser::SU2MeshParser(_meshPartitionPath[iPart]);
+		E3D::Parser::BoundaryPost iBoundary(_meshPartitionPath[iPart] + ".bry");
+		// EEntête de la zone
+		int nNodes = iMesh.GetPointsCount();
+		int nElements = iBoundary.GetWallElementCount();
 		if (nElements != 0) {
 			fprintf(fid, "ZONE T=\"Element\"\nNodes=%d, Elements=%d, ZONETYPE=FEQUADRILATERAL\nDATAPACKING=BLOCK, VARLOCATION=([4-10]=CELLCENTERED)\n", nNodes, nElements);
 
 			// Coordonnées des noeuds de la partition
 			for (int nodeI = 0; nodeI < nNodes; nodeI++) {
-				const E3D::Parser::Node node = iMesh.GetNodeCoord(nodeI);
+				E3D::Parser::Node node = iMesh.GetPoints()[nodeI];
 				fprintf(fid, "%.12e\n", node.getX());
 			}
 			for (int nodeI = 0; nodeI < nNodes; nodeI++) {
-				const E3D::Parser::Node node = iMesh.GetNodeCoord(nodeI);
+				E3D::Parser::Node node = iMesh.GetPoints()[nodeI];
 				fprintf(fid, "%.12e\n", node.getY());
 			}
 			for (int nodeI = 0; nodeI < nNodes; nodeI++) {
-				const E3D::Parser::Node node = iMesh.GetNodeCoord(nodeI);
+				E3D::Parser::Node node = iMesh.GetPoints()[nodeI];
 				fprintf(fid, "%.12e\n", node.getZ());
 			}
 
 			// Lecture des solutions
-			E3D::Parser::SolutionPost isolution(_solutionPartitionPath[iPart], iMesh.GetMeshInteriorElemCount());
+			E3D::Parser::SolutionPost isolution(_solutionPartitionPath[iPart], iMesh.GetVolumeElemCount());
 
-			for (size_t GhostID = 0; GhostID < WallGhostCellIDs.size(); GhostID++) {
-				int InteriorGhostIdx = WallAdjacentToGhostCellIDs[GhostID];
+			for (size_t GhostID = 0; GhostID < nElements; GhostID++) {
+				int InteriorGhostIdx = iBoundary.GetAdjacentCell(GhostID);
 				fprintf(fid, "%.12e\n", isolution.GetRho(InteriorGhostIdx));
 			}
-			for (size_t GhostID = 0; GhostID < WallGhostCellIDs.size(); GhostID++) {
-				int InteriorGhostIdx = WallAdjacentToGhostCellIDs[GhostID];
+			for (size_t GhostID = 0; GhostID < nElements; GhostID++) {
+				int InteriorGhostIdx = iBoundary.GetAdjacentCell(GhostID);
 				fprintf(fid, "%.12e\n", isolution.GetU(InteriorGhostIdx));
 			}
-			for (size_t GhostID = 0; GhostID < WallGhostCellIDs.size(); GhostID++) {
-				int InteriorGhostIdx = WallAdjacentToGhostCellIDs[GhostID];
+			for (size_t GhostID = 0; GhostID < nElements; GhostID++) {
+				int InteriorGhostIdx = iBoundary.GetAdjacentCell(GhostID);
 				fprintf(fid, "%.12e\n", isolution.GetV(InteriorGhostIdx));
 			}
-			for (size_t GhostID = 0; GhostID < WallGhostCellIDs.size(); GhostID++) {
-				int InteriorGhostIdx = WallAdjacentToGhostCellIDs[GhostID];
+			for (size_t GhostID = 0; GhostID < nElements; GhostID++) {
+				int InteriorGhostIdx = iBoundary.GetAdjacentCell(GhostID);
 				fprintf(fid, "%.12e\n", isolution.GetW(InteriorGhostIdx));
 			}
-			for (size_t GhostID = 0; GhostID < WallGhostCellIDs.size(); GhostID++) {
-				int InteriorGhostIdx = WallAdjacentToGhostCellIDs[GhostID];
+			for (size_t GhostID = 0; GhostID < nElements; GhostID++) {
+				int InteriorGhostIdx = iBoundary.GetAdjacentCell(GhostID);
 				fprintf(fid, "%.12e\n", isolution.GetPression(InteriorGhostIdx));
 			}
-			for (size_t GhostID = 0; GhostID < WallGhostCellIDs.size(); GhostID++) {
-				int InteriorGhostIdx = WallAdjacentToGhostCellIDs[GhostID];
+			for (size_t GhostID = 0; GhostID < nElements; GhostID++) {
+				int InteriorGhostIdx = iBoundary.GetAdjacentCell(GhostID);
 				fprintf(fid, "%.12e\n", isolution.GetEnergy(InteriorGhostIdx));
 			}
-			for (size_t GhostID = 0; GhostID < WallGhostCellIDs.size(); GhostID++) {
-				int InteriorGhostIdx = WallAdjacentToGhostCellIDs[GhostID];
+			for (size_t GhostID = 0; GhostID < nElements; GhostID++) {
+				int InteriorGhostIdx = iBoundary.GetAdjacentCell(GhostID);
 				fprintf(fid, "%.12e\n", isolution.GetV(InteriorGhostIdx));
 			}
 
 			// Connectivité des éléments de la partition
-			for (size_t GhostID = 0; GhostID < WallGhostCellIDs.size(); GhostID++) {
-				int FaceGhostIdx = WallAdjacentFaceIDs[GhostID];
+			for (size_t GhostID = 0; GhostID < nElements; GhostID++) {
 				int nNode;
-				int *ptr = iMesh.GetFace2NodeID(FaceGhostIdx, nNode);
+				const int *ptr = iBoundary.GetWallNodes(GhostID, nNode);
 				for (int iNode = 0; iNode < nNode; iNode++) {
 					fprintf(fid, "%d\t", ptr[iNode] + 1);
 				}

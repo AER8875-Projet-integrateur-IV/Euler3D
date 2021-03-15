@@ -23,6 +23,7 @@ BoundaryPost::BoundaryPost(std::string filename)
 }
 
 BoundaryPost::~BoundaryPost() {
+	_ifilestream.close();
 	return;
 }
 
