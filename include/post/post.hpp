@@ -13,6 +13,7 @@
 #include <string>
 #include <vector>
 
+#include "mesh/Mesh.hpp"
 #include "parser/Element.hpp"
 #include "parser/SU2MeshParser.hpp"
 #include "parser/SimConfig.hpp"
