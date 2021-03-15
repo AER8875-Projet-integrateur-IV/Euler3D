@@ -20,6 +20,7 @@ BoundaryPost::BoundaryPost(std::string filename)
 	}
 
 	parseFile();
+	setLocal2Global();
 }
 
 BoundaryPost::~BoundaryPost() {
@@ -51,4 +52,25 @@ void BoundaryPost::parseFile() {
 		}
 	}
 	return;
+}
+
+void BoundaryPost::setLocal2Global() {
+	_nNodes = 0;
+	_localNode2Global.reserve(4 * _nWallCells);
+	_nodeLoc.resize(_node.size());
+	for (int iNode = 0; iNode < _node.size(); iNode++) {
+		_nodeLoc[iNode] = saveLocalNode(_node[iNode]);
+	}
+	_localNode2Global.resize(_nNodes);
+}
+
+int BoundaryPost::saveLocalNode(int nodeG) {
+	for (int iLoc = 0; iLoc < _nNodes; iLoc++) {
+		if (_localNode2Global[iLoc] == nodeG) {
+			return iLoc;
+		}
+	}
+	_localNode2Global.push_back(nodeG);
+	_nNodes++;
+	return _nNodes - 1;
 }

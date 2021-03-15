@@ -282,22 +282,25 @@ void Post::WriteTecplotSurfaceASCII() {
 		E3D::Parser::SU2MeshParser iMesh = E3D::Parser::SU2MeshParser(_meshPartitionPath[iPart]);
 		E3D::Parser::BoundaryPost iBoundary(_meshPartitionPath[iPart] + ".bry");
 		// EEntête de la zone
-		int nNodes = iMesh.GetPointsCount();
+		int nNodes = iBoundary.GetWallNodeCount();
 		int nElements = iBoundary.GetWallElementCount();
 		if (nElements != 0) {
 			fprintf(fid, "ZONE T=\"Element\"\nNodes=%d, Elements=%d, ZONETYPE=FEQUADRILATERAL\nDATAPACKING=BLOCK, VARLOCATION=([4-10]=CELLCENTERED)\n", nNodes, nElements);
 
 			// Coordonnées des noeuds de la partition
 			for (int nodeI = 0; nodeI < nNodes; nodeI++) {
-				E3D::Parser::Node node = iMesh.GetPoints()[nodeI];
+				int nodeG = iBoundary.GetWallGlobalNode(nodeI);
+				E3D::Parser::Node node = iMesh.GetPoints()[nodeG];
 				fprintf(fid, "%.12e\n", node.getX());
 			}
 			for (int nodeI = 0; nodeI < nNodes; nodeI++) {
-				E3D::Parser::Node node = iMesh.GetPoints()[nodeI];
+				int nodeG = iBoundary.GetWallGlobalNode(nodeI);
+				E3D::Parser::Node node = iMesh.GetPoints()[nodeG];
 				fprintf(fid, "%.12e\n", node.getY());
 			}
 			for (int nodeI = 0; nodeI < nNodes; nodeI++) {
-				E3D::Parser::Node node = iMesh.GetPoints()[nodeI];
+				int nodeG = iBoundary.GetWallGlobalNode(nodeI);
+				E3D::Parser::Node node = iMesh.GetPoints()[nodeG];
 				fprintf(fid, "%.12e\n", node.getZ());
 			}
 
@@ -337,10 +340,16 @@ void Post::WriteTecplotSurfaceASCII() {
 			for (size_t GhostID = 0; GhostID < nElements; GhostID++) {
 				int nNode;
 				const int *ptr = iBoundary.GetWallNodes(GhostID, nNode);
-				for (int iNode = 0; iNode < nNode; iNode++) {
-					fprintf(fid, "%d\t", ptr[iNode] + 1);
+				if (nNode == 3)// triangle
+				{
+					fprintf(fid, "%d\t%d\t%d\t%d\n",
+					        ptr[0] + 1, ptr[1] + 1, ptr[2] + 1, ptr[2] + 1);
+				} else {
+					for (int iNode = 0; iNode < nNode; iNode++) {
+						fprintf(fid, "%d\t", ptr[iNode] + 1);
+					}
+					fprintf(fid, "\n");
 				}
-				fprintf(fid, "\n");
 			}
 		}
 	}
