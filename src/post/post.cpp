@@ -285,51 +285,52 @@ void Post::WriteTecplotSurfaceASCII() {
 		std::vector<int> WallGhostCellIDs;
 		std::vector<int> WallAdjacentToGhostCellIDs;
 		std::vector<int> WallAdjacentFaceIDs;
-		std::vector<int> facesAroundGhostCells;
+		// std::vector<int> facesAroundGhostCells;
 
-		int interiorElemsCount = iMesh.GetMeshInteriorElemCount();
-		for (int faceID = 0; faceID < iMesh.GetnFace(); faceID++) {
-			int *p_face2elem = iMesh.GetFace2ElementID(faceID);
-			if (p_face2elem[1] >= interiorElemsCount) {
-				facesAroundGhostCells.push_back(faceID);
-			}
-		}
-		for (auto &[partitionTag, faces] : iMesh.GetBoundaryConditionVector()) {
-			auto Tag = partitionTag;
-			// Transform it to be case insensitive
-			std::transform(Tag.begin(), Tag.end(), Tag.begin(), ::tolower);
-			if (Tag == "airfoil" || Tag == "wall") {
-				WallGhostCellIDs.reserve(faces.size());
-				WallAdjacentToGhostCellIDs.reserve(faces.size());
-				WallAdjacentFaceIDs.reserve(faces.size());
-				for (auto face : faces) {
+		// int interiorElemsCount = iMesh.GetMeshInteriorElemCount();
+		// for (int faceID = 0; faceID < iMesh.GetnFace(); faceID++) {
+		// 	int *p_face2elem = iMesh.GetFace2ElementID(faceID);
+		// 	if (p_face2elem[1] >= interiorElemsCount) {
+		// 		facesAroundGhostCells.push_back(faceID);
+		// 	}
+		// }
+		// std::cout << "Ghost Size: " << facesAroundGhostCells.size() << std::endl;
+		// for (auto &[partitionTag, faces] : iMesh.GetBoundaryConditionVector()) {
+		// 	auto Tag = partitionTag;
+		// 	// Transform it to be case insensitive
+		// 	std::transform(Tag.begin(), Tag.end(), Tag.begin(), ::tolower);
+		// 	if (Tag == "airfoil" || Tag == "wall") {
+		// 		WallGhostCellIDs.reserve(faces.size());
+		// 		WallAdjacentToGhostCellIDs.reserve(faces.size());
+		// 		WallAdjacentFaceIDs.reserve(faces.size());
+		// 		for (auto face : faces) {
 
-					auto wallFaceNodes = face.getElemNodes();
-					std::sort(wallFaceNodes.begin(), wallFaceNodes.end());
-					for (auto &faceConnectedToGC : facesAroundGhostCells) {
-						int numNodes = 0;
-						int *p_faceToNodes = iMesh.GetFace2NodeID(faceConnectedToGC, numNodes);
-						if (numNodes > 0) {
-							std::vector<int> tempNodes;
-							// std::cout << "NNodes: " << numNodes << "Face GC id: " << faceConnectedToGC << std::endl;
-							tempNodes.reserve(numNodes);
-							for (int i = 0; i < numNodes; i++) {
-								tempNodes.push_back(p_faceToNodes[i]);
-							}
-							std::sort(tempNodes.begin(), tempNodes.end());
-							if (tempNodes == wallFaceNodes) {
-								WallGhostCellIDs.push_back(iMesh.GetFace2ElementID(faceConnectedToGC)[1]);
-								WallAdjacentToGhostCellIDs.push_back(iMesh.GetFace2ElementID(faceConnectedToGC)[0]);
-								WallAdjacentFaceIDs.push_back(faceConnectedToGC);
-								break;
-							}
-						} else {
-							continue;
-						}
-					}
-				}
-			}
-		}
+		// 			auto wallFaceNodes = face.getElemNodes();
+		// 			std::sort(wallFaceNodes.begin(), wallFaceNodes.end());
+		// 			for (auto &faceConnectedToGC : facesAroundGhostCells) {
+		// 				int numNodes = 0;
+		// 				int *p_faceToNodes = iMesh.GetFace2NodeID(faceConnectedToGC, numNodes);
+		// 				if (numNodes > 0) {
+		// 					std::vector<int> tempNodes;
+		// 					// std::cout << "NNodes: " << numNodes << "Face GC id: " << faceConnectedToGC << std::endl;
+		// 					tempNodes.reserve(numNodes);
+		// 					for (int i = 0; i < numNodes; i++) {
+		// 						tempNodes.push_back(p_faceToNodes[i]);
+		// 					}
+		// 					std::sort(tempNodes.begin(), tempNodes.end());
+		// 					if (tempNodes == wallFaceNodes) {
+		// 						WallGhostCellIDs.push_back(iMesh.GetFace2ElementID(faceConnectedToGC)[1]);
+		// 						WallAdjacentToGhostCellIDs.push_back(iMesh.GetFace2ElementID(faceConnectedToGC)[0]);
+		// 						WallAdjacentFaceIDs.push_back(faceConnectedToGC);
+		// 						break;
+		// 					}
+		// 				} else {
+		// 					continue;
+		// 				}
+		// 			}
+		// 		}
+		// 	}
+		// }
 
 		int nNodes = iMesh.GetMeshNodeCount();
 		int nElements = WallGhostCellIDs.size();

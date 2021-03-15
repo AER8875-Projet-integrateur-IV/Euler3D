@@ -51,7 +51,7 @@ int main(int argc, char *argv[]) {
 
 	solver.Run();
 
-	E3D::Solver::WriteSolution writeSolution(localFlowField, config, e3d_mpi);
+	E3D::Solver::WriteSolution writeSolution(localFlowField, localmesh, config, e3d_mpi);
 
 	e3d_mpi.finalize();
 
