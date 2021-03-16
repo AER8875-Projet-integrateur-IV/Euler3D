@@ -28,11 +28,20 @@ Post::Post(const E3D::Parser::SimConfig &config) {
 	for (int i = 0; i < _nPart; i++) {
 		_solutionPartitionPath.push_back(_meshPartitionPath[i] + ".sol");
 	}
+	CoeffPression(config);
 	return;
 }
 
 Post::~Post() {
 	return;
+}
+
+void Post::CoeffPression(const E3D::Parser::SimConfig &config) {
+	const double E3D_PI = 3.141592653589793238;
+	double gamma_ref = config.getGamma();
+	double M_inf = config.getMach();
+	double rho_inf = 1.0;
+	_CpFactor = 1. / (0.5 * rho_inf * (M_inf * M_inf * gamma_ref));
 }
 
 void Post::Write() {
@@ -340,7 +349,8 @@ void Post::WriteTecplotSurfaceASCII() {
 			}
 			for (size_t GhostID = 0; GhostID < nElements; GhostID++) {
 				int InteriorGhostIdx = iBoundary.GetAdjacentCell(GhostID);
-				fprintf(fid, "%.12e\n", isolution.GetV(InteriorGhostIdx));
+				double Cp = _CpFactor * (isolution.GetPression(InteriorGhostIdx) - _p_inf);
+				fprintf(fid, "%.12e\n", Cp);
 			}
 
 			// Connectivité des éléments de la partition
@@ -436,7 +446,7 @@ void Post::WriteTecplotSurfaceBinary() {
 				W[GhostID] = isolution.GetW(InteriorGhostIdx);
 				P[GhostID] = isolution.GetPression(InteriorGhostIdx);
 				E[GhostID] = isolution.GetEnergy(InteriorGhostIdx);
-				Cp[GhostID] = isolution.GetPression(InteriorGhostIdx);
+				Cp[GhostID] = _CpFactor * (isolution.GetPression(InteriorGhostIdx) - _p_inf);
 			}
 
 			// Écriture des variables de la zone

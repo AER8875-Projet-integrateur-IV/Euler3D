@@ -32,6 +32,9 @@ namespace E3D::Post {
 		std::string _outputFile;
 		/*Nombre de partitions*/
 		int _nPart;
+
+		double _CpFactor;
+		double _p_inf = 1.0;
 		/**
          * Écrit la solution dans un fichier Tecplot
          *
@@ -41,6 +44,7 @@ namespace E3D::Post {
 		void WriteTecplotBinary();
 		void WriteTecplotSurfaceASCII();
 		void WriteTecplotSurfaceBinary();
+		void CoeffPression(const E3D::Parser::SimConfig &config);
 
 	public:
 		Post(const E3D::Parser::SimConfig &config);
