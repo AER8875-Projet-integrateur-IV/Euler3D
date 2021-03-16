@@ -24,6 +24,8 @@ namespace E3D::Solver {
 
 		void Run();
 
+		void WriteSummary();
+
 	private:
 		/**
          * @brief Computes boundary faces fluxes depending on :

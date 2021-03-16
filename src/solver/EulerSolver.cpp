@@ -3,6 +3,7 @@
 //
 #include "solver/EulerSolver.hpp"
 #include "solver/ResidualsFile.hpp"
+#include "toml++/toml.h"
 #include "utils/SolverPrint.hpp"
 #include "utils/Vector3.h"
 #include <filesystem>
@@ -113,10 +114,31 @@ void Solver::EulerSolver::Run() {
 		}
 	}
 
-	// End of solving actions
-	PrintCp();
+	WriteSummary();
 }
 
+void Solver::EulerSolver::WriteSummary() {
+	PrintCp();
+	auto sumWallVectors = _coeff.GetSumFaceVectors();
+	sumWallVectors = _e3d_mpi.UpdateAerodynamicCoefficients(sumWallVectors);
+
+	if (_e3d_mpi.getRankID() == 0) {
+		// Write summary in TOML format
+		auto tbl = toml::table{{{"Mesh", toml::table{{{"Wall_Face_Vector_Sum", toml::array{sumWallVectors.x, sumWallVectors.y, sumWallVectors.z}}}}},
+		                        {"Coefficients", toml::table{{
+		                                                 {"Force_Coeff", toml::array{_forceCoefficients.x, _forceCoefficients.y, _forceCoefficients.z}},
+		                                                 {"Moment_Coeff", toml::array{_momentCoefficients.x, _momentCoefficients.y, _momentCoefficients.z}},
+		                                                 {"CL", _CL},
+		                                                 {"CD", _CD},
+		                                                 {"CM", _CM},
+		                                         }}}}};
+		std::filesystem::path path = _outputDir / "summary.txt";
+		std::ofstream file(path);
+		file << tbl << std::endl;
+		file.close();
+		std::cout << "\nSummary printed at: " << path << std::endl;
+	}
+}
 
 // Update Farfield, Wall, Symmetry and MPI ghost cell primitive values
 void Solver::EulerSolver::updateBC() {
@@ -172,12 +194,12 @@ void Solver::EulerSolver::updateBC() {
 }
 
 void Solver::EulerSolver::PrintInfo(double iterationwallTime, double sumError) {
-	double CL = _forceCoefficients[_coeffOrientation[0].first] * _coeffOrientation[0].second;
-	double CD = _forceCoefficients[_coeffOrientation[1].first] * _coeffOrientation[1].second;
-	double CM = _momentCoefficients[_coeffOrientation[2].first] * _coeffOrientation[2].second;
+	_CL = _forceCoefficients[_coeffOrientation[0].first] * _coeffOrientation[0].second;
+	_CD = _forceCoefficients[_coeffOrientation[1].first] * _coeffOrientation[1].second;
+	_CM = _momentCoefficients[_coeffOrientation[2].first] * _coeffOrientation[2].second;
 	_residualFile.Update(sumError, _forceCoefficients, _momentCoefficients);
 	double _maximumDomainRms = std::sqrt(sumError / _localFlowField.getTotalDomainCounts());
-	E3D::Solver::PrintSolverIteration(CL, CD, CM, _maximumDomainRms, iterationwallTime, _nbInteration);
+	E3D::Solver::PrintSolverIteration(_CL, _CD, _CM, _maximumDomainRms, iterationwallTime, _nbInteration);
 }
 
 void Solver::EulerSolver::PrintCp() {
@@ -312,8 +334,4 @@ void Solver::EulerSolver::updateAerodynamicCoefficients() {
 	_forceCoefficients = _e3d_mpi.UpdateAerodynamicCoefficients(_forceCoefficients);
 	_momentCoefficients = _coeff.GetMomentCoeff();
 	_momentCoefficients = _e3d_mpi.UpdateAerodynamicCoefficients(_momentCoefficients);
-
-
-	_CL = _forces.y;
-	_CD = _forces.x;
 }
