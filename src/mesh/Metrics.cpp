@@ -327,5 +327,7 @@ void Metrics::verifyMetrics(){
 		std::cout << "X coord : " << faceNormSum.x << " for partition " << _localMesh.getMeshRankID() << "\n";
 		std::cout << "Y coord : " << faceNormSum.y << " for partition " << _localMesh.getMeshRankID() << "\n";
 		std::cout << "Z coord : " << faceNormSum.z << " for partition " << _localMesh.getMeshRankID() << "\n";
+
+		std::cout << "hello \n";
 	}
 }
