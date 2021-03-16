@@ -27,13 +27,16 @@ target_link_libraries(E3D_Solver PUBLIC Parser Mesh Parallel_tools Utils Connect
 
 target_link_libraries(E3D_Solver PUBLIC MPI::MPI_CXX)
 
-# Post-traitement
-find_library(TECIO_LIB tecio)
+
+
 find_path(
     TECIO_INCLUDE_DIR
     NAMES "TECIO.h"
-    HINTS "/usr/local/tecplot/360ex_2019r1/include"
+    HINTS "/usr/local/tecplot/360ex_2019r1/include/"
 )
+# Post-traitement
+find_library(TECIO_LIB tecio "/usr/local/tecplot/360ex_2019r1/bin/")
+
 message(STATUS "TECIO => ${TECIO_INCLUDE_DIR}")
 message(STATUS "TECIO => ${TECIO_LIB}")
 ADD_EXECUTABLE(E3D_POST postprocessor.cpp)
