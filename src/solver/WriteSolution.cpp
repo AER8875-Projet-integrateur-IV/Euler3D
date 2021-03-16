@@ -17,6 +17,7 @@ WriteSolution::WriteSolution(E3D::Solver::FlowField &flowField,
 
 WriteSolution::~WriteSolution() {
 	_Solfile.close();
+	_Boundaryfile.close();
 	return;
 }
 
