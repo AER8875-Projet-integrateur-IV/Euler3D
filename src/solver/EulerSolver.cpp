@@ -51,6 +51,7 @@ void Solver::EulerSolver::Run() {
 	                                                        0.0,
 	                                                        0.0));
 	_deltaT.resize(_localMesh.GetnElemTot(), 0);
+
 	_deltaW.resize(_localMesh.GetnElemTot(), ConservativeVar(0.0,
 	                                                         0.0,
 	                                                         0.0,
@@ -84,14 +85,18 @@ void Solver::EulerSolver::Run() {
 			}
 			break;
 		}
-
-		updateDeltaTime();
-		TimeIntegration();
-		updateW();
+		if (_config.getTemporalScheme() == Parser::SimConfig::TemporalScheme::RK5) {
+			RungeKutta();
+		} else {
+            //smoothResiduals();
+			updateDeltaTime();
+			TimeIntegration();
+			updateW();
+		}
 
 		_nbInteration += 1;
-
 		updateAerodynamicCoefficients();
+
 		if (_e3d_mpi.getRankID() == 0) {
 			residualFile << _maximumDomainRms << "\n";
 			if (_nbInteration % 20 == 0) {
@@ -173,60 +178,59 @@ void Solver::EulerSolver::updateBC() {
 
 void Solver::EulerSolver::computeResidual() {
 
-    //loop Thougth internal faces
-    for (int IfaceID = 0; IfaceID < _localMesh.GetnFaceInt(); IfaceID++) {
+	//loop Thougth internal faces
+	for (int IfaceID = 0; IfaceID < _localMesh.GetnFaceInt(); IfaceID++) {
 
-        int *ptr = _localMesh.GetFace2ElementID(IfaceID);
-        int element1 = ptr[0];
-        int element2 = ptr[1];
+		int *ptr = _localMesh.GetFace2ElementID(IfaceID);
+		int element1 = ptr[0];
+		int element2 = ptr[1];
 
-        ResidualVar residu = Solver::Roe(_localFlowField, _localMesh, _localMetrics, IfaceID);
-
-
-        double surfaceArea = _localMetrics.getFaceSurfaces()[IfaceID];
-        _residuals[element1] += residu * surfaceArea;
-        _residuals[element2] -= residu * surfaceArea;
-    }
+		ResidualVar residu = Solver::Roe(_localFlowField, _localMesh, _localMetrics, IfaceID);
 
 
-    // loop through external faces
-    for (int EfaceID = _localMesh.GetnFaceInt(); EfaceID < _localMesh.GetnFace(); EfaceID++) {
+		double surfaceArea = _localMetrics.getFaceSurfaces()[IfaceID];
+		_residuals[element1] += residu * surfaceArea;
+		_residuals[element2] -= residu * surfaceArea;
+	}
 
-        int *ptr = _localMesh.GetFace2ElementID(EfaceID);
-        int element1 = ptr[0];
-        int element2 = ptr[1];
-        double surfaceArea = _localMetrics.getFaceSurfaces()[EfaceID];
+	// loop through external faces
+	for (int EfaceID = _localMesh.GetnFaceInt(); EfaceID < _localMesh.GetnFace(); EfaceID++) {
 
-
-        //If Wall
-        if (std::binary_search(_sortedWallGhostCellIDs.begin(), _sortedWallGhostCellIDs.end(), element2)) {
-            double composant1 = _localMetrics.getFaceNormalsUnit()[EfaceID].x * _localFlowField.GetP()[element2];
-            double composant2 = _localMetrics.getFaceNormalsUnit()[EfaceID].y * _localFlowField.GetP()[element2];
-            double composant3 = _localMetrics.getFaceNormalsUnit()[EfaceID].z * _localFlowField.GetP()[element2];
-
-            ResidualVar residu = {0, composant1, composant2, composant3, 0};
-            _residuals[element1] += residu * surfaceArea;
-
-        }
+		int *ptr = _localMesh.GetFace2ElementID(EfaceID);
+		int element1 = ptr[0];
+		int element2 = ptr[1];
+		double surfaceArea = _localMetrics.getFaceSurfaces()[EfaceID];
 
 
-            // If MPI or Symmetry
-        else if (std::binary_search(_sortedMPIGhostCellIDs.begin(), _sortedMPIGhostCellIDs.end(), element2) || std::binary_search(_sortedSymmetryGhostCellIDs.begin(), _sortedSymmetryGhostCellIDs.end(), element2)) {
-            ResidualVar residu = Solver::Roe(_localFlowField, _localMesh, _localMetrics, EfaceID);
-            _residuals[element1] += residu * surfaceArea;
-        }
+		//If Wall
+		if (std::binary_search(_sortedWallGhostCellIDs.begin(), _sortedWallGhostCellIDs.end(), element2)) {
+			double composant1 = _localMetrics.getFaceNormalsUnit()[EfaceID].x * _localFlowField.GetP()[element2];
+			double composant2 = _localMetrics.getFaceNormalsUnit()[EfaceID].y * _localFlowField.GetP()[element2];
+			double composant3 = _localMetrics.getFaceNormalsUnit()[EfaceID].z * _localFlowField.GetP()[element2];
 
-            // if farfield
-        else {
-            double V = _localFlowField.GetU_Velocity()[element2] * _localMetrics.getFaceNormalsUnit()[EfaceID].x +
-                       _localFlowField.GetV_Velocity()[element2] * _localMetrics.getFaceNormalsUnit()[EfaceID].y +
-                       _localFlowField.GetW_Velocity()[element2] * _localMetrics.getFaceNormalsUnit()[EfaceID].z;
+			ResidualVar residu = {0, composant1, composant2, composant3, 0};
+			_residuals[element1] += residu * surfaceArea;
 
-            ResidualVar residu = Solver::Fc(_localFlowField, _localMetrics, element2, EfaceID, V);
+		}
 
-            _residuals[element1] += residu * surfaceArea;
-        }
-    }
+
+		// If MPI or Symmetry
+		else if (std::binary_search(_sortedMPIGhostCellIDs.begin(), _sortedMPIGhostCellIDs.end(), element2) || std::binary_search(_sortedSymmetryGhostCellIDs.begin(), _sortedSymmetryGhostCellIDs.end(), element2)) {
+			ResidualVar residu = Solver::Roe(_localFlowField, _localMesh, _localMetrics, EfaceID);
+			_residuals[element1] += residu * surfaceArea;
+		}
+
+		// if farfield
+		else {
+			double V = _localFlowField.GetU_Velocity()[element2] * _localMetrics.getFaceNormalsUnit()[EfaceID].x +
+			           _localFlowField.GetV_Velocity()[element2] * _localMetrics.getFaceNormalsUnit()[EfaceID].y +
+			           _localFlowField.GetW_Velocity()[element2] * _localMetrics.getFaceNormalsUnit()[EfaceID].z;
+
+			ResidualVar residu = Solver::Fc(_localFlowField, _localMetrics, element2, EfaceID, V);
+
+			_residuals[element1] += residu * surfaceArea;
+		}
+	}
 }
 
 
@@ -281,4 +285,90 @@ void Solver::EulerSolver::updateAerodynamicCoefficients() {
 	_forces = _e3d_mpi.UpdateAerodynamicCoefficients(_forces);
 	_CL = _forces.y;
 	_CD = _forces.x;
+}
+
+
+void Solver::EulerSolver::RungeKutta() {
+
+	std::array<double, 4> RKcoefficients = {0.1263, 0.2375, 0.4414, 1.0};
+	std::vector<ConservativeVar> RHS_W(_localMesh.GetnElemTot());
+	std::vector<ConservativeVar> W0(_localMesh.GetnElemTot());
+	for (int i = 0; i < _localMesh.GetnElemTot(); i++) {
+		double rho = _localFlowField.Getrho()[i];
+		W0[i].rho = rho;
+		W0[i].rhoU = _localFlowField.GetU_Velocity()[i] * rho;
+		W0[i].rhoV = _localFlowField.GetV_Velocity()[i] * rho;
+		W0[i].rhoW = _localFlowField.GetW_Velocity()[i] * rho;
+		W0[i].rhoE = _localFlowField.GetE()[i] * rho;
+	}
+    //smoothResiduals();
+	updateDeltaTime();
+
+	for (int i = 0; i < _localMesh.GetnElemTot(); i++) {
+		double volume = _localMetrics.getCellVolumes()[i];
+		double dt = _deltaT[i];
+		RHS_W[i].rho = 0.0533 * dt * _residuals[i].m_rhoV_residual / volume;
+		RHS_W[i].rhoU = 0.0533 * dt * _residuals[i].m_rho_uV_residual / volume;
+		RHS_W[i].rhoV = 0.0533 * dt * _residuals[i].m_rho_vV_residual / volume;
+		RHS_W[i].rhoW = 0.0533 * dt * _residuals[i].m_rho_wV_residual / volume;
+		RHS_W[i].rhoE = 0.0533 * dt * _residuals[i].m_rho_HV_residual / volume;
+	}
+	_localFlowField.updateWRungeKutta(RHS_W, W0);
+
+	for (auto &alpha : RKcoefficients) {
+		RHS_W.clear();
+		resetResiduals();
+		updateBC();
+		computeResidual();
+		//smoothResiduals();
+		updateDeltaTime();
+
+		for (int i = 0; i < _localMesh.GetnElemTot(); i++) {
+			double volume = _localMetrics.getCellVolumes()[i];
+			double dt = _deltaT[i];
+			RHS_W[i].rho = alpha * dt * _residuals[i].m_rhoV_residual / volume;
+			RHS_W[i].rhoU = alpha * dt * _residuals[i].m_rho_uV_residual / volume;
+			RHS_W[i].rhoV = alpha * dt * _residuals[i].m_rho_vV_residual / volume;
+			RHS_W[i].rhoW = alpha * dt * _residuals[i].m_rho_wV_residual / volume;
+			RHS_W[i].rhoE = alpha * dt * _residuals[i].m_rho_HV_residual / volume;
+		}
+		_localFlowField.updateWRungeKutta(RHS_W, W0);
+	}
+}
+void Solver::EulerSolver::smoothResiduals() {
+
+
+	const double epsilon = 0.5;
+	auto original_residual = _residuals;
+	std::vector<ResidualVar> last_residual(_localMesh.GetnElemTot());
+	std::vector<ResidualVar> diff(_localMesh.GetnElemTot());
+	double error = 0.0;
+
+	do {
+		error = 0.0;
+
+		last_residual = _residuals;
+		for (int ielem = 0; ielem < _localMesh.GetnElemTot(); ielem++) {
+			ResidualVar sumSurrResidual(0.0, 0.0, 0.0, 0.0, 0.0);
+			int nSurrElems;
+			int *SurrElems = _localMesh.GetElement2ElementID(ielem, nSurrElems);
+			for (int i = 0; i < nSurrElems; i++) {
+				if (SurrElems[i] < _localMesh.GetnElemTot()) {
+					sumSurrResidual += (last_residual[SurrElems[i]] * epsilon);
+				}
+			}
+			_residuals[ielem] = (original_residual[ielem] + sumSurrResidual) / (1 + nSurrElems*epsilon);
+		}
+		std::transform(_residuals.begin(), _residuals.end(), last_residual.begin(), diff.begin(), std::minus<ResidualVar>());
+
+		for (auto &ResidualDiff : diff) {
+			double maxRes = ResidualDiff.findMax();
+			if (maxRes > error) {
+				error = maxRes;
+			}
+		}
+
+		diff.clear();
+		last_residual.clear();
+	} while (error > 1e-15);
 }

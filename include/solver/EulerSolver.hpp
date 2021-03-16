@@ -63,6 +63,8 @@ namespace E3D::Solver {
          */
 		void TimeIntegration();
 
+		void RungeKutta();
+
 		/**
          * @brief UpdateW in localFlowField
          */
@@ -74,6 +76,8 @@ namespace E3D::Solver {
 		void sortGhostCells();
 
 		void resetResiduals();
+
+		void smoothResiduals();
 
 
 		std::vector<E3D::Solver::ResidualVar> _residuals;
