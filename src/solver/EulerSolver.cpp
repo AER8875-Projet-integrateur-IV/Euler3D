@@ -20,15 +20,12 @@ Solver::EulerSolver::EulerSolver(FlowField &localFlowField,
     : _localFlowField(localFlowField), _e3d_mpi(e3d_mpi), _localMesh(localMesh), _config(config), _localMetrics(localMetrics) {
 
 	_samplePeriod = config.getSamplingPeriod();
-
+	_outputDir = config.GetoutputDir();
 	if (e3d_mpi.getRankID() == 0) {
 		std::cout << "\n\n"
 		          << std::string(24, '#') << "  Starting Solving Process !  " << std::string(24, '#') << "\n\n";
 		// Open file to write residual
-		std::filesystem::path outputPath(_config.getTecplotFile());
-		std::filesystem::path residualsPath;
-		residualsPath = outputPath.replace_filename("residuals.dat");
-		new (&_residualFile) ResidualsFile(residualsPath);
+		new (&_residualFile) ResidualsFile(_outputDir / "residuals.dat");
 	}
 	E3D::Vector3<double> uInf(localFlowField.getu_inf(), localFlowField.getv_inf(), localFlowField.getw_inf());
 	_coeffOrientation = std::vector<std::pair<int, int>>{config.getMeshOrientationCL(),
@@ -115,6 +112,9 @@ void Solver::EulerSolver::Run() {
 			std::cout << "Solution converged OR a NAN encountred !";
 		}
 	}
+
+	// End of solving actions
+	PrintCp();
 }
 
 
@@ -175,10 +175,30 @@ void Solver::EulerSolver::PrintInfo(double iterationwallTime, double sumError) {
 	double CL = _forceCoefficients[_coeffOrientation[0].first] * _coeffOrientation[0].second;
 	double CD = _forceCoefficients[_coeffOrientation[1].first] * _coeffOrientation[1].second;
 	double CM = _momentCoefficients[_coeffOrientation[2].first] * _coeffOrientation[2].second;
-	printf("%f       %f           %f\n", _momentCoefficients.x, _momentCoefficients.y, _momentCoefficients.z);
 	_residualFile.Update(sumError, _forceCoefficients, _momentCoefficients);
 	double _maximumDomainRms = std::sqrt(sumError / _localFlowField.getTotalDomainCounts());
 	E3D::Solver::PrintSolverIteration(CL, CD, CM, _maximumDomainRms, iterationwallTime, _nbInteration);
+}
+
+void Solver::EulerSolver::PrintCp() {
+	std::ofstream file(_outputDir / ("cp_part_" + std::to_string(_e3d_mpi.getRankID()) + ".dat"));
+	file << std::setw(20) << "Cp"
+	     << std::setw(20) << "x"
+	     << std::setw(20) << "y"
+	     << std::setw(20) << "z"
+	     << std::endl;
+
+	std::vector<E3D::Vector3<double>> centroids = _coeff.GetCentroids();
+	std::vector<double> cp = _coeff.GetCp();
+	for (int i = 0; i < centroids.size(); i++) {
+		E3D::Vector3<double> &cent = centroids[i];
+		file << std::scientific << std::setprecision(10) << std::setw(20) << cp[i]
+		     << std::scientific << std::setprecision(10) << std::setw(20) << cent.x
+		     << std::scientific << std::setprecision(10) << std::setw(20) << cent.y
+		     << std::scientific << std::setprecision(10) << std::setw(20) << cent.z
+		     << std::endl;
+	}
+	file.close();
 }
 
 void Solver::EulerSolver::computeResidual() {

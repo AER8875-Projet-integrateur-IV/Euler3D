@@ -213,6 +213,10 @@ void SimConfig::parseConfigFile() {
 			break;
 	};
 	_meshOrientationCM = std::make_pair(3 - _meshOrientationCL.first - _meshOrientationCD.first, -_meshOrientationCD.second * _meshOrientationCD.second);
+
+	// Define standard output Dir
+	std::filesystem::path outputPath(_tecplotFile);
+	_outputDir = outputPath.parent_path();
 }
 
 void SimConfig::printInfo() {

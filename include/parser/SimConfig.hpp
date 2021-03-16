@@ -1,6 +1,7 @@
 #pragma once
 
 #include "utils/Vector3.h"
+#include <filesystem>
 #include <fstream>
 #include <sstream>
 #include <string>
@@ -124,7 +125,7 @@ namespace E3D::Parser {
 		inline std::pair<int, int> getMeshOrientationCM() const { return _meshOrientationCM; }
 		inline E3D::Vector3<double> getMeshRefPoint() const { return _meshRefPoint; }
 		inline int getSamplingPeriod() const { return _samplingPeriod; }
-
+		inline const std::filesystem::path &GetoutputDir() const { return _outputDir; }
 
 	private:
 		std::ifstream _configFileStream;
@@ -135,6 +136,8 @@ namespace E3D::Parser {
 		std::string _preProcessorLog;
 		std::string _solverLog;
 		std::string _postProcessorLog;
+		std::filesystem::path _outputDir;
+
 		double _aoa;
 		double _mach;
 		double _velocity;

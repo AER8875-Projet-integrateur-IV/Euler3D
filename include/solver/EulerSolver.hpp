@@ -75,7 +75,19 @@ namespace E3D::Solver {
 
 		void resetResiduals();
 
+		/**
+		 * @brief Print current iteration info to console and to file
+		 * 
+		 * @param iterationwallTime Iteration time
+		 * @param sumError maximal current RMS error
+		 */
 		void PrintInfo(double iterationwallTime, double sumError);
+
+		/**
+		 * @brief Print Cp and centroid coordinates to file in output dir
+		 * 
+		 */
+		void PrintCp();
 
 		std::vector<E3D::Solver::ResidualVar> _residuals;
 		E3D::Vector3<double> _forces;
@@ -98,6 +110,7 @@ namespace E3D::Solver {
 		const E3D::Mesh<E3D::Parser::MeshPartition> &_localMesh;
 		const E3D::Parser::SimConfig &_config;
 		const E3D::Metrics &_localMetrics;
+		std::filesystem::path _outputDir;
 		ResidualsFile _residualFile;
 
 		const std::vector<std::pair<int, std::vector<int>>> _PairsMpiGhostCellIDs = _localMesh.VectorGetMPIGhostCellsIDs();
