@@ -32,6 +32,9 @@ E3D::Metrics::Metrics(const Mesh<Parser::MeshPartition> &localMesh, const Parall
 	computeCellMetrics();
 	reorientFaceVectors();
 
+	// Metrics verification
+	verifyMetrics();
+
 
 	//reorientFaceVectors();
 	double endMetricsTimer = MPI_Wtime();
@@ -289,5 +292,40 @@ void Metrics::reorientFaceVectors() {
 				_faceUnitNormals[iface] *= -1;
 			}
 		}
+	}
+}
+
+// This next function's only purpose is to verify that the metrics are computed correctly
+void Metrics::verifyMetrics(){
+
+	const int nFaces = _localMesh.GetnFace();
+
+	E3D::Vector3<double> faceNormSum = {0,0,0};
+
+	if (_localMesh.getMeshRankID()==0){
+
+		// Verify the initalization of the Sum vector
+		std::cout << "Sum of face vectors initialization" << "\n";
+		std::cout << "X coord : " << faceNormSum.x << "\n";
+		std::cout << "Y coord : " << faceNormSum.y << "\n";
+		std::cout << "Z coord : " << faceNormSum.z << "\n";
+	}
+
+	// Sum of the face vectors around the mesh
+	std::cout << "Summing face normals... \n";
+	for (int iFace = 0; iFace < nFaces; iFace++){
+
+		faceNormSum += _faceUnitNormals[iFace];
+		
+	}
+
+	MPI_Barrier(MPI_COMM_WORLD);
+	// Verifying the final sumation
+	if (_localMesh.getMeshRankID()==0){
+
+		std::cout << "Sum of face vectors" << "\n";
+		std::cout << "X coord : " << faceNormSum.x << " for partition " << _localMesh.getMeshRankID() << "\n";
+		std::cout << "Y coord : " << faceNormSum.y << " for partition " << _localMesh.getMeshRankID() << "\n";
+		std::cout << "Z coord : " << faceNormSum.z << " for partition " << _localMesh.getMeshRankID() << "\n";
 	}
 }

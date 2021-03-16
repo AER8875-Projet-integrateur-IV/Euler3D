@@ -43,6 +43,8 @@ namespace E3D {
          */
 		void reorientFaceVectors();
 
+		void verifyMetrics();
+
 
 		const Mesh<Parser::MeshPartition> &_localMesh;
 		std::vector<Vector3<double>> _faceNormals;
