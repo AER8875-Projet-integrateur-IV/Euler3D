@@ -42,7 +42,7 @@ void WriteSolution::writeSolutionFile() {
 	std::vector<double> p = _flowField.GetP();
 	std::vector<double> E = _flowField.GetE();
 
-	for (size_t i = 0; i < rho.size(); i++) {
+	for (size_t i = 0; i < _localMesh.GetMeshInteriorElemCount(); i++) {
 		_Solfile << std::setw(20) << rho[i]
 		         << std::setw(20) << u[i]
 		         << std::setw(20) << v[i]
