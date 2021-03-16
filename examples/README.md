@@ -81,7 +81,7 @@ Run instructions:
     $   ./naca0012_9x9x5_supersonic_125.bsh
 ```
 
-## ONERA M6 transsonic 1.25 deg
+## naca0012 125x125x2 transsonic 1.25
 
 Mach = 0.8
 
@@ -89,6 +89,18 @@ AOA= 1.25
 
 Run instructions:
 ```
-    $   cd ONERA_transsonic_125
-    $   ./ONERA_transsonic_125.bsh
+    $   cd naca0012_129x129x2_transsonic_125
+    $   ./naca0012_129x129x2_transsonic_125.bsh
+```
+
+## ONERA M6 transsonic
+
+Mach = 0.8395
+
+AOA= 3.06
+
+Run instructions:
+```
+    $   cd ONERA_transsonic
+    $   ./ONERA_transsonic.bsh
 ```

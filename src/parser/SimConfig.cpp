@@ -8,6 +8,8 @@
 #include <iomanip>
 #include <iostream>
 #include <regex>
+#include <stdexcept>
+
 using namespace E3D::Parser;
 
 SimConfig::SimConfig(const std::string &filename, const int rankID, const int poolSize)
@@ -44,7 +46,8 @@ SimConfig::SimConfig(const std::string &filename)
 }
 
 void SimConfig::parseConfigFile() {
-
+	int meshOrientationCL;
+	int meshOrientationCD;
 	std::string line;
 
 	while (std::getline(_configFileStream, line)) {
@@ -80,7 +83,18 @@ void SimConfig::parseConfigFile() {
 						partitionMeshes.push_back(tempModifiedPartitionName);
 					}
 					_meshFiles = partitionMeshes;
-
+				} else if (line.find("MESH_ORIENTATION_CL=") != std::string::npos) {
+					ss1.seekg(21) >> meshOrientationCL;
+				} else if (line.find("MESH_ORIENTATION_CD=") != std::string::npos) {
+					ss1.seekg(21) >> meshOrientationCD;
+				} else if (line.find("MESH_REF_POINT_X=") != std::string::npos) {
+					ss1.seekg(18) >> _meshRefPoint.x;
+				} else if (line.find("MESH_REF_POINT_Y=") != std::string::npos) {
+					ss1.seekg(18) >> _meshRefPoint.y;
+				} else if (line.find("MESH_REF_POINT_Z=") != std::string::npos) {
+					ss1.seekg(18) >> _meshRefPoint.z;
+				} else if (line.find("SAMPLING=") != std::string::npos) {
+					ss1.seekg(10) >> _samplingPeriod;
 				} else if (line.find("PRE_LOG=") != std::string::npos) {
 					ss1.seekg(9) >> _preProcessorLog;
 				} else if (line.find("SPEED_OPTION") != std::string::npos) {
@@ -150,6 +164,59 @@ void SimConfig::parseConfigFile() {
 		_velocity = _mach;
 		_mach = _velocity / (std::sqrt(_gamma * _gasConstant * _temp));
 	}
+
+	// Solve mesh orientation
+	switch (meshOrientationCL) {
+		case 0:
+			_meshOrientationCL = std::make_pair(0, 1);
+			break;
+		case 1:
+			_meshOrientationCL = std::make_pair(0, -1);
+			break;
+		case 2:
+			_meshOrientationCL = std::make_pair(1, 1);
+			break;
+		case 3:
+			_meshOrientationCL = std::make_pair(1, -1);
+			break;
+		case 4:
+			_meshOrientationCL = std::make_pair(2, 1);
+			break;
+		case 5:
+			_meshOrientationCL = std::make_pair(2, -1);
+			break;
+		default:
+			throw std::invalid_argument("invalid MESH_ORIENTATION_CL argument");
+			break;
+	};
+	switch (meshOrientationCD) {
+		case 0:
+			_meshOrientationCD = std::make_pair(0, 1);
+			break;
+		case 1:
+			_meshOrientationCD = std::make_pair(0, -1);
+			break;
+		case 2:
+			_meshOrientationCD = std::make_pair(1, 1);
+			break;
+		case 3:
+			_meshOrientationCD = std::make_pair(1, -1);
+			break;
+		case 4:
+			_meshOrientationCD = std::make_pair(2, 1);
+			break;
+		case 5:
+			_meshOrientationCD = std::make_pair(2, -1);
+			break;
+		default:
+			throw std::invalid_argument("invalid MESH_ORIENTATION_CD argument");
+			break;
+	};
+	_meshOrientationCM = std::make_pair(3 - _meshOrientationCL.first - _meshOrientationCD.first, -_meshOrientationCD.second * _meshOrientationCD.second);
+
+	// Define standard output Dir
+	std::filesystem::path outputPath(_tecplotFile);
+	_outputDir = outputPath.parent_path();
 }
 
 void SimConfig::printInfo() {
