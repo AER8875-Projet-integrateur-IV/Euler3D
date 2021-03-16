@@ -48,22 +48,34 @@ void Post::Write() {
 	std::cout << std::string(24, '#') << "  TECPLOT  " << std::string(24, '#') << "\n"
 	          << std::endl;
 	auto logger = E3D::Logger::Getspdlog();
+
+	// Tecplot ASCII
+	std::cout << "Écriture du fichier Tecpot (ASCII) ..." << std::endl;
 	spdlog::stopwatch tecplotASCIIsw;
 	WriteTecplotASCII();
 	std::cout << "Output ASCII File: " << _outputFile << std::endl;
 	logger->debug("Writing Tecplot ASCII file run time {}", tecplotASCIIsw);
+
+	// Tecplot Binaire
+	std::cout << "Écriture du fichier Tecpot (Binaire) ..." << std::endl;
 	spdlog::stopwatch tecplotBinarysw;
 	WriteTecplotBinary();
-	logger->debug("Writing Tecplot Binary file run time {}", tecplotBinarysw);
 	std::cout << "Output Binary File: " << _outputFile + ".plt" << std::endl;
+	logger->debug("Writing Tecplot Binary file run time {}", tecplotBinarysw);
+
+	// Tecplot Surface ASCII
+	std::cout << "Écriture du fichier Tecpot Surface (ASCII) ..." << std::endl;
 	spdlog::stopwatch tecplotSurfaceASCIIsw;
 	WriteTecplotSurfaceASCII();
 	std::cout << "Output (surface) ASCII File: " << _outputFile + ".surf.dat" << std::endl;
 	logger->debug("Writing Tecplot Surface ASCII file run time {}", tecplotSurfaceASCIIsw);
+
+	// Tecplot Surface Binaire
+	std::cout << "Écriture du fichier Tecpot Surface (Binaire) ..." << std::endl;
 	spdlog::stopwatch tecplotSurfaceBinarysw;
 	WriteTecplotSurfaceBinary();
-	logger->debug("Writing Tecplot Surface Binary file run time {}", tecplotSurfaceBinarysw);
 	std::cout << "Output (Surface) Binary File: " << _outputFile + ".surf.plt" << std::endl;
+	logger->debug("Writing Tecplot Surface Binary file run time {}", tecplotSurfaceBinarysw);
 	std::cout << "\n";
 }
 
