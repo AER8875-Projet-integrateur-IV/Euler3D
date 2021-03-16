@@ -6,6 +6,7 @@
 #include "utils/Logger.hpp"
 #include <iostream>
 #include <memory>
+
 /**
  * @brief Entry point for the Euler3D software
  * @param argc : Number of command line parameters

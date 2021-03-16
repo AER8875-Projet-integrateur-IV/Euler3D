@@ -10,10 +10,11 @@
  */
 #pragma once
 #include <iostream>
-#include <string.h>
-#include <unordered_map>
+#include <string>
 #include <vector>
 
+#include "mesh/Mesh.hpp"
+#include "parser/BoundaryPost.hpp"
 #include "parser/Element.hpp"
 #include "parser/SU2MeshParser.hpp"
 #include "parser/SimConfig.hpp"
@@ -31,6 +32,9 @@ namespace E3D::Post {
 		std::string _outputFile;
 		/*Nombre de partitions*/
 		int _nPart;
+
+		double _CpFactor;
+		double _p_inf = 1.0;
 		/**
          * Écrit la solution dans un fichier Tecplot
          *
@@ -38,6 +42,9 @@ namespace E3D::Post {
          */
 		void WriteTecplotASCII();
 		void WriteTecplotBinary();
+		void WriteTecplotSurfaceASCII();
+		void WriteTecplotSurfaceBinary();
+		void CoeffPression(const E3D::Parser::SimConfig &config);
 
 	public:
 		Post(const E3D::Parser::SimConfig &config);

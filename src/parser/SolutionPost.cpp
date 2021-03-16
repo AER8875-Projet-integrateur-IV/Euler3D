@@ -30,6 +30,7 @@ SolutionPost::SolutionPost(std::string filename, int nElem)
 }
 
 SolutionPost::~SolutionPost() {
+	_ifilestream.close();
 	return;
 }
 
