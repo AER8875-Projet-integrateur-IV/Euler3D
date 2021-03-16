@@ -49,12 +49,12 @@ void Post::Write() {
 	          << std::endl;
 	auto logger = E3D::Logger::Getspdlog();
 
-	// Tecplot ASCII
-	std::cout << "Écriture du fichier Tecpot (ASCII) ..." << std::endl;
-	spdlog::stopwatch tecplotASCIIsw;
-	WriteTecplotASCII();
-	std::cout << "Output ASCII File: " << _outputFile << std::endl;
-	logger->debug("Writing Tecplot ASCII file run time {}", tecplotASCIIsw);
+	// // Tecplot ASCII
+	// std::cout << "Écriture du fichier Tecpot (ASCII) ..." << std::endl;
+	// spdlog::stopwatch tecplotASCIIsw;
+	// WriteTecplotASCII();
+	// std::cout << "Output ASCII File: " << _outputFile << std::endl;
+	// logger->debug("Writing Tecplot ASCII file run time {}", tecplotASCIIsw);
 
 	// Tecplot Binaire
 	std::cout << "Écriture du fichier Tecpot (Binaire) ..." << std::endl;
@@ -63,18 +63,18 @@ void Post::Write() {
 	std::cout << "Output Binary File: " << _outputFile + ".plt" << std::endl;
 	logger->debug("Writing Tecplot Binary file run time {}", tecplotBinarysw);
 
-	// Tecplot Surface ASCII
-	std::cout << "Écriture du fichier Tecpot Surface (ASCII) ..." << std::endl;
-	spdlog::stopwatch tecplotSurfaceASCIIsw;
-	WriteTecplotSurfaceASCII();
-	std::cout << "Output (surface) ASCII File: " << _outputFile + ".surf.dat" << std::endl;
-	logger->debug("Writing Tecplot Surface ASCII file run time {}", tecplotSurfaceASCIIsw);
+	// // Tecplot Surface ASCII
+	// std::cout << "Écriture du fichier Tecpot Surface (ASCII) ..." << std::endl;
+	// spdlog::stopwatch tecplotSurfaceASCIIsw;
+	// WriteTecplotSurfaceASCII();
+	// std::cout << "Output (surface) ASCII File: " << _outputFile + ".surf.dat" << std::endl;
+	// logger->debug("Writing Tecplot Surface ASCII file run time {}", tecplotSurfaceASCIIsw);
 
 	// Tecplot Surface Binaire
 	std::cout << "Écriture du fichier Tecpot Surface (Binaire) ..." << std::endl;
 	spdlog::stopwatch tecplotSurfaceBinarysw;
 	WriteTecplotSurfaceBinary();
-	std::cout << "Output (Surface) Binary File: " << _outputFile + ".surf.plt" << std::endl;
+	std::cout << "Output (Surface) Binary File: " << _outputFile + "_surface.plt" << std::endl;
 	logger->debug("Writing Tecplot Surface Binary file run time {}", tecplotSurfaceBinarysw);
 	std::cout << "\n";
 }
@@ -82,7 +82,8 @@ void Post::Write() {
 void Post::WriteTecplotASCII() {
 
 	// Création du fichier
-	FILE *fid = fopen(_outputFile.c_str(), "w");
+	std::string outputFile = _outputFile + ".dat";
+	FILE *fid = fopen(outputFile.c_str(), "w");
 	// Entête du fichier
 	fprintf(fid, "VARIABLES=\"X\",\"Y\",\"Z\",\"Rho\",\"U\",\"V\",\"W\",\"P\",\"E\"\n");
 	for (int iPart = 0; iPart < _nPart; iPart++) {
@@ -301,7 +302,7 @@ void Post::WriteTecplotBinary() {
 void Post::WriteTecplotSurfaceASCII() {
 
 	// Création du fichier
-	std::string fileName = _outputFile + ".surf.dat";
+	std::string fileName = _outputFile + "_surface.dat";
 	FILE *fid = fopen(fileName.c_str(), "w");
 	// Entête du fichier
 	fprintf(fid, "VARIABLES=\"X\",\"Y\",\"Z\",\"Rho\",\"U\",\"V\",\"W\",\"P\",\"E\",\"Cp\"\n");
@@ -392,7 +393,7 @@ void Post::WriteTecplotSurfaceBinary() {
 	//Initialisation du fichier binaire
 	char const *Title = "Titre du fichier";
 	char const *Variables = "X,Y,Z,Rho,U,V,W,P,E,Cp";
-	std::string outputFile = _outputFile + ".surf.plt";
+	std::string outputFile = _outputFile + "_surface.plt";
 	char const *FName = outputFile.c_str();
 	char const *ScratchDir = ".";
 	INTEGER4 FileFormat = 0;// 0 = .plt et 1 = .szplt
@@ -449,7 +450,7 @@ void Post::WriteTecplotSurfaceBinary() {
 				Y[nodeI] = node.getY();
 				Z[nodeI] = node.getZ();
 			}
-			E3D::Parser::SolutionPost isolution(_solutionPartitionPath[iPart], NumElements);
+			E3D::Parser::SolutionPost isolution(_solutionPartitionPath[iPart], iMesh.GetVolumeElemCount());
 			for (size_t GhostID = 0; GhostID < nElements; GhostID++) {
 				int InteriorGhostIdx = iBoundary.GetAdjacentCell(GhostID);
 				Rho[GhostID] = isolution.GetRho(InteriorGhostIdx);
