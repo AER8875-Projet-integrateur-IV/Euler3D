@@ -232,7 +232,7 @@ void Solver::EulerSolver::computeResidual() {
 		int element1 = ptr[0];
 		int element2 = ptr[1];
 
-		ResidualVar residu = Solver::Roe(_localFlowField, _localMesh, _localMetrics, IfaceID, false);
+		ResidualVar residu = Solver::Roe(_localFlowField, _localMesh, _localMetrics, IfaceID);
 
 
 		double surfaceArea = _localMetrics.getFaceSurfaces()[IfaceID];
@@ -264,7 +264,7 @@ void Solver::EulerSolver::computeResidual() {
 
 		// If MPI or Symmetry
 		else if (std::binary_search(_sortedMPIGhostCellIDs.begin(), _sortedMPIGhostCellIDs.end(), element2) || std::binary_search(_sortedSymmetryGhostCellIDs.begin(), _sortedSymmetryGhostCellIDs.end(), element2)) {
-			ResidualVar residu = Solver::Roe(_localFlowField, _localMesh, _localMetrics, EfaceID, true);
+			ResidualVar residu = Solver::Roe(_localFlowField, _localMesh, _localMetrics, EfaceID);
 			_residuals[element1] += residu * surfaceArea;
 		}
 
@@ -280,6 +280,7 @@ void Solver::EulerSolver::computeResidual() {
 		}
 	}
 }
+
 
 void Solver::EulerSolver::updateDeltaTime() {
 
@@ -298,7 +299,7 @@ void Solver::EulerSolver::TimeIntegration() {
 
 void Solver::EulerSolver::updateW() {
 
-	_localFlowField.Update(_deltaW, MPIghostCellElems, _localMesh.getMPIadjacentToGhostCellIDs());
+	_localFlowField.Update(_deltaW);
 }
 
 double Solver::EulerSolver::computeRMS() {
