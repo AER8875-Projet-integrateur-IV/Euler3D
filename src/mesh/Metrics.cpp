@@ -32,6 +32,7 @@ E3D::Metrics::Metrics(const Mesh<Parser::MeshPartition> &localMesh, const Parall
 	computeCellMetrics();
 	reorientFaceVectors();
 
+	MPI_Barrier(MPI_COMM_WORLD);
 	// Metrics verification
 	verifyMetrics();
 
@@ -311,17 +312,38 @@ void Metrics::verifyMetrics(){
 		std::cout << "Z coord : " << faceNormSum.z << "\n";
 	}
 
-	// Sum of the face vectors around the mesh
-	std::cout << "Summing face normals... \n";
-	for (int iFace = 0; iFace < nFaces; iFace++){
+	if (_localMesh.getMeshRankID()==0){
+		// Sum of the face vectors around the mesh
+		std::cout << "Summing face normals... \n";
+	}
 
-		faceNormSum += _faceUnitNormals[iFace];
+	// Summing normals for Farfield condition
+	for (int iFace = 0; iFace < _localMesh.GetFarfieldAdjacentFaceIDs().size(); iFace++){
+
+		const int boundaryFace = _localMesh.GetFarfieldAdjacentFaceIDs()[iFace];
+		faceNormSum += _faceUnitNormals[boundaryFace];
+		
+	}
+
+	// Summing normals for Wall condition
+	for (int iFace = 0; iFace < _localMesh.GetWallAdjacentFaceIDs().size(); iFace++){
+
+		const int boundaryFace = _localMesh.GetWallAdjacentFaceIDs()[iFace];
+		faceNormSum += _faceUnitNormals[boundaryFace];
+		
+	}
+
+	// Summing normals for Symmetry condition
+	for (int iFace = 0; iFace < _localMesh.GetSymmetryAdjacentFaceIDs().size(); iFace++){
+
+		const int boundaryFace = _localMesh.GetSymmetryAdjacentFaceIDs()[iFace];
+		faceNormSum += _faceUnitNormals[boundaryFace];
 		
 	}
 
 	MPI_Barrier(MPI_COMM_WORLD);
 	// Verifying the final sumation
-	if (_localMesh.getMeshRankID()==0){
+	if (_localMesh.getMeshRankID()>=0){
 
 		std::cout << "Sum of face vectors" << "\n";
 		std::cout << "X coord : " << faceNormSum.x << " for partition " << _localMesh.getMeshRankID() << "\n";

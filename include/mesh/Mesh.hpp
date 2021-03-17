@@ -424,7 +424,6 @@ namespace E3D {
 			return face2element.get()[0].data() + starti;
 		}
 
-
 	private:
 		T _parser;
 
