@@ -27,6 +27,8 @@ namespace E3D {
 
 		inline const std::vector<Vector3<double>> &getFaceNormalsUnit() const { return _faceUnitNormals; }
 
+		void verifyMetrics(int currentRank);
+
 	private:
 		/**
 		 * @brief Compute face metrics by populating member variables _FaceNormals, _FaceCenters and _faceSurfaces
@@ -42,8 +44,6 @@ namespace E3D {
          * @brief orient face vectors from cell with lower id to greater id
          */
 		void reorientFaceVectors();
-
-		void verifyMetrics();
 
 
 		const Mesh<Parser::MeshPartition> &_localMesh;

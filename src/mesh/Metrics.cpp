@@ -33,9 +33,6 @@ E3D::Metrics::Metrics(const Mesh<Parser::MeshPartition> &localMesh, const Parall
 	reorientFaceVectors();
 
 	MPI_Barrier(MPI_COMM_WORLD);
-	// Metrics verification
-	verifyMetrics();
-
 
 	//reorientFaceVectors();
 	double endMetricsTimer = MPI_Wtime();
@@ -297,7 +294,7 @@ void Metrics::reorientFaceVectors() {
 }
 
 // This next function's only purpose is to verify that the metrics are computed correctly
-void Metrics::verifyMetrics(){
+void Metrics::verifyMetrics(int currentRank){
 
 	const int nFaces = _localMesh.GetnFace();
 
@@ -307,9 +304,6 @@ void Metrics::verifyMetrics(){
 
 		// Verify the initalization of the Sum vector
 		std::cout << "Sum of face vectors initialization" << "\n";
-		std::cout << "X coord : " << faceNormSum.x << "\n";
-		std::cout << "Y coord : " << faceNormSum.y << "\n";
-		std::cout << "Z coord : " << faceNormSum.z << "\n";
 	}
 
 	if (_localMesh.getMeshRankID()==0){
@@ -321,17 +315,17 @@ void Metrics::verifyMetrics(){
 	for (int iFace = 0; iFace < _localMesh.GetFarfieldAdjacentFaceIDs().size(); iFace++){
 
 		const int boundaryFace = _localMesh.GetFarfieldAdjacentFaceIDs()[iFace];
-		faceNormSum += _faceUnitNormals[boundaryFace];
+		faceNormSum += _faceNormals[boundaryFace];
 		
 	}
 
 	// Summing normals for Wall condition
-	for (int iFace = 0; iFace < _localMesh.GetWallAdjacentFaceIDs().size(); iFace++){
+	/*for (int iFace = 0; iFace < _localMesh.GetWallAdjacentFaceIDs().size(); iFace++){
 
 		const int boundaryFace = _localMesh.GetWallAdjacentFaceIDs()[iFace];
 		faceNormSum += _faceUnitNormals[boundaryFace];
 		
-	}
+	}*/
 
 	// Summing normals for Symmetry condition
 	for (int iFace = 0; iFace < _localMesh.GetSymmetryAdjacentFaceIDs().size(); iFace++){
@@ -341,15 +335,11 @@ void Metrics::verifyMetrics(){
 		
 	}
 
-	MPI_Barrier(MPI_COMM_WORLD);
 	// Verifying the final sumation
-	if (_localMesh.getMeshRankID()>=0){
+	if (_localMesh.getMeshRankID()== currentRank){
 
-		std::cout << "Sum of face vectors" << "\n";
-		std::cout << "X coord : " << faceNormSum.x << " for partition " << _localMesh.getMeshRankID() << "\n";
-		std::cout << "Y coord : " << faceNormSum.y << " for partition " << _localMesh.getMeshRankID() << "\n";
-		std::cout << "Z coord : " << faceNormSum.z << " for partition " << _localMesh.getMeshRankID() << "\n";
-
-		std::cout << "hello \n";
+		printf("X coord : %.3f for partition %d \n", faceNormSum.x, currentRank);
+		printf("Y coord : %.3f for partition %d \n", faceNormSum.y, currentRank);
+		printf("Z coord : %.3f for partition %d \n", faceNormSum.z, currentRank);
 	}
 }
