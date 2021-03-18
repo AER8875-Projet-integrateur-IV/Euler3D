@@ -144,9 +144,9 @@ void SimConfig::parseConfigFile() {
 					ss1.seekg(4) >> _cfl;
 				} else if (line.find("MIN_RESIDUAL") != std::string::npos) {
 					ss1.seekg(13) >> _minResidual;
-				}else if (line.find("MIN_AEROCOEFF_ERROR") != std::string::npos ){
-                    ss1.seekg(20) >> _minAeroCoeffError;
-				}else if (line.find("MAX_ITER") != std::string::npos) {
+				} else if (line.find("MIN_AEROCOEFF_ERROR") != std::string::npos) {
+					ss1.seekg(20) >> _minAeroCoeffError;
+				} else if (line.find("MAX_ITER") != std::string::npos) {
 					ss1.seekg(9) >> _maxIter;
 				} else if (line.find("SOLVER_LOG=") != std::string::npos) {
 					ss1.seekg(11) >> _solverLog;

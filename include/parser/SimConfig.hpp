@@ -98,7 +98,7 @@ namespace E3D::Parser {
 
 		inline double getMinResidual() const { return _minResidual; }
 
-        inline double getMinAeroCoeffError() const { return _minAeroCoeffError; }
+		inline double getMinAeroCoeffError() const { return _minAeroCoeffError; }
 
 		/**
          * @return  Type of Solver Scheme (ROE or AUSM)
