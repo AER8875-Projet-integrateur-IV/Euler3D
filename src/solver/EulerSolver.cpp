@@ -60,7 +60,9 @@ void Solver::EulerSolver::Run() {
 	                                                         0.0,
 	                                                         0.0));
 
-
+  int convergenceCounter=0;
+  bool criteria=0;
+  double old_RMS = 1.0;
 	while (_nbInteration < _config.getMaxNumberIterations()) {
 		resetResiduals();
 
@@ -86,19 +88,37 @@ void Solver::EulerSolver::Run() {
 			}
 			break;
 		}
+    if (convergenceCounter >= 2) {
+      std::cout << "Coefficients have converged :)" << '\n';
+      break;
+    }
 
 		updateDeltaTime();
 		TimeIntegration();
 		updateW();
 
 		_nbInteration += 1;
-		if (_nbInteration % _samplePeriod == 0) {
+
+
+		if (_nbInteration % _samplePeriod == 0) { //_samplePeriod
+      double _CL_old = _forceCoefficients[_coeffOrientation[0].first] * _coeffOrientation[0].second;
+    	double _CD_old = _forceCoefficients[_coeffOrientation[1].first] * _coeffOrientation[1].second;
+    	double _CM_old = _momentCoefficients[_coeffOrientation[2].first] * _coeffOrientation[2].second;
 			updateAerodynamicCoefficients();
+
 			if (_e3d_mpi.getRankID() == 0) {
 				double iterationEndTimer = MPI_Wtime();
 				double iterationwallTime = iterationEndTimer - iterationBeginTimer;
 				PrintInfo(iterationwallTime, _sumerrors);
+        criteria = ConvergenceCriteria(_CL_old, _CD_old, _CM_old, old_RMS, _maximumDomainRms);\
+        old_RMS = _maximumDomainRms;
 			}
+      if (criteria == 1) {
+        convergenceCounter++;
+      } else {
+        convergenceCounter = 0;
+      }
+
 		}
 
 		MPI_Barrier(MPI_COMM_WORLD);
@@ -201,6 +221,27 @@ void Solver::EulerSolver::PrintInfo(double iterationwallTime, double sumError) {
 	double _maximumDomainRms = std::sqrt(sumError / _localFlowField.getTotalDomainCounts());
 	E3D::Solver::PrintSolverIteration(_CL, _CD, _CM, _maximumDomainRms, iterationwallTime, _nbInteration);
 }
+
+bool Solver::EulerSolver::ConvergenceCriteria(double CL_old, double CD_old, double CM_old, double RMS_old, double _RMS) {
+	_CL = _forceCoefficients[_coeffOrientation[0].first] * _coeffOrientation[0].second;
+	_CD = _forceCoefficients[_coeffOrientation[1].first] * _coeffOrientation[1].second;
+	_CM = _momentCoefficients[_coeffOrientation[2].first] * _coeffOrientation[2].second;
+  double residuCL = std::abs((CL_old - _CL)/_CL);//erreur relative
+  double residuCD = std::abs((CD_old - _CD)/_CD);
+  double residuCM = std::abs((CM_old - _CM)/_CM);
+  double residuRMS = std::abs((RMS_old - _RMS)/_RMS);
+  printf("%.4f %.4f %.4f %.4f\n", residuCL, residuCD, residuCM, residuRMS);
+  double tolerance = 0.001;
+  double toleranceRMS = 0.01; // possiblement mettre en input
+  bool sortie;
+  if ((residuCL < tolerance && residuCD < tolerance && residuCM < tolerance) || residuRMS < toleranceRMS) {
+      sortie = 1;
+  } else {
+      sortie = 0;
+  }
+  return sortie;
+}
+
 
 void Solver::EulerSolver::PrintCp() {
 	std::ofstream file(_outputDir / ("cp_part_" + std::to_string(_e3d_mpi.getRankID()) + ".dat"));

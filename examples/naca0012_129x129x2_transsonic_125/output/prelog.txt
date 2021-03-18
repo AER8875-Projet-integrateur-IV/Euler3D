@@ -1,0 +1,8 @@
+info       Euler 3D Pre-processor.
+
+debug      Mesh parser run time 0.079978196
+debug      METIS and set-up run time 0.007555265
+debug      Partition connectivity run time 0.150120225
+debug      Internal markers partitionning run time 0.00036432500000000003
+debug      Physical markers partitionning run time 0.161370912
+debug      Total run time 1.0565189400000001

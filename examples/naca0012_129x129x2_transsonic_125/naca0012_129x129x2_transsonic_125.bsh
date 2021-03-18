@@ -1,7 +1,8 @@
-#! /bin/bash 
+#! /bin/bash
 
 case=naca0012_129x129x2_transsonic_125
 printf "$case example"
+rm -r output
 mkdir output
 
 ../E3D_PRE $case.e3d

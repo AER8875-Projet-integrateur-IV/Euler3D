@@ -79,7 +79,7 @@ namespace E3D::Solver {
 
 		/**
 		 * @brief Print current iteration info to console and to file
-		 * 
+		 *
 		 * @param iterationwallTime Iteration time
 		 * @param sumError maximal current RMS error
 		 */
@@ -87,9 +87,15 @@ namespace E3D::Solver {
 
 		/**
 		 * @brief Print Cp and centroid coordinates to file in output dir
-		 * 
+		 *
 		 */
 		void PrintCp();
+
+		/**
+		 * @brief check if congervence is obtained
+		 *
+		 */
+		bool ConvergenceCriteria(double CL_old, double CD_old, double CM_old, double RMS_old, double _RMS);
 
 		std::vector<E3D::Solver::ResidualVar> _residuals;
 		E3D::Vector3<double> _forces;
