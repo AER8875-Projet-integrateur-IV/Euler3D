@@ -64,7 +64,6 @@ void Solver::EulerSolver::Run() {
 	bool criteria = false;
 	while (_nbInteration < _config.getMaxNumberIterations()) {
 		resetResiduals();
-
 		double iterationBeginTimer = MPI_Wtime();
 
 
@@ -80,7 +79,6 @@ void Solver::EulerSolver::Run() {
 		double _maximumDomainRms = std::sqrt(_sumerrors / _localFlowField.getTotalDomainCounts());
 		if (_maximumDomainRms < _config.getMinResidual()) {
 			if (_e3d_mpi.getRankID() == 0) {
-
 				double iterationEndTimer = MPI_Wtime();
 				double iterationwallTime = iterationEndTimer - iterationBeginTimer;
 				PrintInfo(iterationwallTime, _sumerrors);
@@ -396,9 +394,10 @@ void Solver::EulerSolver::BroadCastCoeffs(std::vector<double> &vec) {
 void Solver::EulerSolver::RungeKutta() {
 
     std::array<double, 4> RKcoefficients = {0.1263, 0.2375, 0.4414, 1.0};
-    std::vector<ConservativeVar> RHS_W(_localMesh.GetnElemTot());
-    std::vector<ConservativeVar> W0(_localMesh.GetnElemTot());
-    for (int i = 0; i < _localMesh.GetnElemTot(); i++) {
+	int ntotalElem = _localMesh.GetnElemTot();
+    std::vector<ConservativeVar> RHS_W(ntotalElem);
+    std::vector<ConservativeVar> W0(ntotalElem);
+    for (int i = 0; i < ntotalElem; i++) {
         double rho = _localFlowField.Getrho()[i];
         W0[i].rho = rho;
         W0[i].rhoU = _localFlowField.GetU_Velocity()[i] * rho;
@@ -408,7 +407,7 @@ void Solver::EulerSolver::RungeKutta() {
     }
     updateDeltaTime();
 
-    for (int i = 0; i < _localMesh.GetnElemTot(); i++) {
+    for (int i = 0; i < ntotalElem; i++) {
         double volume = _localMetrics.getCellVolumes()[i];
         double dt = _deltaT[i];
         RHS_W[i].rho = 0.0533 * dt * _residuals[i].m_rhoV_residual / volume;
@@ -425,7 +424,7 @@ void Solver::EulerSolver::RungeKutta() {
         computeResidual();
         updateDeltaTime();
 
-        for (int i = 0; i < _localMesh.GetnElemTot(); i++) {
+        for (int i = 0; i < ntotalElem; i++) {
             double volume = _localMetrics.getCellVolumes()[i];
             double dt = _deltaT[i];
             RHS_W[i].rho = alpha * dt * _residuals[i].m_rhoV_residual / volume;
