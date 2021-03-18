@@ -45,10 +45,6 @@ int main(int argc, char *argv[]) {
 	Metrics localMeshMetrics(localmesh, e3d_mpi);
 	MPI_Barrier(MPI_COMM_WORLD);
 
-	// Loop to verify the metrics
-	localMeshMetrics.verifyMetrics(localmesh.getMeshRankID());
-	MPI_Barrier(MPI_COMM_WORLD);
-
 
 	E3D::Solver::FlowField localFlowField(config, localmesh);
 

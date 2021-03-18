@@ -27,7 +27,7 @@ namespace E3D {
 
 		inline const std::vector<Vector3<double>> &getFaceNormalsUnit() const { return _faceUnitNormals; }
 
-		void verifyMetrics(int currentRank);
+		void verifyMetrics();
 
 	private:
 		/**

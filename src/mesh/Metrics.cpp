@@ -31,7 +31,7 @@ E3D::Metrics::Metrics(const Mesh<Parser::MeshPartition> &localMesh, const Parall
 
 	computeCellMetrics();
 	reorientFaceVectors();
-
+    verifyMetrics();
 	MPI_Barrier(MPI_COMM_WORLD);
 
 	//reorientFaceVectors();
@@ -294,11 +294,9 @@ void Metrics::reorientFaceVectors() {
 }
 
 // This next function's only purpose is to verify that the metrics are computed correctly
-void Metrics::verifyMetrics(int currentRank){
+void Metrics::verifyMetrics(){
 
-	const int nFaces = _localMesh.GetnFace();
-
-	E3D::Vector3<double> faceNormSum = {0,0,0};
+	E3D::Vector3<double> faceNormSum {0,0,0};
 
 	if (_localMesh.getMeshRankID()==0){
 
@@ -312,34 +310,35 @@ void Metrics::verifyMetrics(int currentRank){
 	}
 
 	// Summing normals for Farfield condition
-	for (int iFace = 0; iFace < _localMesh.GetFarfieldAdjacentFaceIDs().size(); iFace++){
+	for (int boundaryFace : _localMesh.GetFarfieldAdjacentFaceIDs()){
 
-		const int boundaryFace = _localMesh.GetFarfieldAdjacentFaceIDs()[iFace];
-		faceNormSum += _faceNormals[boundaryFace];
+			faceNormSum += _faceUnitNormals[boundaryFace];
 		
 	}
 
 	// Summing normals for Wall condition
-	/*for (int iFace = 0; iFace < _localMesh.GetWallAdjacentFaceIDs().size(); iFace++){
+	for (size_t iFace = 0; iFace < _localMesh.GetWallAdjacentFaceIDs().size(); iFace++){
 
 		const int boundaryFace = _localMesh.GetWallAdjacentFaceIDs()[iFace];
 		faceNormSum += _faceUnitNormals[boundaryFace];
-		
-	}*/
 
-	// Summing normals for Symmetry condition
-	for (int iFace = 0; iFace < _localMesh.GetSymmetryAdjacentFaceIDs().size(); iFace++){
-
-		const int boundaryFace = _localMesh.GetSymmetryAdjacentFaceIDs()[iFace];
-		faceNormSum += _faceUnitNormals[boundaryFace];
-		
 	}
 
-	// Verifying the final sumation
-	if (_localMesh.getMeshRankID()== currentRank){
+	// Summing normals for Symmetry condition
+	for(int boundaryFace : _localMesh.GetSymmetryAdjacentFaceIDs()){
 
-		printf("X coord : %.3f for partition %d \n", faceNormSum.x, currentRank);
-		printf("Y coord : %.3f for partition %d \n", faceNormSum.y, currentRank);
-		printf("Z coord : %.3f for partition %d \n", faceNormSum.z, currentRank);
+			faceNormSum += _faceUnitNormals[boundaryFace];
+		
+	}
+    E3D::Vector3<double> faceNormSumToPrint {0,0,0};
+
+    MPI_Reduce(&faceNormSumToPrint,&faceNormSum,3,MPI_DOUBLE,MPI_SUM,0,MPI_COMM_WORLD);
+
+	// Verifying the final sumation
+	if (_localMesh.getMeshRankID()== 0){
+
+		printf("Sum of faces in X Direction : %.3f \n", faceNormSum.x);
+		printf("Sum of faces in Y Direction : %.3f \n", faceNormSum.y);
+		printf("Sum of faces in Z Direction : %.3f \n", faceNormSum.z);
 	}
 }
