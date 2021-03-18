@@ -95,7 +95,9 @@ namespace E3D::Solver {
 		 * @brief check if congervence is obtained
 		 *
 		 */
-		bool ConvergenceCriteria(double CL_old, double CD_old, double CM_old, double RMS_old, double _RMS);
+		bool ConvergenceCriteria(double CL_old, double CD_old, double CM_old, double,double,double);
+
+		void BroadCastCoeffs(std::vector<double>&);
 
 		std::vector<E3D::Solver::ResidualVar> _residuals;
 		E3D::Vector3<double> _forces;
