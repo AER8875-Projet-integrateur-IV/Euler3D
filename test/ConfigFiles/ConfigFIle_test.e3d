@@ -43,10 +43,10 @@ SAMPLING= 500
 # Options : MACH -> 0
 #           Velocity -> 1
 
-SPEED_OPTION= 1
+SPEED_OPTION= 0
 
 # Velocity in m/s or Mach
-SPEED_VALUE= 250
+SPEED_VALUE= 1.5
 
 angle of attack in degrees
 AOA= 1

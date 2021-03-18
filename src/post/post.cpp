@@ -336,38 +336,38 @@ void Post::WriteTecplotSurfaceASCII() {
 			// Lecture des solutions
 			E3D::Parser::SolutionPost isolution(_solutionPartitionPath[iPart], iMesh.GetVolumeElemCount());
 
-			for (size_t GhostID = 0; GhostID < nElements; GhostID++) {
+			for (int GhostID = 0; GhostID < nElements; GhostID++) {
 				int InteriorGhostIdx = iBoundary.GetAdjacentCell(GhostID);
 				fprintf(fid, "%.12e\n", isolution.GetRho(InteriorGhostIdx));
 			}
-			for (size_t GhostID = 0; GhostID < nElements; GhostID++) {
+			for (int GhostID = 0; GhostID < nElements; GhostID++) {
 				int InteriorGhostIdx = iBoundary.GetAdjacentCell(GhostID);
 				fprintf(fid, "%.12e\n", isolution.GetU(InteriorGhostIdx));
 			}
-			for (size_t GhostID = 0; GhostID < nElements; GhostID++) {
+			for (int GhostID = 0; GhostID < nElements; GhostID++) {
 				int InteriorGhostIdx = iBoundary.GetAdjacentCell(GhostID);
 				fprintf(fid, "%.12e\n", isolution.GetV(InteriorGhostIdx));
 			}
-			for (size_t GhostID = 0; GhostID < nElements; GhostID++) {
+			for (int GhostID = 0; GhostID < nElements; GhostID++) {
 				int InteriorGhostIdx = iBoundary.GetAdjacentCell(GhostID);
 				fprintf(fid, "%.12e\n", isolution.GetW(InteriorGhostIdx));
 			}
-			for (size_t GhostID = 0; GhostID < nElements; GhostID++) {
+			for (int GhostID = 0; GhostID < nElements; GhostID++) {
 				int InteriorGhostIdx = iBoundary.GetAdjacentCell(GhostID);
 				fprintf(fid, "%.12e\n", isolution.GetPression(InteriorGhostIdx));
 			}
-			for (size_t GhostID = 0; GhostID < nElements; GhostID++) {
+			for (int GhostID = 0; GhostID < nElements; GhostID++) {
 				int InteriorGhostIdx = iBoundary.GetAdjacentCell(GhostID);
 				fprintf(fid, "%.12e\n", isolution.GetEnergy(InteriorGhostIdx));
 			}
-			for (size_t GhostID = 0; GhostID < nElements; GhostID++) {
+			for (int GhostID = 0; GhostID < nElements; GhostID++) {
 				int InteriorGhostIdx = iBoundary.GetAdjacentCell(GhostID);
 				double Cp = _CpFactor * (isolution.GetPression(InteriorGhostIdx) - _p_inf);
 				fprintf(fid, "%.12e\n", Cp);
 			}
 
 			// Connectivité des éléments de la partition
-			for (size_t GhostID = 0; GhostID < nElements; GhostID++) {
+			for (int GhostID = 0; GhostID < nElements; GhostID++) {
 				int nNode;
 				const int *ptr = iBoundary.GetWallNodes(GhostID, nNode);
 				if (nNode == 3)// triangle
