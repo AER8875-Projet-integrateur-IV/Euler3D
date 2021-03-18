@@ -18,6 +18,9 @@ namespace E3D::Solver {
 
 		void Update(const std::vector<E3D::Solver::ConservativeVar> &delW_vector);
 
+        void updateWRungeKutta(const std::vector<E3D::Solver::ConservativeVar>&,
+                const std::vector<E3D::Solver::ConservativeVar>&);
+
 		// Return rho (density) of problem
 
 		inline std::vector<double> &Getrho() { return this->_rho; }
