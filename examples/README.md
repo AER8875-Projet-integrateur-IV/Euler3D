@@ -33,54 +33,6 @@ Run instructions:
     $   ./empty_domain.bsh
 ```
 
-## naca0012 9x9x5 subsonic 1.25 deg
-
-Mach = 0.5
-
-AOA= 1.25
-
-Run instructions:
-```
-    $   cd naca0012_9x9x5_subsonic_125
-    $   ./naca0012_9x9x5_subsonic_125.bsh
-```
-
-## naca0012 9x9x5 transsonic 1.25 deg
-
-Mach = 0.8
-
-AOA= 1.25
-
-Run instructions:
-```
-    $   cd naca0012_9x9x5_transsonic_125
-    $   ./naca0012_9x9x5_transsonic_125.bsh
-```
-
-## naca0012 9x9x5 transsonic 0.00 deg
-
-Mach = 0.8
-
-AOA= 0.00
-
-Run instructions:
-```
-    $   cd naca0012_9x9x5_transsonic_000
-    $   ./naca0012_9x9x5_transsonic_000.bsh
-```
-
-## naca0012 9x9x5 supersonic 1.25
-
-Mach = 1.25
-
-AOA= 1.25
-
-Run instructions:
-```
-    $   cd naca0012_9x9x5_supersonic_125
-    $   ./naca0012_9x9x5_supersonic_125.bsh
-```
-
 ## naca0012 125x125x2 transsonic 1.25
 
 Mach = 0.8
