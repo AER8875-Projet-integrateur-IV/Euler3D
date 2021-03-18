@@ -24,6 +24,8 @@ namespace E3D::Solver {
 
 		void Run();
 
+		void WriteSummary();
+
 	private:
 		/**
          * @brief Computes boundary faces fluxes depending on :
@@ -77,7 +79,7 @@ namespace E3D::Solver {
 
 		/**
 		 * @brief Print current iteration info to console and to file
-		 * 
+		 *
 		 * @param iterationwallTime Iteration time
 		 * @param sumError maximal current RMS error
 		 */
@@ -85,9 +87,17 @@ namespace E3D::Solver {
 
 		/**
 		 * @brief Print Cp and centroid coordinates to file in output dir
-		 * 
+		 *
 		 */
 		void PrintCp();
+
+		/**
+		 * @brief check if congervence is obtained
+		 *
+		 */
+		bool ConvergenceCriteria(double CL_old, double CD_old, double CM_old, double, double, double);
+
+		void BroadCastCoeffs(std::vector<double> &);
 
 		std::vector<E3D::Solver::ResidualVar> _residuals;
 		E3D::Vector3<double> _forces;

@@ -98,6 +98,8 @@ namespace E3D::Parser {
 
 		inline double getMinResidual() const { return _minResidual; }
 
+		inline double getMinAeroCoeffError() const { return _minAeroCoeffError; }
+
 		/**
          * @return  Type of Solver Scheme (ROE or AUSM)
          */
@@ -150,6 +152,7 @@ namespace E3D::Parser {
 		double _gasConstant;
 		double _cfl;
 		double _minResidual;
+		double _minAeroCoeffError;
 		int _samplingPeriod;
 		TemporalScheme _temporalScheme;
 		SolverScheme _solverScheme;

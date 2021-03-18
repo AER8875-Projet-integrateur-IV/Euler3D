@@ -19,7 +19,8 @@ output/part#.par
 PRE_LOG= output/prelog.txt
 
 ------------------- SIMULATION CONTROL -------------------
-# Mesh orientation, this will be used during the coefficient calculations
+
+  # Mesh orientation, this will be used during the coefficient calculations
 # Options : 0 ->  X axis
 #           1 -> -X axis
 #           2 ->  Y axis

@@ -47,6 +47,7 @@ namespace E3D::Solver {
 		inline const E3D::Vector3<double> &GetForceCoeff() const { return _ForceCoeff; };
 		inline const E3D::Vector3<double> &GetMomentCoeff() const { return _MomentCoeff; };
 		inline const std::vector<double> &GetCp() const { return _cp; };
+		inline const E3D::Vector3<double> &GetSumFaceVectors() const { return _SumFaceVector; };
 		inline const std::vector<E3D::Vector3<double>> &GetCentroids() const { return _FaceCentroids; };
 	};
 
