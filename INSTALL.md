@@ -3,6 +3,8 @@
 
 [METIS](http://glaros.dtc.umn.edu/gkhome/metis/metis/overview)
 
+[TecIO](https://www.tecplot.com/products/tecio-library/)
+
 ### Adding a boost dependancy
 
 1. Check if the library is Header only

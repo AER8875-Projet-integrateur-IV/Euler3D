@@ -19,6 +19,24 @@ output/part#.par
 PRE_LOG= output/prelog.txt
 
 ------------------- SIMULATION CONTROL -------------------
+# Mesh orientation, this will be used during the coefficient calculations
+# Options : 0 ->  X axis
+#           1 -> -X axis
+#           2 ->  Y axis
+#           3 -> -Y axis
+#           4 ->  Z axis
+#           5 -> -Z axis
+MESH_ORIENTATION_CL= 2
+MESH_ORIENTATION_CD= 0
+
+# Reference point, this will be used for the aerodynamic coefficient calculations
+MESH_REF_POINT_X= 0.0
+MESH_REF_POINT_Y= 0.0
+MESH_REF_POINT_Z= 0.0
+
+# Sampling period, number of iterations between sampling
+SAMPLING= 500
+
 # Type of speed. Unchosen field will be ignored.
 # Options : MACH -> 0
 #           Velocity -> 1
@@ -69,8 +87,11 @@ CFL= 1
 # Minimum residual to stop solver (RMS of density)
 MIN_RESIDUAL= 1e-14
 
+# Minimum error on aerodynamic coefficients
+MIN_AEROCOEFF_ERROR= 1e-8
+
 # Number of maximum iterations to stop solver
-MAX_ITER= 5000
+MAX_ITER= 50000
 
 # Path to log file for solver
 SOLVER_LOG= output/solverlog.txt
