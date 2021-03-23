@@ -124,22 +124,22 @@ void FlowField::Update(const std::vector<E3D::Solver::ConservativeVar> &delW_vec
 	}
 }
 
-void FlowField::updateWRungeKutta(const std::vector<E3D::Solver::ConservativeVar> &delW_vector,const std::vector<E3D::Solver::ConservativeVar> &W0) {
+void FlowField::updateWRungeKutta(const std::vector<E3D::Solver::ConservativeVar> &delW_vector, const std::vector<E3D::Solver::ConservativeVar> &W0) {
 
-    for (size_t ielem = 0; ielem < delW_vector.size(); ielem++) {
-        _rho[ielem] = W0[ielem].rho - delW_vector[ielem].rho;
-        _rhou[ielem] = W0[ielem].rhoU - delW_vector[ielem].rhoU;
-        _rhov[ielem] = W0[ielem].rhoV - delW_vector[ielem].rhoV;
-        _rhow[ielem] = W0[ielem].rhoW - delW_vector[ielem].rhoW;
-        _rhoE[ielem] = W0[ielem].rhoE - delW_vector[ielem].rhoE;
+	for (size_t ielem = 0; ielem < delW_vector.size(); ielem++) {
+		_rho[ielem] = W0[ielem].rho - delW_vector[ielem].rho;
+		_rhou[ielem] = W0[ielem].rhoU - delW_vector[ielem].rhoU;
+		_rhov[ielem] = W0[ielem].rhoV - delW_vector[ielem].rhoV;
+		_rhow[ielem] = W0[ielem].rhoW - delW_vector[ielem].rhoW;
+		_rhoE[ielem] = W0[ielem].rhoE - delW_vector[ielem].rhoE;
 
-        _u[ielem] = _rhou[ielem] / _rho[ielem];
-        _v[ielem] = _rhov[ielem] / _rho[ielem];
-        _w[ielem] = _rhow[ielem] / _rho[ielem];
-        _E[ielem] = _rhoE[ielem] / _rho[ielem];
-        _p[ielem] = (gamma_ref - 1) * _rho[ielem] * (_E[ielem] - (std::pow(_u[ielem], 2) + std::pow(_v[ielem], 2) + std::pow(_w[ielem], 2)) / 2.0);
-        _H[ielem] = _E[ielem] + (_p[ielem] / _rho[ielem]);
+		_u[ielem] = _rhou[ielem] / _rho[ielem];
+		_v[ielem] = _rhov[ielem] / _rho[ielem];
+		_w[ielem] = _rhow[ielem] / _rho[ielem];
+		_E[ielem] = _rhoE[ielem] / _rho[ielem];
+		_p[ielem] = (gamma_ref - 1) * _rho[ielem] * (_E[ielem] - (std::pow(_u[ielem], 2) + std::pow(_v[ielem], 2) + std::pow(_w[ielem], 2)) / 2.0);
+		_H[ielem] = _E[ielem] + (_p[ielem] / _rho[ielem]);
 
-        _M[ielem] = sqrt(gamma_ref * (_p[ielem] / _rho[ielem])) / sqrt((std::pow(_u[ielem], 2) + std::pow(_v[ielem], 2) + std::pow(_w[ielem], 2)));
-    }
+		_M[ielem] = sqrt(gamma_ref * (_p[ielem] / _rho[ielem])) / sqrt((std::pow(_u[ielem], 2) + std::pow(_v[ielem], 2) + std::pow(_w[ielem], 2)));
+	}
 }
