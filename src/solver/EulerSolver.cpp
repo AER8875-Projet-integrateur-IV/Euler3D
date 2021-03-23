@@ -38,6 +38,13 @@ Solver::EulerSolver::EulerSolver(FlowField &localFlowField,
 	                                       localMesh,
 	                                       localMetrics,
 	                                       config.getMeshRefPoint());
+
+	// define time integration method
+	if (_config.getTemporalScheme() == Parser::SimConfig::TemporalScheme::RK5) {
+		_timeIntegrator = &Solver::EulerSolver::RungeKutta;
+	} else {
+		_timeIntegrator = &Solver::EulerSolver::EulerExplicit;
+	}
 }
 
 void Solver::EulerSolver::Run() {
@@ -64,7 +71,6 @@ void Solver::EulerSolver::Run() {
 	bool criteria = false;
 	while (_nbInteration < _config.getMaxNumberIterations()) {
 		resetResiduals();
-
 		double iterationBeginTimer = MPI_Wtime();
 
 
@@ -80,7 +86,6 @@ void Solver::EulerSolver::Run() {
 		double _maximumDomainRms = std::sqrt(_sumerrors / _localFlowField.getTotalDomainCounts());
 		if (_maximumDomainRms < _config.getMinResidual()) {
 			if (_e3d_mpi.getRankID() == 0) {
-
 				double iterationEndTimer = MPI_Wtime();
 				double iterationwallTime = iterationEndTimer - iterationBeginTimer;
 				PrintInfo(iterationwallTime, _sumerrors);
@@ -88,10 +93,7 @@ void Solver::EulerSolver::Run() {
 			break;
 		}
 
-
-		updateDeltaTime();
-		TimeIntegration();
-		updateW();
+		(this->*_timeIntegrator)();
 
 		_nbInteration += 1;
 
@@ -390,4 +392,56 @@ void Solver::EulerSolver::updateAerodynamicCoefficients() {
 }
 void Solver::EulerSolver::BroadCastCoeffs(std::vector<double> &vec) {
 	MPI_Bcast(&vec[0], 3, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+}
+
+void Solver::EulerSolver::EulerExplicit() {
+	updateDeltaTime();
+	TimeIntegration();
+	updateW();
+}
+
+void Solver::EulerSolver::RungeKutta() {
+
+	std::array<double, 4> RKcoefficients = {0.1263, 0.2375, 0.4414, 1.0};
+	int ntotalElem = _localMesh.GetnElemTot();
+	std::vector<ConservativeVar> RHS_W(ntotalElem);
+	std::vector<ConservativeVar> W0(ntotalElem);
+	for (int i = 0; i < ntotalElem; i++) {
+		double rho = _localFlowField.Getrho()[i];
+		W0[i].rho = rho;
+		W0[i].rhoU = _localFlowField.GetU_Velocity()[i] * rho;
+		W0[i].rhoV = _localFlowField.GetV_Velocity()[i] * rho;
+		W0[i].rhoW = _localFlowField.GetW_Velocity()[i] * rho;
+		W0[i].rhoE = _localFlowField.GetE()[i] * rho;
+	}
+	updateDeltaTime();
+
+	for (int i = 0; i < ntotalElem; i++) {
+		double volume = _localMetrics.getCellVolumes()[i];
+		double dt = _deltaT[i];
+		RHS_W[i].rho = 0.0533 * dt * _residuals[i].m_rhoV_residual / volume;
+		RHS_W[i].rhoU = 0.0533 * dt * _residuals[i].m_rho_uV_residual / volume;
+		RHS_W[i].rhoV = 0.0533 * dt * _residuals[i].m_rho_vV_residual / volume;
+		RHS_W[i].rhoW = 0.0533 * dt * _residuals[i].m_rho_wV_residual / volume;
+		RHS_W[i].rhoE = 0.0533 * dt * _residuals[i].m_rho_HV_residual / volume;
+	}
+	_localFlowField.updateWRungeKutta(RHS_W, W0);
+
+	for (auto &alpha : RKcoefficients) {
+		resetResiduals();
+		updateBC();
+		computeResidual();
+		updateDeltaTime();
+
+		for (int i = 0; i < ntotalElem; i++) {
+			double volume = _localMetrics.getCellVolumes()[i];
+			double dt = _deltaT[i];
+			RHS_W[i].rho = alpha * dt * _residuals[i].m_rhoV_residual / volume;
+			RHS_W[i].rhoU = alpha * dt * _residuals[i].m_rho_uV_residual / volume;
+			RHS_W[i].rhoV = alpha * dt * _residuals[i].m_rho_vV_residual / volume;
+			RHS_W[i].rhoW = alpha * dt * _residuals[i].m_rho_wV_residual / volume;
+			RHS_W[i].rhoE = alpha * dt * _residuals[i].m_rho_HV_residual / volume;
+		}
+		_localFlowField.updateWRungeKutta(RHS_W, W0);
+	}
 }
