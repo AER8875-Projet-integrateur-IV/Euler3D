@@ -110,7 +110,7 @@ namespace E3D::Parser {
          */
 		inline TemporalScheme getTemporalScheme() const { return _temporalScheme; }
 
-		inline bool getResidualSmoothing() const {return _residualSmoothing;}
+		inline bool getResidualSmoothing() const { return _residualSmoothing; }
 
 		inline int getMaxNumberIterations() const { return _maxIter; }
 
