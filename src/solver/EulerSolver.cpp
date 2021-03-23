@@ -399,6 +399,9 @@ void Solver::EulerSolver::BroadCastCoeffs(std::vector<double> &vec) {
 
 void Solver::EulerSolver::EulerExplicit() {
 	updateDeltaTime();
+	if (_config.getResidualSmoothing()) {
+		smoothResiduals();
+	}
 	TimeIntegration();
 	updateW();
 }
