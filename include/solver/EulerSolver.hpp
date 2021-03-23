@@ -66,6 +66,7 @@ namespace E3D::Solver {
 		void TimeIntegration();
 
 		void RungeKutta();
+		void EulerExplicit();
 
 		/**
          * @brief UpdateW in localFlowField
@@ -102,6 +103,9 @@ namespace E3D::Solver {
 		bool ConvergenceCriteria(double CL_old, double CD_old, double CM_old, double, double, double);
 
 		void BroadCastCoeffs(std::vector<double> &);
+
+		// function to use for time integration
+		void (EulerSolver::*_timeIntegrator)();
 
 		std::vector<E3D::Solver::ResidualVar> _residuals;
 		E3D::Vector3<double> _forces;
