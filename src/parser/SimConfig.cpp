@@ -140,6 +140,14 @@ void SimConfig::parseConfigFile() {
 							_temporalScheme = TemporalScheme::RK5;
 							break;
 					}
+				} else if (line.find("RESIDUAL_SMOOTHING") != std::string::npos) {
+
+					ss1.seekg(19) >> _residualSmoothing;
+					if (_residualSmoothing == 0)
+						_residualSmoothing = false;
+					else
+						_residualSmoothing = true;
+
 				} else if (line.find("CFL") != std::string::npos) {
 					ss1.seekg(4) >> _cfl;
 				} else if (line.find("MIN_RESIDUAL") != std::string::npos) {

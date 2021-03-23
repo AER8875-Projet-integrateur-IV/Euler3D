@@ -77,6 +77,9 @@ void Solver::EulerSolver::Run() {
 		// loop Through Ghost cells (Boundary Cells)
 		updateBC();
 		computeResidual();
+		if (_config.getResidualSmoothing()) {
+			smoothResiduals();
+		}
 
 
 		//TODO Exchange max RMS between partition;
@@ -396,6 +399,9 @@ void Solver::EulerSolver::BroadCastCoeffs(std::vector<double> &vec) {
 
 void Solver::EulerSolver::EulerExplicit() {
 	updateDeltaTime();
+	if (_config.getResidualSmoothing()) {
+		smoothResiduals();
+	}
 	TimeIntegration();
 	updateW();
 }
@@ -431,6 +437,9 @@ void Solver::EulerSolver::RungeKutta() {
 		resetResiduals();
 		updateBC();
 		computeResidual();
+		if (_config.getResidualSmoothing()) {
+			smoothResiduals();
+		}
 		updateDeltaTime();
 
 		for (int i = 0; i < ntotalElem; i++) {
@@ -444,4 +453,41 @@ void Solver::EulerSolver::RungeKutta() {
 		}
 		_localFlowField.updateWRungeKutta(RHS_W, W0);
 	}
+}
+
+void Solver::EulerSolver::smoothResiduals() {
+
+
+	const double epsilon = 0.5;
+	auto original_residual = _residuals;
+	std::vector<ResidualVar> last_residual(_localMesh.GetnElemTot());
+	std::vector<ResidualVar> diff(_localMesh.GetnElemTot());
+	double error;
+	do {
+		error = 0.0;
+
+		last_residual = _residuals;
+		for (int ielem = 0; ielem < _localMesh.GetnElemTot(); ielem++) {
+			ResidualVar sumSurrResidual(0.0, 0.0, 0.0, 0.0, 0.0);
+			int nSurrElems;
+			int *SurrElems = _localMesh.GetElement2ElementID(ielem, nSurrElems);
+			for (int i = 0; i < nSurrElems; i++) {
+				if (SurrElems[i] < _localMesh.GetnElemTot()) {
+					sumSurrResidual += (last_residual[SurrElems[i]] * epsilon);
+				}
+			}
+			_residuals[ielem] = (original_residual[ielem] + sumSurrResidual) / (1 + nSurrElems * epsilon);
+		}
+		std::transform(_residuals.begin(), _residuals.end(), last_residual.begin(), diff.begin(), std::minus<ResidualVar>());
+
+		for (auto &ResidualDiff : diff) {
+			double maxRes = ResidualDiff.findMax();
+			if (maxRes > error) {
+				error = maxRes;
+			}
+		}
+
+		diff.clear();
+		last_residual.clear();
+	} while (error > 1e-14);
 }

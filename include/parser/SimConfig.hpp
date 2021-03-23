@@ -110,6 +110,8 @@ namespace E3D::Parser {
          */
 		inline TemporalScheme getTemporalScheme() const { return _temporalScheme; }
 
+		inline bool getResidualSmoothing() const { return _residualSmoothing; }
+
 		inline int getMaxNumberIterations() const { return _maxIter; }
 
 		inline int getNumberPartitions() const { return _nbPartition; }
@@ -165,6 +167,8 @@ namespace E3D::Parser {
 		std::pair<int, int> _meshOrientationCD;
 		std::pair<int, int> _meshOrientationCM;
 		E3D::Vector3<double> _meshRefPoint;
+
+		bool _residualSmoothing;
 	};
 
 }// namespace E3D::Parser
