@@ -6,7 +6,7 @@ void Connectivity::SolveElement2node(const std::vector<E3D::Parser::Element> &el
 
 	_nElem = elemVector.size();
 	_element2nodeStart.resize(_nElem + 1, 0);
-			int counter = 0;
+	int counter = 0;
 	for (int ielem = 0; ielem < _nElem; ielem++) {
 		E3D::Parser::Element elem = elemVector[ielem];
 		counter += elem.getElemNodes().size();
