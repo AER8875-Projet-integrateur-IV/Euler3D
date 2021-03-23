@@ -100,6 +100,7 @@ namespace E3D::Solver {
 		void BroadCastCoeffs(std::vector<double> &);
 
 		void RungeKutta();
+		void smoothResiduals();
 		void EulerExplicit();
 
 		// function to use for time integration
