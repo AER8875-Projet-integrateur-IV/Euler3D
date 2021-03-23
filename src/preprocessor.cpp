@@ -28,10 +28,6 @@ int main(int argc, char *argv[]) {
 	std::string configFile = argv[1];
 	E3D::Parser::SimConfig config(configFile);
 
-	spdlog::stopwatch globalsw;
-	E3D::Logger logger(config.getPreLog());
-
-	auto logObject = E3D::Logger::Getspdlog();
 	logObject->info("Euler 3D Pre-processor.\n");
 
 	std::string fileName = argv[1];
