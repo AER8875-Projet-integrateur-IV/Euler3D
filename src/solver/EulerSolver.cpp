@@ -88,7 +88,7 @@ void Solver::EulerSolver::Run() {
 		if (_config.getTemporalScheme() == Parser::SimConfig::TemporalScheme::RK5) {
 			RungeKutta();
 		} else {
-            //smoothResiduals();
+			//smoothResiduals();
 			updateDeltaTime();
 			TimeIntegration();
 			updateW();
@@ -301,7 +301,7 @@ void Solver::EulerSolver::RungeKutta() {
 		W0[i].rhoW = _localFlowField.GetW_Velocity()[i] * rho;
 		W0[i].rhoE = _localFlowField.GetE()[i] * rho;
 	}
-    //smoothResiduals();
+	//smoothResiduals();
 	updateDeltaTime();
 
 	for (int i = 0; i < _localMesh.GetnElemTot(); i++) {
@@ -357,7 +357,7 @@ void Solver::EulerSolver::smoothResiduals() {
 					sumSurrResidual += (last_residual[SurrElems[i]] * epsilon);
 				}
 			}
-			_residuals[ielem] = (original_residual[ielem] + sumSurrResidual) / (1 + nSurrElems*epsilon);
+			_residuals[ielem] = (original_residual[ielem] + sumSurrResidual) / (1 + nSurrElems * epsilon);
 		}
 		std::transform(_residuals.begin(), _residuals.end(), last_residual.begin(), diff.begin(), std::minus<ResidualVar>());
 
