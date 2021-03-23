@@ -1,0 +1,11 @@
+#! /bin/bash 
+
+if [ $# != 0 ]
+then
+    cd $1
+fi
+
+# Find .hpp and .cpp files not in the following directories: ./extern/ ./test/extern/ ./build/ 
+output=$(find . \( -name "*.hpp" -o -name "*.h" -o -name "*.cpp" \) ! \( -path "./extern/*" -o -path "./test/extern/*" -o -path "./build/*" \) | xargs clang-format -i --style=file)
+
+exit $?
