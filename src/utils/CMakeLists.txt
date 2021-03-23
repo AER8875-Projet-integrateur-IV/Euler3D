@@ -15,8 +15,10 @@ set(NAME_LIBRARY Utils)
 #      set(SOURCE Partition.cpp SU2Writer.cpp)
 #      set(NAME_LIBRARY SolverEuler.cpp)
 
-set(SOURCE Logger.cpp)
-
+set(SOURCE Logger.cpp
+           ../../include/utils/Vector3.h
+            ProgressBar.cpp
+            ../../include/utils/SolverPrint.hpp)
 
 #   3. Add the command add_subdirectory(NameOfThisDirectory) to the CMakeLists.txt
 #      in the parent folder
@@ -42,7 +44,7 @@ set(DEPENDANCIES )
 #              NOTHING SHOULD BE MODIFIED BELOW THIS LINE                      #
 ################################################################################
 
-add_library(${NAME_LIBRARY} ${SOURCE})
+add_library(${NAME_LIBRARY} ${SOURCE} )
 TARGET_INCLUDE_DIRECTORIES(${NAME_LIBRARY} PUBLIC ${PROJECT_SOURCE_DIR}/include)
 TARGET_INCLUDE_DIRECTORIES(${NAME_LIBRARY} PUBLIC ${PROJECT_SOURCE_DIR}/extern)
 target_link_libraries(${NAME_LIBRARY} PUBLIC ${DEPENDANCIES})

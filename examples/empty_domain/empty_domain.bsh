@@ -1,0 +1,16 @@
+#! /bin/bash 
+
+case=empty_domain
+printf "$case example"
+mkdir output
+
+../E3D_PRE $case.e3d
+
+mpiexec -np 2 ../E3D_Solver $case.e3d
+
+../E3D_POST $case.e3d
+
+if [[ "$1" == "--plot-residuals" ]]
+then
+    echo "no residuals"
+fi

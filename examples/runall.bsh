@@ -1,0 +1,17 @@
+#! /bin/bash
+
+cp ../build/src/E3D_PRE E3D_PRE
+cp ../build/src/E3D_Solver E3D_Solver
+cp ../build/src/E3D_POST E3D_POST
+
+cd empty_domain
+./empty_domain.bsh
+cd ..
+
+cd naca0012_129x129x2_transsonic_125
+./naca0012_129x129x2_transsonic_125.bsh
+cd ..
+
+cd ONERA_transsonic
+./ONERA_transsonic.bsh
+cd ..
