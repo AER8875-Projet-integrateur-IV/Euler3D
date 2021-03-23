@@ -87,6 +87,9 @@ CFL= 1
 # Minimum residual to stop solver (RMS of density)
 MIN_RESIDUAL= 1e-14
 
+# Minimum error on aerodynamic coefficients
+MIN_AEROCOEFF_ERROR= 1e-8
+
 # Number of maximum iterations to stop solver
 MAX_ITER= 50000
 
