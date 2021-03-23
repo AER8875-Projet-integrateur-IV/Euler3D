@@ -38,6 +38,13 @@ Solver::EulerSolver::EulerSolver(FlowField &localFlowField,
 	                                       localMesh,
 	                                       localMetrics,
 	                                       config.getMeshRefPoint());
+
+	// define time integration method
+	if (_config.getTemporalScheme() == Parser::SimConfig::TemporalScheme::RK5) {
+		_timeIntegrator = &Solver::EulerSolver::RungeKutta;
+	} else {
+		_timeIntegrator = &Solver::EulerSolver::EulerExplicit;
+	}
 }
 
 void Solver::EulerSolver::Run() {
@@ -88,14 +95,9 @@ void Solver::EulerSolver::Run() {
 			}
 			break;
 		}
-		if (_config.getTemporalScheme() == Parser::SimConfig::TemporalScheme::RK5) {
-			RungeKutta();
-		} else {
 
-			updateDeltaTime();
-			TimeIntegration();
-			updateW();
-		}
+		(this->*_timeIntegrator)();
+
 		_nbInteration += 1;
 
 
@@ -393,6 +395,12 @@ void Solver::EulerSolver::updateAerodynamicCoefficients() {
 }
 void Solver::EulerSolver::BroadCastCoeffs(std::vector<double> &vec) {
 	MPI_Bcast(&vec[0], 3, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+}
+
+void Solver::EulerSolver::EulerExplicit() {
+	updateDeltaTime();
+	TimeIntegration();
+	updateW();
 }
 
 void Solver::EulerSolver::RungeKutta() {
