@@ -26,7 +26,7 @@ target_include_directories(E3D_Solver PUBLIC ../include)
 target_link_libraries(E3D_Solver PUBLIC Parser Mesh Parallel_tools Utils Connectivity Solver)
 
 
-target_link_libraries(E3D_Solver PUBLIC MPI::MPI_C)
+target_link_libraries(E3D_Solver PUBLIC MPI::MPI_CXX)
 
 # Post-traitement
 ADD_EXECUTABLE(E3D_POST postprocessor.cpp)
