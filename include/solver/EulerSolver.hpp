@@ -24,7 +24,7 @@ namespace E3D::Solver {
 
 		void Run();
 
-		void WriteSummary();
+		void WriteSummary(long solverTimer, long totalTimer);
 
 	private:
 		/**
