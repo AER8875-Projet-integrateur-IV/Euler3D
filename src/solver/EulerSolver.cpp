@@ -236,12 +236,11 @@ void Solver::EulerSolver::updateBC() {
 	_e3d_mpi.updateFlowField(_localFlowField);
 }
 
-void Solver::EulerSolver::PrintInfo(double iterationwallTime, double sumError) {
+void Solver::EulerSolver::PrintInfo(double iterationwallTime, double _maximumDomainRms) {
 	_CL = _forceCoefficients[_coeffOrientation[0].first] * _coeffOrientation[0].second;
 	_CD = _forceCoefficients[_coeffOrientation[1].first] * _coeffOrientation[1].second;
 	_CM = _momentCoefficients[_coeffOrientation[2].first] * _coeffOrientation[2].second;
-	_residualFile.Update(sumError, _forceCoefficients, _momentCoefficients);
-	double _maximumDomainRms = std::sqrt(sumError / _localFlowField.getTotalDomainCounts());
+	_residualFile.Update(_maximumDomainRms, _forceCoefficients, _momentCoefficients);
 	E3D::Solver::PrintSolverIteration(_CL, _CD, _CM, _maximumDomainRms, iterationwallTime, _nbInteration);
 }
 
@@ -405,9 +404,6 @@ void Solver::EulerSolver::BroadCastCoeffs(std::vector<double> &vec) {
 
 void Solver::EulerSolver::EulerExplicit() {
 	updateDeltaTime();
-	if (_config.getResidualSmoothing()) {
-		smoothResiduals();
-	}
 	TimeIntegration();
 	updateW();
 }
