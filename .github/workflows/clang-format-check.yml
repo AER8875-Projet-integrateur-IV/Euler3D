@@ -11,4 +11,8 @@ jobs:
 
     - name: format check
       shell: bash
-      run: $GITHUB_WORKSPACE/clang-format-check.bsh $GITHUB_WORKSPACE
+      run: $GITHUB_WORKSPACE/clang-format-all.bsh $GITHUB_WORKSPACE
+
+    - uses: EndBug/add-and-commit@v7 
+      with:
+        author_name: clang format
