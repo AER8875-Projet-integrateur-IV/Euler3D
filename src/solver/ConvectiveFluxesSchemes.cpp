@@ -297,8 +297,8 @@ std::vector<double> E3D::Solver::VenkatakrishnanLimiter(E3D::Solver::FlowField &
 
     int *ptrFace2Elems = Mesh.GetFace2ElementID(iface);
 
-    // Contains Max and minimum values of primitives variables in the following order :
-    // Lrho max, Lrho min, Lu max, Lu min, Lv max,Lv min, lw max, LW min, .... Lp min
+    // Contains Max, minimum values and cell values of primitives variables in the following order :
+    // Lrho max, Lrho min, Lrho Lu max, Lu min, Lu,  Lv max,Lv min, Lv, lw max, LW min, .... Lp min
     // Then same thing again for the right side cell
     std::vector<double> MaxMinPrimVars;
 
