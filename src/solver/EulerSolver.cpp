@@ -136,15 +136,12 @@ void Solver::EulerSolver::Run() {
 				}
 				break;
 			}
-      if (std::filesystem::exists("stop")) {
+			if (std::filesystem::exists("stop")) {
 				if (_e3d_mpi.getRankID() == 0) {
-          std::cout << "Solver stopped by user" << '\n';
-        }
+					std::cout << "Solver stopped by user" << '\n';
+				}
 				break;
 			}
-
-
-
 		}
 
 		MPI_Barrier(MPI_COMM_WORLD);
