@@ -1,8 +1,11 @@
 #pragma once
 
+#include "utils/Vector3.h"
+#include <filesystem>
 #include <fstream>
 #include <sstream>
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace E3D::Parser {
@@ -95,6 +98,8 @@ namespace E3D::Parser {
 
 		inline double getMinResidual() const { return _minResidual; }
 
+		inline double getMinAeroCoeffError() const { return _minAeroCoeffError; }
+
 		/**
          * @return  Type of Solver Scheme (ROE or AUSM)
          */
@@ -104,6 +109,8 @@ namespace E3D::Parser {
          * @return  Type of Temporal Scheme (EXPLICIT_EULER , IMPLICIT_EULER or RK5)
          */
 		inline TemporalScheme getTemporalScheme() const { return _temporalScheme; }
+
+		inline bool getResidualSmoothing() const { return _residualSmoothing; }
 
 		inline int getMaxNumberIterations() const { return _maxIter; }
 
@@ -117,6 +124,13 @@ namespace E3D::Parser {
 
 		inline std::string getPostLog() const { return _postProcessorLog; }
 
+		inline std::pair<int, int> getMeshOrientationCL() const { return _meshOrientationCL; }
+		inline std::pair<int, int> getMeshOrientationCD() const { return _meshOrientationCD; }
+		inline std::pair<int, int> getMeshOrientationCM() const { return _meshOrientationCM; }
+		inline E3D::Vector3<double> getMeshRefPoint() const { return _meshRefPoint; }
+		inline int getSamplingPeriod() const { return _samplingPeriod; }
+		inline const std::filesystem::path &GetoutputDir() const { return _outputDir; }
+
 	private:
 		std::ifstream _configFileStream;
 		std::string _initialMeshFile;
@@ -126,6 +140,8 @@ namespace E3D::Parser {
 		std::string _preProcessorLog;
 		std::string _solverLog;
 		std::string _postProcessorLog;
+		std::filesystem::path _outputDir;
+
 		double _aoa;
 		double _mach;
 		double _velocity;
@@ -138,11 +154,21 @@ namespace E3D::Parser {
 		double _gasConstant;
 		double _cfl;
 		double _minResidual;
+		double _minAeroCoeffError;
+		int _samplingPeriod;
 		TemporalScheme _temporalScheme;
 		SolverScheme _solverScheme;
 		SpeedType _spdoption;
 		int _maxIter;
 		int _nbPartition;
+		// first element is the axis 0=x, 1=y, 2=z
+		// second element is the sign 1 or -1
+		std::pair<int, int> _meshOrientationCL;
+		std::pair<int, int> _meshOrientationCD;
+		std::pair<int, int> _meshOrientationCM;
+		E3D::Vector3<double> _meshRefPoint;
+
+		bool _residualSmoothing;
 	};
 
 }// namespace E3D::Parser

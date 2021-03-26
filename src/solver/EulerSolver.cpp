@@ -1,8 +1,9 @@
 //
 // Created by amin on 3/1/21.
 //
-
 #include "solver/EulerSolver.hpp"
+#include "solver/ResidualsFile.hpp"
+#include "toml++/toml.h"
 #include "utils/SolverPrint.hpp"
 #include "utils/Vector3.h"
 #include <filesystem>
@@ -19,22 +20,31 @@ Solver::EulerSolver::EulerSolver(FlowField &localFlowField,
 
     : _localFlowField(localFlowField), _e3d_mpi(e3d_mpi), _localMesh(localMesh), _config(config), _localMetrics(localMetrics) {
 
+	_samplePeriod = config.getSamplingPeriod();
+	_outputDir = config.GetoutputDir();
 	if (e3d_mpi.getRankID() == 0) {
 		std::cout << "\n\n"
 		          << std::string(24, '#') << "  Starting Solving Process !  " << std::string(24, '#') << "\n\n";
 		// Open file to write residual
-		std::filesystem::path outputPath(_config.getTecplotFile());
-		std::filesystem::path residualsPath;
-		residualsPath = outputPath.replace_filename("residuals.dat");
-		residualFile.open(residualsPath);
-		residualFile << "Rho residual \n";
+		new (&_residualFile) ResidualsFile(_outputDir / "residuals.dat");
 	}
 	E3D::Vector3<double> uInf(localFlowField.getu_inf(), localFlowField.getv_inf(), localFlowField.getw_inf());
+	_coeffOrientation = std::vector<std::pair<int, int>>{config.getMeshOrientationCL(),
+	                                                     config.getMeshOrientationCD(),
+	                                                     config.getMeshOrientationCM()};
 	_coeff = E3D::Solver::AeroCoefficients(localFlowField.getp_inf(),
 	                                       localFlowField.getrho_inf(),
 	                                       uInf,
 	                                       localMesh,
-	                                       localMetrics);
+	                                       localMetrics,
+	                                       config.getMeshRefPoint());
+
+	// define time integration method
+	if (_config.getTemporalScheme() == Parser::SimConfig::TemporalScheme::RK5) {
+		_timeIntegrator = &Solver::EulerSolver::RungeKutta;
+	} else {
+		_timeIntegrator = &Solver::EulerSolver::EulerExplicit;
+	}
 }
 
 void Solver::EulerSolver::Run() {
@@ -57,16 +67,19 @@ void Solver::EulerSolver::Run() {
 	                                                         0.0,
 	                                                         0.0));
 
-
+	int convergenceCounter = 0;
+	bool criteria = false;
 	while (_nbInteration < _config.getMaxNumberIterations()) {
 		resetResiduals();
-
 		double iterationBeginTimer = MPI_Wtime();
 
 
 		// loop Through Ghost cells (Boundary Cells)
 		updateBC();
 		computeResidual();
+		if (_config.getResidualSmoothing()) {
+			smoothResiduals();
+		}
 
 
 		//TODO Exchange max RMS between partition;
@@ -78,27 +91,50 @@ void Solver::EulerSolver::Run() {
 			if (_e3d_mpi.getRankID() == 0) {
 				double iterationEndTimer = MPI_Wtime();
 				double iterationwallTime = iterationEndTimer - iterationBeginTimer;
-				E3D::Solver::PrintSolverIteration(_CL, _CD, _maximumDomainRms, iterationwallTime, _nbInteration);
-				residualFile << _maximumDomainRms << "\n";
-				residualFile.close();
+				PrintInfo(iterationwallTime, _sumerrors);
 			}
 			break;
 		}
 
-		updateDeltaTime();
-		TimeIntegration();
-		updateW();
+		(this->*_timeIntegrator)();
 
 		_nbInteration += 1;
 
-		updateAerodynamicCoefficients();
-		if (_e3d_mpi.getRankID() == 0) {
-			residualFile << _maximumDomainRms << "\n";
-			if (_nbInteration % 20 == 0) {
-				double _maximumDomainRms = std::sqrt(_sumerrors / _localFlowField.getTotalDomainCounts());
+
+		if (_nbInteration % _samplePeriod == 0) {//_samplePeriod
+			// Broadcast coeffs from partition 0 to other partitions
+			std::vector<double> Oldglobalcoeffs{_CL, _CD, _CM};
+			BroadCastCoeffs(Oldglobalcoeffs);
+
+			updateAerodynamicCoefficients();
+
+
+			if (_e3d_mpi.getRankID() == 0) {
 				double iterationEndTimer = MPI_Wtime();
 				double iterationwallTime = iterationEndTimer - iterationBeginTimer;
-				E3D::Solver::PrintSolverIteration(_CL, _CD, _maximumDomainRms, iterationwallTime, _nbInteration);
+				PrintInfo(iterationwallTime, _sumerrors);
+			}
+
+			// Broadcast coeffs from partition 0 to other partitions
+			std::vector<double> globalcoeffs{_CL, _CD, _CM};
+			BroadCastCoeffs(globalcoeffs);
+
+			criteria = ConvergenceCriteria(Oldglobalcoeffs[0],
+			                               Oldglobalcoeffs[1],
+			                               Oldglobalcoeffs[2],
+			                               globalcoeffs[0],
+			                               globalcoeffs[1],
+			                               globalcoeffs[2]);
+			if (criteria) {
+				convergenceCounter++;
+			} else {
+				convergenceCounter = 0;
+			}
+			if (convergenceCounter >= 2) {
+				if (_e3d_mpi.getRankID() == 0) {
+					printf("Coefficients have converged to %.2E\n", _config.getMinAeroCoeffError());
+				}
+				break;
 			}
 		}
 
@@ -116,6 +152,36 @@ void Solver::EulerSolver::Run() {
 	}
 }
 
+void Solver::EulerSolver::WriteSummary(long solverTimer, long totalTimer) {
+	PrintCp();
+	auto sumWallVectors = _coeff.GetSumFaceVectors();
+	sumWallVectors = _e3d_mpi.UpdateAerodynamicCoefficients(sumWallVectors);
+
+	if (_e3d_mpi.getRankID() == 0) {
+		double TimeCore_p_IterNElem = static_cast<double>(solverTimer * _e3d_mpi.getPoolSize()) /
+		                              static_cast<double>(_nbInteration * _localMesh.GetInteriorElementVector().size());
+		// Write summary in TOML format
+		auto tbl = toml::table{{
+		        {"Mesh", toml::table{{{"Wall_Face_Vector_Sum", toml::array{sumWallVectors.x, sumWallVectors.y, sumWallVectors.z}}}}},
+		        {"Coefficients", toml::table{{
+		                                 {"Force_Coeff", toml::array{_forceCoefficients.x, _forceCoefficients.y, _forceCoefficients.z}},
+		                                 {"Moment_Coeff", toml::array{_momentCoefficients.x, _momentCoefficients.y, _momentCoefficients.z}},
+		                                 {"CL", _CL},
+		                                 {"CD", _CD},
+		                                 {"CM", _CM},
+		                         }}},
+		        {"TotalSolverTime", totalTimer},
+		        {"SolverLoopTime", solverTimer},
+		        {"Iterations", _nbInteration},
+		        {"TimeCore_p_IterNElem", TimeCore_p_IterNElem},
+		}};
+		std::filesystem::path path = _outputDir / "summary.txt";
+		std::ofstream file(path);
+		file << tbl << std::endl;
+		file.close();
+		std::cout << "\nSummary printed at: " << path << std::endl;
+	}
+}
 
 // Update Farfield, Wall, Symmetry and MPI ghost cell primitive values
 void Solver::EulerSolver::updateBC() {
@@ -170,6 +236,56 @@ void Solver::EulerSolver::updateBC() {
 	_e3d_mpi.updateFlowField(_localFlowField);
 }
 
+void Solver::EulerSolver::PrintInfo(double iterationwallTime, double sumError) {
+	_CL = _forceCoefficients[_coeffOrientation[0].first] * _coeffOrientation[0].second;
+	_CD = _forceCoefficients[_coeffOrientation[1].first] * _coeffOrientation[1].second;
+	_CM = _momentCoefficients[_coeffOrientation[2].first] * _coeffOrientation[2].second;
+	_residualFile.Update(sumError, _forceCoefficients, _momentCoefficients);
+	double _maximumDomainRms = std::sqrt(sumError / _localFlowField.getTotalDomainCounts());
+	E3D::Solver::PrintSolverIteration(_CL, _CD, _CM, _maximumDomainRms, iterationwallTime, _nbInteration);
+}
+
+bool Solver::EulerSolver::ConvergenceCriteria(double CL_old,
+                                              double CD_old,
+                                              double CM_old,
+                                              double CL_new,
+                                              double CD_new,
+                                              double CM_new) {
+
+	double residuCL = std::abs(CL_old - CL_new);//erreur absolue
+	double residuCD = std::abs(CD_old - CD_new);
+	double residuCM = std::abs(CM_old - CM_new);
+	double tolerance = _config.getMinAeroCoeffError();
+	bool sortie;
+	if ((residuCL < tolerance && residuCD < tolerance && residuCM < tolerance)) {
+		sortie = true;
+	} else {
+		sortie = false;
+	}
+	return sortie;
+}
+
+
+void Solver::EulerSolver::PrintCp() {
+	std::ofstream file(_outputDir / ("cp_part_" + std::to_string(_e3d_mpi.getRankID()) + ".dat"));
+	file << std::setw(20) << "Cp"
+	     << std::setw(20) << "x"
+	     << std::setw(20) << "y"
+	     << std::setw(20) << "z"
+	     << std::endl;
+
+	std::vector<E3D::Vector3<double>> centroids = _coeff.GetCentroids();
+	std::vector<double> cp = _coeff.GetCp();
+	for (int i = 0; i < centroids.size(); i++) {
+		E3D::Vector3<double> &cent = centroids[i];
+		file << std::scientific << std::setprecision(10) << std::setw(20) << cp[i]
+		     << std::scientific << std::setprecision(10) << std::setw(20) << cent.x
+		     << std::scientific << std::setprecision(10) << std::setw(20) << cent.y
+		     << std::scientific << std::setprecision(10) << std::setw(20) << cent.z
+		     << std::endl;
+	}
+	file.close();
+}
 
 void Solver::EulerSolver::computeResidual() {
 
@@ -180,7 +296,7 @@ void Solver::EulerSolver::computeResidual() {
 		int element1 = ptr[0];
 		int element2 = ptr[1];
 
-		ResidualVar residu = Solver::Roe(_localFlowField, _localMesh, _localMetrics, IfaceID, false);
+		ResidualVar residu = Solver::Roe(_localFlowField, _localMesh, _localMetrics, IfaceID);
 
 
 		double surfaceArea = _localMetrics.getFaceSurfaces()[IfaceID];
@@ -212,7 +328,7 @@ void Solver::EulerSolver::computeResidual() {
 
 		// If MPI or Symmetry
 		else if (std::binary_search(_sortedMPIGhostCellIDs.begin(), _sortedMPIGhostCellIDs.end(), element2) || std::binary_search(_sortedSymmetryGhostCellIDs.begin(), _sortedSymmetryGhostCellIDs.end(), element2)) {
-			ResidualVar residu = Solver::Roe(_localFlowField, _localMesh, _localMetrics, EfaceID, true);
+			ResidualVar residu = Solver::Roe(_localFlowField, _localMesh, _localMetrics, EfaceID);
 			_residuals[element1] += residu * surfaceArea;
 		}
 
@@ -228,6 +344,7 @@ void Solver::EulerSolver::computeResidual() {
 		}
 	}
 }
+
 
 void Solver::EulerSolver::updateDeltaTime() {
 
@@ -246,7 +363,7 @@ void Solver::EulerSolver::TimeIntegration() {
 
 void Solver::EulerSolver::updateW() {
 
-	_localFlowField.Update(_deltaW, MPIghostCellElems, _localMesh.getMPIadjacentToGhostCellIDs());
+	_localFlowField.Update(_deltaW);
 }
 
 double Solver::EulerSolver::computeRMS() {
@@ -276,8 +393,104 @@ void Solver::EulerSolver::sortGhostCells() {
 	std::sort(_sortedSymmetryGhostCellIDs.begin(), _sortedSymmetryGhostCellIDs.end());
 }
 void Solver::EulerSolver::updateAerodynamicCoefficients() {
-	_forces = _coeff.SolveCoefficients(_localFlowField.GetP());
-	_forces = _e3d_mpi.UpdateAerodynamicCoefficients(_forces);
-	_CL = _forces.y;
-	_CD = _forces.x;
+	_coeff.Update(_localFlowField.GetP());
+	_forceCoefficients = _coeff.GetForceCoeff();
+	_forceCoefficients = _e3d_mpi.UpdateAerodynamicCoefficients(_forceCoefficients);
+	_momentCoefficients = _coeff.GetMomentCoeff();
+	_momentCoefficients = _e3d_mpi.UpdateAerodynamicCoefficients(_momentCoefficients);
+}
+void Solver::EulerSolver::BroadCastCoeffs(std::vector<double> &vec) {
+	MPI_Bcast(&vec[0], 3, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+}
+
+void Solver::EulerSolver::EulerExplicit() {
+	updateDeltaTime();
+	TimeIntegration();
+	updateW();
+}
+
+void Solver::EulerSolver::RungeKutta() {
+
+	std::array<double, 4> RKcoefficients = {0.1263, 0.2375, 0.4414, 1.0};
+	int ntotalElem = _localMesh.GetnElemTot();
+	std::vector<ConservativeVar> RHS_W(ntotalElem);
+	std::vector<ConservativeVar> W0(ntotalElem);
+	for (int i = 0; i < ntotalElem; i++) {
+		double rho = _localFlowField.Getrho()[i];
+		W0[i].rho = rho;
+		W0[i].rhoU = _localFlowField.GetU_Velocity()[i] * rho;
+		W0[i].rhoV = _localFlowField.GetV_Velocity()[i] * rho;
+		W0[i].rhoW = _localFlowField.GetW_Velocity()[i] * rho;
+		W0[i].rhoE = _localFlowField.GetE()[i] * rho;
+	}
+	updateDeltaTime();
+
+	for (int i = 0; i < ntotalElem; i++) {
+		double volume = _localMetrics.getCellVolumes()[i];
+		double dt = _deltaT[i];
+		RHS_W[i].rho = 0.0533 * dt * _residuals[i].m_rhoV_residual / volume;
+		RHS_W[i].rhoU = 0.0533 * dt * _residuals[i].m_rho_uV_residual / volume;
+		RHS_W[i].rhoV = 0.0533 * dt * _residuals[i].m_rho_vV_residual / volume;
+		RHS_W[i].rhoW = 0.0533 * dt * _residuals[i].m_rho_wV_residual / volume;
+		RHS_W[i].rhoE = 0.0533 * dt * _residuals[i].m_rho_HV_residual / volume;
+	}
+	_localFlowField.updateWRungeKutta(RHS_W, W0);
+
+	for (auto &alpha : RKcoefficients) {
+		resetResiduals();
+		updateBC();
+		computeResidual();
+		if (_config.getResidualSmoothing()) {
+			smoothResiduals();
+		}
+		updateDeltaTime();
+
+		for (int i = 0; i < ntotalElem; i++) {
+			double volume = _localMetrics.getCellVolumes()[i];
+			double dt = _deltaT[i];
+			RHS_W[i].rho = alpha * dt * _residuals[i].m_rhoV_residual / volume;
+			RHS_W[i].rhoU = alpha * dt * _residuals[i].m_rho_uV_residual / volume;
+			RHS_W[i].rhoV = alpha * dt * _residuals[i].m_rho_vV_residual / volume;
+			RHS_W[i].rhoW = alpha * dt * _residuals[i].m_rho_wV_residual / volume;
+			RHS_W[i].rhoE = alpha * dt * _residuals[i].m_rho_HV_residual / volume;
+		}
+		_localFlowField.updateWRungeKutta(RHS_W, W0);
+	}
+}
+
+void Solver::EulerSolver::smoothResiduals() {
+
+
+	const double epsilon = 0.5;
+	auto original_residual = _residuals;
+	std::vector<ResidualVar> last_residual(_localMesh.GetnElemTot());
+	std::vector<ResidualVar> diff(_localMesh.GetnElemTot());
+	double error;
+	do {
+		error = 0.0;
+
+		last_residual = _residuals;
+		for (int ielem = 0; ielem < _localMesh.GetnElemTot(); ielem++) {
+			ResidualVar sumSurrResidual(0.0, 0.0, 0.0, 0.0, 0.0);
+			int nSurrElems;
+			int *SurrElems = _localMesh.GetElement2ElementID(ielem, nSurrElems);
+			for (int i = 0; i < nSurrElems; i++) {
+				if (SurrElems[i] < _localMesh.GetnElemTot()) {
+					sumSurrResidual += (last_residual[SurrElems[i]] * epsilon);
+				}
+			}
+			_residuals[ielem] = (original_residual[ielem] + sumSurrResidual) / (1 + nSurrElems * epsilon);
+		}
+		std::transform(_residuals.begin(), _residuals.end(), last_residual.begin(), diff.begin(), std::minus<ResidualVar>());
+
+		for (auto &ResidualDiff : diff) {
+			double maxRes = ResidualDiff.findMax();
+			if (maxRes > error) {
+				error = maxRes;
+			}
+		}
+
+		diff.clear();
+		last_residual.clear();
+	} while (error > 1e-14);
 }

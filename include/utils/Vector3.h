@@ -93,16 +93,23 @@ namespace E3D {
 		Vector3 operator*(T s) {
 			return Vector3(x * s, y * s, z * s);
 		}
+		Vector3 operator*(Vector3<T> s) {
+			return Vector3(x * s.x, y * s.y, z * s.z);
+		}
 		Vector3 operator/(T s) {
 			return Vector3(x / s, y / s, z / s);
 		}
-
+		Vector3 operator/=(Vector3<T> s) {
+			return Vector3(x / s.x, y / s.y, z / s.z);
+		}
 		void set(T x, T y, T z) {
 			this->x = x;
 			this->y = y;
 			this->z = z;
 		}
-
+		T operator[](int i) {
+			return *(&x + i);
+		}
 
 		double length() const {
 			return std::sqrt(x * x + y * y + z * z);

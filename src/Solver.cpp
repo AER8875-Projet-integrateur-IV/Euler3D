@@ -10,10 +10,15 @@
 #include "solver/EulerSolver.hpp"
 #include "solver/FlowField.hpp"
 #include "solver/WriteSolution.hpp"
+#include <chrono>
+
 
 using namespace E3D;
 
+
 int main(int argc, char *argv[]) {
+
+	auto begginingTime = std::chrono::steady_clock::now();
 
 	E3D::Parallel::MPIHandler e3d_mpi(argc, argv);
 
@@ -29,6 +34,7 @@ int main(int argc, char *argv[]) {
 	// Parsing Config file
 	std::string configFile = argv[1];
 	Parser::SimConfig config(configFile, e3d_mpi.getRankID(), e3d_mpi.getPoolSize());
+
 
 	E3D::Mesh<E3D::Parser::MeshPartition> localmesh(config.getPartitionedMeshFiles()[e3d_mpi.getRankID()], e3d_mpi.getRankID());
 
@@ -49,12 +55,19 @@ int main(int argc, char *argv[]) {
 
 	E3D::Solver::EulerSolver solver(localFlowField, e3d_mpi, localmesh, config, localMeshMetrics);
 
+	auto preSolverTime = std::chrono::steady_clock::now();
 	solver.Run();
+	auto postSolverTime = std::chrono::steady_clock::now();
 
 	E3D::Solver::WriteSolution writeSolution(localFlowField, localmesh, config, e3d_mpi);
 
+	auto finalTime = std::chrono::steady_clock::now();
+
+	long solverTimer = (std::chrono::duration_cast<std::chrono::milliseconds>(postSolverTime - preSolverTime)).count();
+	long totalTimer = (std::chrono::duration_cast<std::chrono::milliseconds>(finalTime - begginingTime)).count();
+
+	solver.WriteSummary(solverTimer, totalTimer);
+
 	e3d_mpi.finalize();
-
-
 	return 0;
 }

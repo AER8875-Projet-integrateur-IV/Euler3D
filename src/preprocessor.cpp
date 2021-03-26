@@ -16,6 +16,10 @@
 
 int main(int argc, char *argv[]) {
 
+	spdlog::stopwatch globalsw;
+	E3D::Logger logger("log.txt");
+	auto logObject = E3D::Logger::Getspdlog();
+
 	if (argc != 2) {
 		std::cerr << "Usage : EES2D_APP <meshFileName.su2> " << std::endl;
 		exit(EXIT_FAILURE);
@@ -25,10 +29,6 @@ int main(int argc, char *argv[]) {
 	std::string configFile = argv[1];
 	E3D::Parser::SimConfig config(configFile);
 
-	spdlog::stopwatch globalsw;
-	E3D::Logger logger(config.getPreLog());
-
-	auto logObject = E3D::Logger::Getspdlog();
 	logObject->info("Euler 3D Pre-processor.\n");
 
 	std::string fileName = argv[1];
