@@ -30,6 +30,7 @@ SimConfig::SimConfig(const std::string &filename, const int rankID, const int po
 			exit(EXIT_FAILURE);
 		}
 		printInfo();
+		configFileVerification();
 	}
 }
 
@@ -98,7 +99,6 @@ void SimConfig::parseConfigFile() {
 				} else if (line.find("PRE_LOG=") != std::string::npos) {
 					ss1.seekg(9) >> _preProcessorLog;
 				} else if (line.find("SPEED_OPTION") != std::string::npos) {
-					int speedChoice;
 					ss1.seekg(13) >> speedChoice;
 					speedChoice == 0 ? _spdoption = SpeedType::MACH : _spdoption = SpeedType::METER_PER_SEC;
 				} else if (line.find("SPEED_VALUE") != std::string::npos) {
@@ -121,7 +121,6 @@ void SimConfig::parseConfigFile() {
 				} else if (line.find("SPECIFIC_HEAT") != std::string::npos) {
 					ss1.seekg(14) >> _specificHeat;
 				} else if (line.find("SCHEME") != std::string::npos) {
-					int schemeChoice;
 					ss1.seekg(8) >> schemeChoice;
 					schemeChoice == 0 ? _solverScheme = SolverScheme::ROE : _solverScheme = SolverScheme::AUSM;
 				} else if (line.find("TIME_INTEGRATION") != std::string::npos) {
@@ -138,6 +137,9 @@ void SimConfig::parseConfigFile() {
 							break;
 						case 2:
 							_temporalScheme = TemporalScheme::RK5;
+							break;
+						default:
+							throw std::invalid_argument("invalid TIME_INTEGRATION argument");
 							break;
 					}
 				} else if (line.find("RESIDUAL_SMOOTHING") != std::string::npos) {
@@ -264,4 +266,171 @@ void SimConfig::printInfo() {
 	          << std::setw(6)
 	          << _aoa
 	          << "\n";
+}
+
+void SimConfig::configFileVerification() {
+
+	std::cout << "\n" 
+			  << std::setw(30) 
+			  << "__________Verification process of ConfigFile has started!__________" 
+			  << std::setw(6)
+			  << "\n";
+
+	// Check on Number of partitions (done)
+
+	// Check on Mesh orientation CL and CD (done)
+
+	// Check on Sampling Period (>0)
+	if (_samplingPeriod <=0 ){
+		std::cerr << "\n"
+				  << "The Sampling Period must be a positive integer! Sampling Period = "
+		          << _samplingPeriod
+				  << "\n";
+		exit(EXIT_FAILURE);
+	}
+
+	// Check on Speed Option (0 or 1)
+	if (speedChoice != 0 && speedChoice != 1){
+		std::cerr << "\n"
+				  << "The Speed Option is incorrect! It must be either 0 (Mach) or 1 (Velocity in m/s). Speed Option = "
+				  << speedChoice
+				  << "\n";
+		exit(EXIT_FAILURE);
+	}
+	  
+	// Check on Mach Number
+	if (_mach < 0. || _mach > 2.5){
+		std::cerr << "\n"
+				  << "The Mach Number is either too low (below 0) or too high (above 2.5)! Mach Number = "
+				  << _mach
+		          << "\nWould recommend checking on the following parameters: \n"
+				  << "If Speed Option is set to 0 --> Mach\n"
+				  << "If Speed Option is set to 1 --> GAMMA, AIRFLOW_TEMPERATURE, GAS_CONSTANT \n";
+		exit(EXIT_FAILURE);
+	}
+
+	// Check on Airflow Pressure (>=0)
+	if (_pressure<0){
+		std::cerr << "\n"
+				  << "The Airflow Pressure must be at least 0 Pa! Airflow Pressure = "
+				  << _pressure
+				  << " Pa\n"
+				  << "A typical value for Airflow Pressure is 101325 Pa\n";
+		exit(EXIT_FAILURE);
+	}
+
+	// Check on Airflow Temperature (>=0)
+	if (_temp<0){
+		std::cerr << "\n"
+				  << "The Airflow Temperature must be at least 0 K! Airflow Temperature = "
+				  << _temp
+				  << " K\n"
+				  << "A typical value for Airflow Temperature is 288.15 K\n";
+		exit(EXIT_FAILURE);
+	}
+
+	// Check on Airflow Viscosity (>=0)
+	if (_visc<0){
+		std::cerr << "\n"
+				  << "The Airflow Viscosity must be at least 0 Ns/m^2! Airflow Viscosity = "
+				  << _visc
+				  << " Ns/m^2\n"
+				  << "A typical value for Airflow Viscosity is 1.853e-5 Ns/m^2 (air)\n";
+		exit(EXIT_FAILURE);
+	}
+
+	// Check on Airflow Density (>=0)
+	if (_density<0){
+		std::cerr << "\n"
+				  << "The Airflow Density must be at least 0 kg/m^3! Airflow Density = "
+				  << _density
+				  << " kg/m^3\n"
+				  << "A typical value for Airflow Density is 1.2886 kg/m^3 (air)\n";
+		exit(EXIT_FAILURE);
+	}
+
+	// Check on Gamma (>=0)
+	if (_gamma<0){
+		std::cerr << "\n"
+				  << "The Gamma value must be at least 0! Gamma = "
+				  << _gamma
+				  << "\n"
+				  << "A typical value for Gamma is 1.4 (air)\n";
+		exit(EXIT_FAILURE);
+	}
+
+	// Check on Gas Constant (>=0)
+	if (_gasConstant<0){
+		std::cerr << "\n"
+				  << "The Gas Constant value must be at least 0 J/kg.K! Gas Constant = "
+				  << _gasConstant
+				  << "\n"
+				  << "A typical value for Gas Constant is 287.058 J/kg.K (air)\n";
+		exit(EXIT_FAILURE);
+	}
+
+	// Check on Specific Heat (>=0)
+	if (_specificHeat<0){
+		std::cerr << "\n"
+				  << "The Specific Heat value must be at least 0 J/kg.K! Specific Heat = "
+				  << _specificHeat
+				  << "\n"
+				  << "A typical value for Specific Heat is 1004.7 J/kg.K (air)\n";
+		exit(EXIT_FAILURE);
+	}
+
+	// Check on Scheme selection (0 or 1)
+	if (schemeChoice != 0 && schemeChoice != 1){
+		std::cerr << "\n"
+				  << "The Scheme Option is incorrect! It must be either 0 (Roe) or 1 (Ausm). Scheme Option = "
+				  << schemeChoice
+				  << "\n";
+		exit(EXIT_FAILURE);
+	}
+
+	// Check on Time Integration selection (0, 1 or 2) (done)
+
+
+	// Check on CFL (>0)
+	if (_cfl<=0){
+		std::cerr << "\n"
+				  << "The CFL number must be greater than 0! CFL = "
+				  << _cfl
+				  << "\n";
+		exit(EXIT_FAILURE);
+	}
+
+	// Check on Min Residual
+	if (_minResidual < 0.){
+		std::cerr << "\n"
+				  << "The Minimum Residual is too low (<0)! Minimum Residual = "
+				  << _minResidual
+		          << "\n";
+		exit(EXIT_FAILURE);
+	}
+
+	// Check on Number of Iterations (>0)
+	if (_maxIter <= 0){
+		std::cerr << "\n"
+				  << "The Maximum Number of Iterations must be greater than 0! Max Iterations = "
+				  << _maxIter
+		          << "\n";
+		exit(EXIT_FAILURE);
+	}
+
+	//Check on output data file (existant)
+	if (_tecplotFile.length() == 0){
+		std::cerr << "\n"
+				  << "No output file!"
+		          << "\n";
+		exit(EXIT_FAILURE);
+	}
+
+	std::cout << "\n" 
+			  << std::setw(30) 
+			  << "__________Verification process of ConfigFile has ended!____________" 
+			  << std::setw(6)
+			  << "\n";
+
+
 }

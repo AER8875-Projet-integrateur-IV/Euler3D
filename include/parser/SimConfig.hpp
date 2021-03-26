@@ -20,6 +20,8 @@ namespace E3D::Parser {
 
 		void printInfo();
 
+		void configFileVerification();
+
 		enum class SpeedType {
 			MACH,
 			METER_PER_SEC
@@ -158,7 +160,9 @@ namespace E3D::Parser {
 		int _samplingPeriod;
 		TemporalScheme _temporalScheme;
 		SolverScheme _solverScheme;
+		int schemeChoice;
 		SpeedType _spdoption;
+		int speedChoice;
 		int _maxIter;
 		int _nbPartition;
 		// first element is the axis 0=x, 1=y, 2=z
