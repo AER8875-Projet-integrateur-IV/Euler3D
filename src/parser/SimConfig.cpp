@@ -224,7 +224,7 @@ void SimConfig::parseConfigFile() {
 			throw std::invalid_argument("invalid MESH_ORIENTATION_CD argument");
 			break;
 	};
-	_meshOrientationCM = std::make_pair(3 - _meshOrientationCL.first - _meshOrientationCD.first, -_meshOrientationCD.second * _meshOrientationCD.second);
+	_meshOrientationCM = std::make_pair(3 - _meshOrientationCL.first - _meshOrientationCD.first, -_meshOrientationCL.second * _meshOrientationCD.second);
 
 	// Define standard output Dir
 	std::filesystem::path outputPath(_tecplotFile);
