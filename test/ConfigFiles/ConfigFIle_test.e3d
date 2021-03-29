@@ -43,13 +43,13 @@ SAMPLING= 500
 # Options : MACH -> 0
 #           Velocity -> 1
 
-SPEED_OPTION= 1
+SPEED_OPTION= 0
 
 # Velocity in m/s or Mach
-SPEED_VALUE= 250
+SPEED_VALUE= 1
 
 angle of attack in degrees
-AOA= 1
+AOA= 0
 
 # Airflow pressure in Pa
 AIRFLOW_PRESSURE= 101325
@@ -87,11 +87,20 @@ SCHEME= 1
 
 TIME_INTEGRATION= 2
 
+# Implicit Residual Smoothing (IRS)
+# Options : NO -> 0
+#           YES -> 1
+
+RESIDUAL_SMOOTHING= 1
+
 # Courant_Friedrichs-Lewy Number (CFL)
 CFL= 3
 
 # Minimum residual to stop solver (RMS of density)
 MIN_RESIDUAL= 1e-10
+
+# Minimum error on aerodynamic coefficients
+MIN_AEROCOEFF_ERROR= 1e-50
 
 # Number of maximum iterations to stop solver
 MAX_ITER= 99999

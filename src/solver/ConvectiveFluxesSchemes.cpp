@@ -17,14 +17,22 @@ E3D::Solver::ResidualVar E3D::Solver::Roe(E3D::Solver::FlowField &_localFlowFiel
     Vector3<double> faceCenter = _localMetrics.getFaceCenters()[iface];
     int leftElementId = ptr[0];
     int rightElementId = ptr[1];
+
     bool borderElem;
     rightElementId < _localMesh.GetnElemTot() ? borderElem = false : borderElem = true;
     auto PrimitiveVarGrads = GreenGaussGradient(_localFlowField, _localMesh, _localMetrics, iface, borderElem);
-    auto limiters = VenkatakrishnanLimiter(_localFlowField, _localMesh, _localMetrics, iface, PrimitiveVarGrads,borderElem);
+    //auto limiters = VenkatakrishnanLimiter(_localFlowField, _localMesh, _localMetrics, iface, PrimitiveVarGrads,borderElem);
+    std::vector<double> limiters(12);
+    if(rightElementId < _localMesh.GetnElemTot()) {
+		std::fill(limiters.begin(), limiters.end(), 0);
+	}
+	else{
+        std::fill(limiters.begin(), limiters.end(), 0);
+	}
 
     Vector3<double> r_l = faceCenter - _localMetrics.getCellCentroids()[leftElementId];
-    double leftRho = _localFlowField.Getrho()[leftElementId] + Vector3<double>::dot(PrimitiveVarGrads[0],r_l)*limiters[0];
 
+    double leftRho = _localFlowField.Getrho()[leftElementId] + Vector3<double>::dot(PrimitiveVarGrads[0],r_l)*limiters[0];
     double leftU = _localFlowField.GetU_Velocity()[leftElementId] + Vector3<double>::dot(PrimitiveVarGrads[1],r_l)*limiters[1];
     double leftV = _localFlowField.GetV_Velocity()[leftElementId] + Vector3<double>::dot(PrimitiveVarGrads[2],r_l)*limiters[2];
     double leftW = _localFlowField.GetW_Velocity()[leftElementId] + Vector3<double>::dot(PrimitiveVarGrads[3],r_l)*limiters[3];
@@ -38,23 +46,27 @@ E3D::Solver::ResidualVar E3D::Solver::Roe(E3D::Solver::FlowField &_localFlowFiel
     double rightH;
     double rightP;
 
-    if(rightElementId < _localMesh.GetnElemTot()){
-        Vector3<double> r_r = faceCenter - _localMetrics.getCellCentroids()[rightElementId];
-        rightRho = _localFlowField.Getrho()[rightElementId] + Vector3<double>::dot(PrimitiveVarGrads[6],r_r)*limiters[6];
-        rightU = _localFlowField.GetU_Velocity()[rightElementId] + Vector3<double>::dot(PrimitiveVarGrads[7],r_r)*limiters[7];
-        rightV = _localFlowField.GetV_Velocity()[rightElementId] + Vector3<double>::dot(PrimitiveVarGrads[8],r_r)*limiters[8];
-        rightW = _localFlowField.GetW_Velocity()[rightElementId] + Vector3<double>::dot(PrimitiveVarGrads[9],r_r)*limiters[9];
-        rightH = _localFlowField.GetH()[rightElementId] + Vector3<double>::dot(PrimitiveVarGrads[10],r_r)*limiters[10];
-        rightP = _localFlowField.GetP()[rightElementId] + Vector3<double>::dot(PrimitiveVarGrads[11],r_r)*limiters[11];
-    }
-    else{
-        rightRho = _localFlowField.Getrho()[rightElementId];
-        rightU = _localFlowField.GetU_Velocity()[rightElementId];
-        rightV = _localFlowField.GetV_Velocity()[rightElementId];
-        rightW = _localFlowField.GetW_Velocity()[rightElementId];
-        rightH = _localFlowField.GetH()[rightElementId];
-        rightP = _localFlowField.GetP()[rightElementId];
-    }
+    Vector3<double> r_r = faceCenter - _localMetrics.getCellCentroids()[rightElementId];
+
+    rightRho = _localFlowField.Getrho()[rightElementId] + Vector3<double>::dot(PrimitiveVarGrads[6],r_r)*limiters[6];
+    rightU = _localFlowField.GetU_Velocity()[rightElementId] + Vector3<double>::dot(PrimitiveVarGrads[7],r_r)*limiters[7];
+    rightV = _localFlowField.GetV_Velocity()[rightElementId] + Vector3<double>::dot(PrimitiveVarGrads[8],r_r)*limiters[8];
+    rightW = _localFlowField.GetW_Velocity()[rightElementId] + Vector3<double>::dot(PrimitiveVarGrads[9],r_r)*limiters[9];
+    rightH = _localFlowField.GetH()[rightElementId] + Vector3<double>::dot(PrimitiveVarGrads[10],r_r)*limiters[10];
+    rightP = _localFlowField.GetP()[rightElementId] + Vector3<double>::dot(PrimitiveVarGrads[11],r_r)*limiters[11];
+
+
+
+//	if(leftElementId==0 && rightElementId==101){
+//        printf("distrance To left : %.5f %.5f %.5f\n", r_l.x,r_l.y,r_l.z);
+//        printf("distrance To right : %.5f %.5f %.5f\n", r_r.x,r_r.y,r_r.z);
+//		printf("------\n");
+//		for(int i=0;i<12;i++){
+//
+//			printf("PrimivteVar %d : %.5f %.5f %.5f \n",i,PrimitiveVarGrads[i].x,PrimitiveVarGrads[i].y,PrimitiveVarGrads[i].z);
+//		}
+//        printf("------\n");
+//	}
 
     //get variables from FlowField
     double gamma = _localFlowField.getgamma_ref();
@@ -290,9 +302,9 @@ std::vector<double> E3D::Solver::VenkatakrishnanLimiter(E3D::Solver::FlowField &
                                                         const int iface,
                                                         const std::vector<Vector3<double>> &grads,
                                                         bool borderElem) {
-    double K = 5;
+    double K = 0.5;
 
-    int nbEvaluatedCells = 0;
+    int nbEvaluatedCells;
     borderElem ? nbEvaluatedCells = 1 : nbEvaluatedCells = 2;
 
     int *ptrFace2Elems = Mesh.GetFace2ElementID(iface);
