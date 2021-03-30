@@ -1,11 +1,14 @@
 #include "solver/WriteSolution.hpp"
+#include <filesystem>
 
 using namespace E3D::Solver;
 
 WriteSolution::WriteSolution(E3D::Solver::FlowField &flowField,
                              const E3D::Parser::SimConfig &config,
                              const E3D::Parallel::MPIHandler &e3d_mpi) : _flowField(flowField) {
-	_fileName = config.getPartitionedMeshFiles()[e3d_mpi.getRankID()] + ".sol";
+	auto fileName = std::filesystem::path(config.getPartitionedMeshFiles()[e3d_mpi.getRankID()]).filename();
+	fileName += ".sol";
+	_fileName = config.GetoutputDir() / fileName;
 	_file = std::ofstream(_fileName);
 	_file << std::setiosflags(std::ios::dec)
 	      << std::setiosflags(std::ios::scientific);

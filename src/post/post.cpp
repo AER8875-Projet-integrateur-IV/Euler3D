@@ -12,7 +12,7 @@
 #include "spdlog/logger.h"
 #include "spdlog/stopwatch.h"
 #include "utils/Logger.hpp"
-
+#include <filesystem>
 
 using namespace E3D::Post;
 
@@ -22,8 +22,11 @@ Post::Post(const E3D::Parser::SimConfig &config) {
 	_nPart = config.getNumberPartitions();
 	_meshPartitionPath = config.getPartitionedMeshFiles();
 	_solutionPartitionPath.reserve(_nPart);
+	const auto &outputDir = config.GetoutputDir();
 	for (int i = 0; i < _nPart; i++) {
-		_solutionPartitionPath.push_back(_meshPartitionPath[i] + ".sol");
+		auto fileName = std::filesystem::path(_meshPartitionPath[i]).filename();
+		fileName += ".sol";
+		_solutionPartitionPath.push_back(outputDir / fileName);
 	}
 	return;
 }
