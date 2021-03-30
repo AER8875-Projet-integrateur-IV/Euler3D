@@ -109,7 +109,8 @@ void MPIHandler::updateFlowField(E3D::Solver::FlowField &localFlowField) const {
                             VarToSend.push_back(localFlowField.GetE()[GhostCell.getGhostCellID()]);
                         }
                         // Recv Buffer, contains variables in this order : [ rho's, u's, v's, w's , E's ]
-                        std::vector<double> VarToReceive(VecSize);
+                        std::vector<double> VarToReceive;
+                        VarToReceive.resize(VecSize, 0);
 
                         MPI_Sendrecv(&VarToSend[0],
                                      VecSize,
@@ -196,8 +197,8 @@ void MPIHandler::updateFlowField(E3D::Solver::FlowField &localFlowField) const {
                             VarToSend.push_back(localFlowField.GetE()[GhostCell.getGhostCellID()]);
                         }
                         // Recv Buffer, contains variables in this order : [ rho's, u's, v's, w's , E's ]
-                        std::vector<double> VarToReceive(VecSize);
-
+                        std::vector<double> VarToReceive;
+                        VarToReceive.resize(VecSize, 0.0);
 
                         MPI_Sendrecv(&VarToSend[0],
                                      VecSize,
