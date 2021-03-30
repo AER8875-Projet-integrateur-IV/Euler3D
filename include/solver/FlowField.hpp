@@ -16,7 +16,8 @@ namespace E3D::Solver {
 
 		void PrintTest();
 
-		void Update(const std::vector<E3D::Solver::ConservativeVar> &delW_vector);
+		void Update(const std::vector<E3D::Solver::ConservativeVar> &delW_vector,const std::vector<int> &MPIids,
+                    const std::vector<int> &adjacentToMPIids);
 
 		void updateWRungeKutta(const std::vector<E3D::Solver::ConservativeVar> &,
 		                       const std::vector<E3D::Solver::ConservativeVar> &);

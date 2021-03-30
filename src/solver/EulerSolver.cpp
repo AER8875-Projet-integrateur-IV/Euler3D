@@ -363,7 +363,7 @@ void Solver::EulerSolver::TimeIntegration() {
 
 void Solver::EulerSolver::updateW() {
 
-	_localFlowField.Update(_deltaW);
+	_localFlowField.Update(_deltaW,MPIghostCellElems, _localMesh.getMPIadjacentToGhostCellIDs());
 }
 
 double Solver::EulerSolver::computeRMS() {
