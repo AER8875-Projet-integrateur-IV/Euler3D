@@ -2,6 +2,6 @@
 #define CALQ_H
 
 // Take time steps
-void cal_Q();    
+void cal_Q();
 
 #endif

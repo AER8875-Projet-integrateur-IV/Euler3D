@@ -257,13 +257,13 @@ void Metrics::computeCellMetrics() {
 
 			double temp_area = computeTriangleArea(AB, AC) + computeTriangleArea(AC, AD);//area of base
 			//Plane equation is ax+by+cz+d=0
-			double a = AB.y*AD.z-AB.z*AD.y;
-			double b = -(AB.x*AD.z-AB.z*AD.x);
-			double c = AB.x*AD.y-AB.y*AD.x;
-			double d = -a*temp_LocalNodesCoords[0].x - b*temp_LocalNodesCoords[0].y - c*temp_LocalNodesCoords[0].z;
+			double a = AB.y * AD.z - AB.z * AD.y;
+			double b = -(AB.x * AD.z - AB.z * AD.x);
+			double c = AB.x * AD.y - AB.y * AD.x;
+			double d = -a * temp_LocalNodesCoords[0].x - b * temp_LocalNodesCoords[0].y - c * temp_LocalNodesCoords[0].z;
 
-			double height = std::abs(a*temp_LocalNodesCoords[4].x + b*temp_LocalNodesCoords[4].y + c*temp_LocalNodesCoords[4].z + d)/(pow(pow(a,2)+pow(b,2)+pow(c,2),0.5));
-			temp_volume = temp_area*height/3.0;
+			double height = std::abs(a * temp_LocalNodesCoords[4].x + b * temp_LocalNodesCoords[4].y + c * temp_LocalNodesCoords[4].z + d) / (pow(pow(a, 2) + pow(b, 2) + pow(c, 2), 0.5));
+			temp_volume = temp_area * height / 3.0;
 
 			//Centroid
 			double sumx = 0.0;

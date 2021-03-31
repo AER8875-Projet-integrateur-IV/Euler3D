@@ -2,6 +2,6 @@
 #define BOUND_H
 
 // Boundary condition setting
-float** bound(float ** lQc);    
+float **bound(float **lQc);
 
 #endif
