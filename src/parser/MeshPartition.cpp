@@ -114,16 +114,16 @@ void MeshPartition::parseMpiBoundaryElement() {
 void MeshPartition::printAllPartitionsInfo() {
 
 	std::array<int, 4> meshStats = {_nVolumeElem, _nBoundaryElem, _nbMpiBoundaryElements, _nPoints};
-	std::array<int, 4> sumMeshStats{0, 0, 0, 0};
+	_sumMeshStats = {0, 0, 0, 0};
 
-	MPI_Reduce(&meshStats, &sumMeshStats, 4, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
+	MPI_Reduce(&meshStats, &_sumMeshStats, 4, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
 
 	if (_rankID == 0) {
 
-		printf("\nTotal Number of Volume Elements : %d \n", sumMeshStats[0]);
-		printf("Total Number of Surface Elements : %d \n", sumMeshStats[1]);
-		printf("Total Number of MPI Ghost Cells : %d \n", sumMeshStats[2]);
-		printf("Total Number of Nodes (including duplicates) : %d \n", sumMeshStats[3]);
+		printf("\nTotal Number of Volume Elements : %d \n", _sumMeshStats[0]);
+		printf("Total Number of Surface Elements : %d \n", _sumMeshStats[1]);
+		printf("Total Number of MPI Ghost Cells : %d \n", _sumMeshStats[2]);
+		printf("Total Number of Nodes (including duplicates) : %d \n", _sumMeshStats[3]);
 	}
 
 	MPI_Barrier(MPI_COMM_WORLD);

@@ -159,10 +159,11 @@ void Solver::EulerSolver::WriteSummary(long solverTimer, long totalTimer) {
 
 	if (_e3d_mpi.getRankID() == 0) {
 		double TimeCore_p_IterNElem = static_cast<double>(solverTimer * _e3d_mpi.getPoolSize()) /
-		                              static_cast<double>(_nbInteration * _localMesh.GetInteriorElementVector().size());
+		                              static_cast<double>(_nbInteration * _localMesh.GetNElemGlobalMesh());
 		// Write summary in TOML format
 		auto tbl = toml::table{{
-		        {"Mesh", toml::table{{{"Wall_Face_Vector_Sum", toml::array{sumWallVectors.x, sumWallVectors.y, sumWallVectors.z}}}}},
+		        {"Mesh", toml::table{{{"Wall_Face_Vector_Sum", toml::array{sumWallVectors.x, sumWallVectors.y, sumWallVectors.z}},
+		                              {"NElem", _localMesh.GetNElemGlobalMesh()}}}},
 		        {"Coefficients", toml::table{{
 		                                 {"Force_Coeff", toml::array{_forceCoefficients.x, _forceCoefficients.y, _forceCoefficients.z}},
 		                                 {"Moment_Coeff", toml::array{_momentCoefficients.x, _momentCoefficients.y, _momentCoefficients.z}},
@@ -170,10 +171,10 @@ void Solver::EulerSolver::WriteSummary(long solverTimer, long totalTimer) {
 		                                 {"CD", _CD},
 		                                 {"CM", _CM},
 		                         }}},
-		        {"TotalSolverTime", totalTimer},
-		        {"SolverLoopTime", solverTimer},
+		        {"TotalSolverTime_ms", totalTimer},
+		        {"SolverLoopTime_ms", solverTimer},
 		        {"Iterations", _nbInteration},
-		        {"TimeCore_p_IterNElem", TimeCore_p_IterNElem},
+		        {"TimeCore_p_IterNElem_ms", TimeCore_p_IterNElem},
 		}};
 		std::filesystem::path path = _outputDir / "summary.txt";
 		std::ofstream file(path);
