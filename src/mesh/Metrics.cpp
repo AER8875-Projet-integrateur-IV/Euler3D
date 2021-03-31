@@ -196,9 +196,6 @@ void Metrics::computeCellMetrics() {
 		temp_centroid = centroid_numerator / centroid_denominator;
 
 
-
-
-
 		// Volume for hexahedron
 		if (temp_localNodes.size() == 8) {
 			Vector3<double> AB = temp_LocalNodesCoords[1] - temp_LocalNodesCoords[0];
@@ -210,7 +207,7 @@ void Metrics::computeCellMetrics() {
 			temp_volume = temp_area * distanceBetweenFaces;
 
 
-            //Centroid
+			//Centroid
 			double sumx = 0.0;
 			double sumy = 0.0;
 			double sumz = 0.0;
@@ -226,59 +223,56 @@ void Metrics::computeCellMetrics() {
 		}
 
 
-
 		// Wedge
-		else if (temp_localNodes.size() == 6){
+		else if (temp_localNodes.size() == 6) {
 			//Volume
-            Vector3<double> AB = temp_LocalNodesCoords[1] - temp_LocalNodesCoords[0];
-            Vector3<double> AC = temp_LocalNodesCoords[2] - temp_LocalNodesCoords[0];
-            double temp_area = computeTriangleArea(AB, AC);
-            double distanceBetweenFaces = (temp_LocalNodesCoords[0] - temp_LocalNodesCoords[3]).length();
-            temp_volume = temp_area * distanceBetweenFaces;
+			Vector3<double> AB = temp_LocalNodesCoords[1] - temp_LocalNodesCoords[0];
+			Vector3<double> AC = temp_LocalNodesCoords[2] - temp_LocalNodesCoords[0];
+			double temp_area = computeTriangleArea(AB, AC);
+			double distanceBetweenFaces = (temp_LocalNodesCoords[0] - temp_LocalNodesCoords[3]).length();
+			temp_volume = temp_area * distanceBetweenFaces;
 
-            //Centroid
-            double sumx = 0.0;
-            double sumy = 0.0;
-            double sumz = 0.0;
+			//Centroid
+			double sumx = 0.0;
+			double sumy = 0.0;
+			double sumz = 0.0;
 
-            for (int i = 0; i < 6; i++) {
-                sumx += temp_LocalNodesCoords[i].x;
-                sumy += temp_LocalNodesCoords[i].y;
-                sumz += temp_LocalNodesCoords[i].z;
-            }
+			for (int i = 0; i < 6; i++) {
+				sumx += temp_LocalNodesCoords[i].x;
+				sumy += temp_LocalNodesCoords[i].y;
+				sumz += temp_LocalNodesCoords[i].z;
+			}
 
-            temp_centroid.x = sumx / 6.0;
-            temp_centroid.y = sumy / 6.0;
-            temp_centroid.z = sumz / 6.0;
+			temp_centroid.x = sumx / 6.0;
+			temp_centroid.y = sumy / 6.0;
+			temp_centroid.z = sumz / 6.0;
 		}
 
 		// Pyramid
-        else if (temp_localNodes.size() == 5){
-            //Volume
+		else if (temp_localNodes.size() == 5) {
+			//Volume
 
 
+			//Centroid
+			double sumx = 0.0;
+			double sumy = 0.0;
+			double sumz = 0.0;
 
+			for (int i = 0; i < 5; i++) {
+				sumx += temp_LocalNodesCoords[i].x;
+				sumy += temp_LocalNodesCoords[i].y;
+				sumz += temp_LocalNodesCoords[i].z;
+			}
 
-            //Centroid
-            double sumx = 0.0;
-            double sumy = 0.0;
-            double sumz = 0.0;
-
-            for (int i = 0; i < 5; i++) {
-                sumx += temp_LocalNodesCoords[i].x;
-                sumy += temp_LocalNodesCoords[i].y;
-                sumz += temp_LocalNodesCoords[i].z;
-            }
-
-            temp_centroid.x = sumx / 5.0;
-            temp_centroid.y = sumy / 5.0;
-            temp_centroid.z = sumz / 5.0;
+			temp_centroid.x = sumx / 5.0;
+			temp_centroid.y = sumy / 5.0;
+			temp_centroid.z = sumz / 5.0;
 
 		}
 
 		//Volume and centroid for Tetrahedron
 		else if (temp_LocalNodesCoords.size() == 4) {
-            //Centroid
+			//Centroid
 			Vector3<double> sumNodes = {0.0, 0.0, 0.0};
 			for (int i = 0; i < 4; i++) {
 				sumNodes += temp_LocalNodesCoords[i];
@@ -286,7 +280,7 @@ void Metrics::computeCellMetrics() {
 			temp_centroid = sumNodes / 4.0;
 
 
-            //Volume
+			//Volume
 			double U = (temp_LocalNodesCoords[0] - temp_LocalNodesCoords[1]).length();
 			double V = (temp_LocalNodesCoords[1] - temp_LocalNodesCoords[2]).length();
 			double W = (temp_LocalNodesCoords[2] - temp_LocalNodesCoords[0]).length();
