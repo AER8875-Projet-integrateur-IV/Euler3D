@@ -462,11 +462,11 @@ void Solver::EulerSolver::RungeKutta() {
 }
 
 void Solver::EulerSolver::EulerImplicit() {
+#include "sgs/cal_Q.h"
+#include "sgs/muscl.h"
 #include "sgs/parameters.h"
 #include "sgs/setup.h"
 #include "sgs/utils.h"
-#include "sgs/muscl.h"
-#include "sgs/cal_Q.h"
 
 	updateDeltaTime();//specific method for euler implicit, should be good for time method2
 
