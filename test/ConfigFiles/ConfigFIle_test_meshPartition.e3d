@@ -79,7 +79,7 @@ SCHEME= 1
 #           IMPLICIT_EULER -> 1
 #           RUNGE KUTTA -> 2
 
-TIME_INTEGRATION= 2
+TIME_INTEGRATION= 1
 
 # Courant_Friedrichs-Lewy Number (CFL)
 CFL= 3

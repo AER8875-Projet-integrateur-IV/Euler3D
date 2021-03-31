@@ -251,7 +251,19 @@ void Metrics::computeCellMetrics() {
 		// Pyramid
 		else if (temp_localNodes.size() == 5) {
 			//Volume
+			Vector3<double> AB = temp_LocalNodesCoords[1] - temp_LocalNodesCoords[0];
+			Vector3<double> AC = temp_LocalNodesCoords[2] - temp_LocalNodesCoords[0];
+			Vector3<double> AD = temp_LocalNodesCoords[3] - temp_LocalNodesCoords[0];
 
+			double temp_area = computeTriangleArea(AB, AC) + computeTriangleArea(AC, AD);//area of base
+			//Plane equation is ax+by+cz+d=0
+			double a = AB.y*AD.z-AB.z*AD.y;
+			double b = -(AB.x*AD.z-AB.z*AD.x);
+			double c = AB.x*AD.y-AB.y*AD.x;
+			double d = -a*temp_LocalNodesCoords[0].x - b*temp_LocalNodesCoords[0].y - c*temp_LocalNodesCoords[0].z;
+
+			double height = std::abs(a*temp_LocalNodesCoords[4].x + b*temp_LocalNodesCoords[4].y + c*temp_LocalNodesCoords[4].z + d)/(pow(pow(a,2)+pow(b,2)+pow(c,2),0.5));
+			temp_volume = temp_area*height/3.0;
 
 			//Centroid
 			double sumx = 0.0;
@@ -297,7 +309,7 @@ void Metrics::computeCellMetrics() {
 
 			double a = 4 * (uPow * vPow * wPow) - uPow * pow((vPow + wPow - UPow), 2) - vPow * pow((wPow + uPow - VPow), 2) - wPow * pow((uPow + vPow - WPow), 2) + (vPow + wPow - UPow) * (wPow + uPow - VPow) * (uPow + vPow - WPow);
 			double vol = sqrt(a);
-			vol /= 12;
+			vol /= 12.0;
 			temp_volume = vol;
 		}
 

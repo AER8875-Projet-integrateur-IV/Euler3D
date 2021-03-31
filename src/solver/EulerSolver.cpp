@@ -42,7 +42,10 @@ Solver::EulerSolver::EulerSolver(FlowField &localFlowField,
 	// define time integration method
 	if (_config.getTemporalScheme() == Parser::SimConfig::TemporalScheme::RK5) {
 		_timeIntegrator = &Solver::EulerSolver::RungeKutta;
-	} else {
+	} else if (_config.getTemporalScheme() == Parser::SimConfig::TemporalScheme::IMPLICIT_EULER){
+		_timeIntegrator = &Solver::EulerSolver::EulerImplicit;
+	}
+	else {
 		_timeIntegrator = &Solver::EulerSolver::EulerExplicit;
 	}
 }
@@ -456,6 +459,21 @@ void Solver::EulerSolver::RungeKutta() {
 		}
 		_localFlowField.updateWRungeKutta(RHS_W, W0);
 	}
+}
+
+void Solver::EulerSolver::EulerImplicit(){
+	#include "sgs/parameters.h"
+	#include "sgs/setup.h"
+	#include "sgs/utils.h"
+	#include "sgs/muscl.h"
+	#include "sgs/cal_Q.h"
+
+	updateDeltaTime();//specific method for euler implicit, should be good for time method2
+
+	for (int i=0; i<nstep; i++) {
+        cal_Q();
+    }
+
 }
 
 void Solver::EulerSolver::smoothResiduals() {
