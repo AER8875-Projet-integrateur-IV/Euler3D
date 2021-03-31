@@ -259,6 +259,7 @@ namespace E3D {
 
 		inline int GetMeshNodeCount() const { return _parser.GetPointsCount(); }
 
+		inline int GetNElemGlobalMesh() const { return _parser.getsumMeshStats()[0]; }
 
 		/**
          * @param NodeID ID of the node
@@ -266,7 +267,8 @@ namespace E3D {
          * @example : To get x coordinates of first node : double x = GetNodeCoord[0].getX()
          */
 
-		inline const E3D::Parser::Node GetNodeCoord(const int NodeID) const {
+		inline const E3D::Parser::Node
+		GetNodeCoord(const int NodeID) const {
 			return _parser.GetPoints()[NodeID];
 		}
 

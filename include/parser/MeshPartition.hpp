@@ -27,6 +27,8 @@ namespace E3D::Parser {
 
 		inline int getrankID() const { return _rankID; }
 
+		inline const std::array<int, 4> &getsumMeshStats() const { return _sumMeshStats; }
+
 	private:
 		/**
          * @ Parse MPI BC elements to hold in _MpiBoundaryElements member variable
@@ -38,6 +40,7 @@ namespace E3D::Parser {
                                                                                                  *  and ghost cells in that partition
                                                                                                  */
 		std::vector<int> _adjacentPartitionsID;
+		std::array<int, 4> _sumMeshStats;
 		int _nbAdjacentPartitions;
 		int _nbMpiBoundaryElements = 0;
 		int _rankID;
