@@ -23,12 +23,8 @@ E3D::Solver::ResidualVar E3D::Solver::Roe(E3D::Solver::FlowField &_localFlowFiel
     auto PrimitiveVarGrads = GreenGaussGradient(_localFlowField, _localMesh, _localMetrics, iface, borderElem);
     //auto limiters = VenkatakrishnanLimiter(_localFlowField, _localMesh, _localMetrics, iface, PrimitiveVarGrads,borderElem);
     std::vector<double> limiters(12);
-    if(rightElementId < _localMesh.GetnElemTot()) {
-		std::fill(limiters.begin(), limiters.end(), 0);
-	}
-	else{
-        std::fill(limiters.begin(), limiters.end(), 0);
-	}
+	std::fill(limiters.begin(), limiters.end(), 1.0);
+
 
     Vector3<double> r_l = faceCenter - _localMetrics.getCellCentroids()[leftElementId];
 
@@ -47,6 +43,7 @@ E3D::Solver::ResidualVar E3D::Solver::Roe(E3D::Solver::FlowField &_localFlowFiel
     double rightP;
 
     Vector3<double> r_r = faceCenter - _localMetrics.getCellCentroids()[rightElementId];
+    if(rightElementId < _localMesh.GetnElemTot()){
 
     rightRho = _localFlowField.Getrho()[rightElementId] + Vector3<double>::dot(PrimitiveVarGrads[6],r_r)*limiters[6];
     rightU = _localFlowField.GetU_Velocity()[rightElementId] + Vector3<double>::dot(PrimitiveVarGrads[7],r_r)*limiters[7];
@@ -54,10 +51,18 @@ E3D::Solver::ResidualVar E3D::Solver::Roe(E3D::Solver::FlowField &_localFlowFiel
     rightW = _localFlowField.GetW_Velocity()[rightElementId] + Vector3<double>::dot(PrimitiveVarGrads[9],r_r)*limiters[9];
     rightH = _localFlowField.GetH()[rightElementId] + Vector3<double>::dot(PrimitiveVarGrads[10],r_r)*limiters[10];
     rightP = _localFlowField.GetP()[rightElementId] + Vector3<double>::dot(PrimitiveVarGrads[11],r_r)*limiters[11];
+	}
+	else{
+        rightRho = _localFlowField.Getrho()[rightElementId];
+        rightU = _localFlowField.GetU_Velocity()[rightElementId];
+        rightV = _localFlowField.GetV_Velocity()[rightElementId];
+        rightW = _localFlowField.GetW_Velocity()[rightElementId];
+        rightH = _localFlowField.GetH()[rightElementId];
+        rightP = _localFlowField.GetP()[rightElementId];
+	}
 
 
-
-//	if(leftElementId==0 && rightElementId==101){
+//	if(leftElementId==0 && rightElementId==110){
 //        printf("distrance To left : %.5f %.5f %.5f\n", r_l.x,r_l.y,r_l.z);
 //        printf("distrance To right : %.5f %.5f %.5f\n", r_r.x,r_r.y,r_r.z);
 //		printf("------\n");
