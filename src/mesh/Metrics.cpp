@@ -131,6 +131,13 @@ void Metrics::computeFaceMetrics() {
 }
 
 void Metrics::computeCellMetrics() {
+	// Variables for debugging
+	double TotalWedgeVolume=0;
+    double TotalPyramidVolume=0;
+    double TotaltetVolume=0;
+    double TotalhexVolume=0;
+
+
 	const int nElem = _localMesh.GetMeshInteriorElemCount();
 
 	std::vector<Vector3<double>> temp_LocalNodesCoords;// Hold looped face Node Coordinates
@@ -206,6 +213,9 @@ void Metrics::computeCellMetrics() {
 			double distanceBetweenFaces = (temp_LocalNodesCoords[0] - temp_LocalNodesCoords[4]).length();
 			temp_volume = temp_area * distanceBetweenFaces;
 
+			//Debugging
+			TotalhexVolume += temp_volume;
+
 
 			//Centroid
 			double sumx = 0.0;
@@ -231,6 +241,10 @@ void Metrics::computeCellMetrics() {
 			double temp_area = computeTriangleArea(AB, AC);
 			double distanceBetweenFaces = (temp_LocalNodesCoords[0] - temp_LocalNodesCoords[3]).length();
 			temp_volume = temp_area * distanceBetweenFaces;
+
+
+            TotalWedgeVolume += temp_volume;
+
 
 			//Centroid
 			double sumx = 0.0;
@@ -264,6 +278,10 @@ void Metrics::computeCellMetrics() {
 
 			double height = std::abs(a * temp_LocalNodesCoords[4].x + b * temp_LocalNodesCoords[4].y + c * temp_LocalNodesCoords[4].z + d) / (pow(pow(a, 2) + pow(b, 2) + pow(c, 2), 0.5));
 			temp_volume = temp_area * height / 3.0;
+
+
+            TotalPyramidVolume += temp_volume;
+
 
 			//Centroid
 			double sumx = 0.0;
@@ -311,12 +329,27 @@ void Metrics::computeCellMetrics() {
 			double vol = sqrt(a);
 			vol /= 12.0;
 			temp_volume = vol;
+
+
+            TotaltetVolume += temp_volume;
+
+
 		}
 
 		_cellCentroids.push_back(temp_centroid);
 
 		_cellVolumes.push_back(temp_volume);
 	}
+
+	std::array<double,4> totalvolumesToSend = {TotaltetVolume,TotalhexVolume,TotalPyramidVolume,TotalWedgeVolume};
+    std::array<double,4> totalvolumesToRcv;
+
+	MPI_Reduce(&totalvolumesToSend[0],&totalvolumesToRcv[0],4,MPI_DOUBLE,MPI_SUM,0,MPI_COMM_WORLD);
+	printf("Sum Tetrahedrons : %.3f\n",totalvolumesToRcv[0]);
+    printf("Sum Hexahedrons : %.3f\n",totalvolumesToRcv[1]);
+    printf("Sum Pyramids : %.3f\n",totalvolumesToRcv[2]);
+    printf("Sum Wedges : %.3f\n",totalvolumesToRcv[3]);
+
 }
 
 void Metrics::reorientFaceVectors() {
