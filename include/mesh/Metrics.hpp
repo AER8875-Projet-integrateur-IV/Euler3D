@@ -43,9 +43,9 @@ namespace E3D {
          */
 		void reorientFaceVectors(const Parallel::MPIHandler &e3d_mpi);
 
-		double TetrahedronVolume(Vector3<double>&,Vector3<double>&,Vector3<double>&,Vector3<double>&);
+		double TetrahedronVolume(Vector3<double> &, Vector3<double> &, Vector3<double> &, Vector3<double> &);
 
-		Vector3<double> TetrahedronCentroid(Vector3<double>& pts0,Vector3<double>& pts1,Vector3<double>& pts2,Vector3<double>& pts3);
+		Vector3<double> TetrahedronCentroid(Vector3<double> &pts0, Vector3<double> &pts1, Vector3<double> &pts2, Vector3<double> &pts3);
 
 
 		const Mesh<Parser::MeshPartition> &_localMesh;
