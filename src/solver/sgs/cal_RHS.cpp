@@ -2,12 +2,12 @@
 #include <math.h>
 #include <string>
 
-#include "cal_RHS.h"
-#include "eigenValues.h"
-#include "fvs.h"
-#include "parameters.h"
-#include "setup.h"
-#include "utils.h"
+#include "solver/sgs/cal_RHS.h"
+#include "solver/sgs/eigenValues.h"
+#include "solver/sgs/fvs.h"
+#include "solver/sgs/parameters.h"
+#include "solver/sgs/setup.h"
+#include "solver/sgs/utils.h"
 
 using namespace std;
 

@@ -2,10 +2,10 @@
 #include <math.h>
 #include <string>
 
-#include "cal_for_lusgs.h"
-#include "eigenValues.h"
-#include "parameters.h"
-#include "utils.h"
+#include "solver/sgs/cal_for_lusgs.h"
+#include "solver/sgs/eigenValues.h"
+#include "solver/sgs/parameters.h"
+#include "solver/sgs/utils.h"
 
 using namespace std;
 

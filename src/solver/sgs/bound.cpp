@@ -2,9 +2,9 @@
 #include <math.h>
 #include <string>
 
-#include "cal_Q.h"
-#include "parameters.h"
-#include "setup.h"
+#include "solver/sgs/cal_Q.h"
+#include "solver/sgs/parameters.h"
+#include "solver/sgs/setup.h"
 
 
 using namespace std;
