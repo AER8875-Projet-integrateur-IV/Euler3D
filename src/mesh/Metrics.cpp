@@ -218,12 +218,24 @@ void Metrics::computeCellMetrics() {
 
 		// Pyramid
 		else if (temp_localNodes.size() == 5) {
-            auto volume1 = TetrahedronVolume(temp_LocalNodesCoords[0],temp_LocalNodesCoords[2],temp_LocalNodesCoords[3],temp_LocalNodesCoords[4]);
-            auto volume2 = TetrahedronVolume(temp_LocalNodesCoords[0],temp_LocalNodesCoords[1],temp_LocalNodesCoords[2],temp_LocalNodesCoords[4]);
-			temp_volume = volume1 + volume2;
+
+            Vector3<double> AB = temp_LocalNodesCoords[1] - temp_LocalNodesCoords[0];
+            Vector3<double> AC = temp_LocalNodesCoords[2] - temp_LocalNodesCoords[0];
+            Vector3<double> AD = temp_LocalNodesCoords[3] - temp_LocalNodesCoords[0];
+
+            double temp_area = computeTriangleArea(AB, AC) + computeTriangleArea(AC, AD);//area of base
+            //Plane equation is ax+by+cz+d=0
+            double a = AB.y*AD.z-AB.z*AD.y;
+            double b = -(AB.x*AD.z-AB.z*AD.x);
+            double c = AB.x*AD.y-AB.y*AD.x;
+            double d = -a*temp_LocalNodesCoords[0].x - b*temp_LocalNodesCoords[0].y - c*temp_LocalNodesCoords[0].z;
+
+            double height = std::abs(a*temp_LocalNodesCoords[4].x + b*temp_LocalNodesCoords[4].y + c*temp_LocalNodesCoords[4].z + d)/(pow(pow(a,2)+pow(b,2)+pow(c,2),0.5));
+            temp_volume = temp_area*height/3.0;
             TotalPyramidVolume += temp_volume;
 
-
+            auto volume1 = TetrahedronVolume(temp_LocalNodesCoords[0],temp_LocalNodesCoords[2],temp_LocalNodesCoords[3],temp_LocalNodesCoords[4]);
+            auto volume2 = TetrahedronVolume(temp_LocalNodesCoords[0],temp_LocalNodesCoords[1],temp_LocalNodesCoords[2],temp_LocalNodesCoords[4]);
             auto Centroid1 = TetrahedronCentroid(temp_LocalNodesCoords[0],temp_LocalNodesCoords[2],temp_LocalNodesCoords[3],temp_LocalNodesCoords[4]);
             auto Centroid2 = TetrahedronCentroid(temp_LocalNodesCoords[0],temp_LocalNodesCoords[1],temp_LocalNodesCoords[2],temp_LocalNodesCoords[4]);
             temp_centroid = (Centroid1*volume1 + Centroid2*volume2)/temp_volume;
@@ -257,6 +269,11 @@ void Metrics::computeCellMetrics() {
     std::array<double,4> totalvolumesToRcv;
 
 	MPI_Reduce(&totalvolumesToSend[0],&totalvolumesToRcv[0],4,MPI_DOUBLE,MPI_SUM,0,MPI_COMM_WORLD);
+
+	printf("Sum Tetrahedrons : %.3f\n",totalvolumesToRcv[0]);
+    printf("Sum Hexahedrons : %.3f\n",totalvolumesToRcv[1]);
+    printf("Sum Pyramids : %.3f\n",totalvolumesToRcv[2]);
+    printf("Sum Wedges : %.3f\n",totalvolumesToRcv[3]);
 
 }
 
@@ -298,14 +315,14 @@ void Metrics::reorientFaceVectors(const Parallel::MPIHandler &e3d_mpi) {
 		}
 
 
-//		if(e3d_mpi.getRankID()==2 and iface == 21195){
-//			int nelem;
-//			int* ptrface2elem = _localMesh.GetFace2ElementID(21195);
-//			for(int i=0; i<2;i++){
-//				printf("Element connected to face 21195 : %d\n", ptrface2elem[i]);
-//			}
-//			printf("faceNormals of face 21195 : x = %.4f , y = %.4f , z = %.4f \n", _faceUnitNormals[21195].x,_faceUnitNormals[21195].y,_faceUnitNormals[21195].z);
-//		}
+		if(e3d_mpi.getRankID()==2 and iface == 21195){
+			int nelem;
+			int* ptrface2elem = _localMesh.GetFace2ElementID(21195);
+			for(int i=0; i<nelem;i++){
+				printf("Element connected to face 21195 : %d\n", ptrface2elem[i]);
+			}
+			printf("faceNormals : ")
+		}
 	}
 }
 
