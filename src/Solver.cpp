@@ -59,7 +59,7 @@ int main(int argc, char *argv[]) {
 	solver.Run();
 	auto postSolverTime = std::chrono::steady_clock::now();
 
-	E3D::Solver::WriteSolution writeSolution(localFlowField, config, e3d_mpi);
+	E3D::Solver::WriteSolution writeSolution(localFlowField,localmesh ,config, e3d_mpi);
 
 	auto finalTime = std::chrono::steady_clock::now();
 
