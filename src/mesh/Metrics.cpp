@@ -133,17 +133,17 @@ void Metrics::computeFaceMetrics() {
 
 void Metrics::computeCellMetrics() {
 	// Variables for debugging
-	double TotalWedgeVolume=0;
-    double TotalPyramidVolume=0;
-    double TotaltetVolume=0;
-    double TotalhexVolume=0;
+	double TotalWedgeVolume = 0;
+	double TotalPyramidVolume = 0;
+	double TotaltetVolume = 0;
+	double TotalhexVolume = 0;
 
 
 	const int nElem = _localMesh.GetMeshInteriorElemCount();
 
 	std::vector<Vector3<double>> temp_LocalNodesCoords;// Hold looped face Node Coordinates
 	Vector3<double> temp_centroid;                     // hold centroid of looped Cell
-    double temp_volume;
+	double temp_volume;
 
 	//Iterate over all Volume Elements
 	for (int iElem = 0; iElem < nElem; iElem++) {
@@ -166,8 +166,6 @@ void Metrics::computeCellMetrics() {
 		}
 		int numberOfConnectedFaces = 0;
 		int *p_localFaces = _localMesh.GetElement2FaceID(iElem, numberOfConnectedFaces);
-
-
 
 
 		// Volume for hexahedron
@@ -203,42 +201,30 @@ void Metrics::computeCellMetrics() {
 		// Wedge
 		else if (temp_localNodes.size() == 6) {
 			//Volume
-			auto volume1 = TetrahedronVolume(temp_LocalNodesCoords[0],temp_LocalNodesCoords[1],temp_LocalNodesCoords[2],temp_LocalNodesCoords[3]);
-			auto volume2 = TetrahedronVolume(temp_LocalNodesCoords[1],temp_LocalNodesCoords[4],temp_LocalNodesCoords[2],temp_LocalNodesCoords[3]);
-            auto volume3 = TetrahedronVolume(temp_LocalNodesCoords[3],temp_LocalNodesCoords[5],temp_LocalNodesCoords[4],temp_LocalNodesCoords[2]);
-            temp_volume = volume1 + volume2 + volume3;
+			auto volume1 = TetrahedronVolume(temp_LocalNodesCoords[0], temp_LocalNodesCoords[1], temp_LocalNodesCoords[2], temp_LocalNodesCoords[3]);
+			auto volume2 = TetrahedronVolume(temp_LocalNodesCoords[1], temp_LocalNodesCoords[4], temp_LocalNodesCoords[2], temp_LocalNodesCoords[3]);
+			auto volume3 = TetrahedronVolume(temp_LocalNodesCoords[3], temp_LocalNodesCoords[5], temp_LocalNodesCoords[4], temp_LocalNodesCoords[2]);
+			temp_volume = volume1 + volume2 + volume3;
 			TotalWedgeVolume += temp_volume;
 
-            //Centroid
-            auto Centroid1 = TetrahedronCentroid(temp_LocalNodesCoords[0],temp_LocalNodesCoords[1],temp_LocalNodesCoords[2],temp_LocalNodesCoords[3]);
-            auto Centroid2 = TetrahedronCentroid(temp_LocalNodesCoords[1],temp_LocalNodesCoords[2],temp_LocalNodesCoords[4],temp_LocalNodesCoords[3]);
-            auto Centroid3 = TetrahedronCentroid(temp_LocalNodesCoords[3],temp_LocalNodesCoords[4],temp_LocalNodesCoords[5],temp_LocalNodesCoords[2]);
-			temp_centroid = (Centroid1*volume1 + Centroid2*volume2 + Centroid3*volume3)/temp_volume;
+			//Centroid
+			auto Centroid1 = TetrahedronCentroid(temp_LocalNodesCoords[0], temp_LocalNodesCoords[1], temp_LocalNodesCoords[2], temp_LocalNodesCoords[3]);
+			auto Centroid2 = TetrahedronCentroid(temp_LocalNodesCoords[1], temp_LocalNodesCoords[2], temp_LocalNodesCoords[4], temp_LocalNodesCoords[3]);
+			auto Centroid3 = TetrahedronCentroid(temp_LocalNodesCoords[3], temp_LocalNodesCoords[4], temp_LocalNodesCoords[5], temp_LocalNodesCoords[2]);
+			temp_centroid = (Centroid1 * volume1 + Centroid2 * volume2 + Centroid3 * volume3) / temp_volume;
 		}
 
 		// Pyramid
 		else if (temp_localNodes.size() == 5) {
+			auto volume1 = TetrahedronVolume(temp_LocalNodesCoords[0], temp_LocalNodesCoords[2], temp_LocalNodesCoords[3], temp_LocalNodesCoords[4]);
+			auto volume2 = TetrahedronVolume(temp_LocalNodesCoords[0], temp_LocalNodesCoords[1], temp_LocalNodesCoords[2], temp_LocalNodesCoords[4]);
+			temp_volume = volume1 + volume2;
+			TotalPyramidVolume += temp_volume;
 
-            Vector3<double> AB = temp_LocalNodesCoords[1] - temp_LocalNodesCoords[0];
-            Vector3<double> AC = temp_LocalNodesCoords[2] - temp_LocalNodesCoords[0];
-            Vector3<double> AD = temp_LocalNodesCoords[3] - temp_LocalNodesCoords[0];
 
-            double temp_area = computeTriangleArea(AB, AC) + computeTriangleArea(AC, AD);//area of base
-            //Plane equation is ax+by+cz+d=0
-            double a = AB.y*AD.z-AB.z*AD.y;
-            double b = -(AB.x*AD.z-AB.z*AD.x);
-            double c = AB.x*AD.y-AB.y*AD.x;
-            double d = -a*temp_LocalNodesCoords[0].x - b*temp_LocalNodesCoords[0].y - c*temp_LocalNodesCoords[0].z;
-
-            double height = std::abs(a*temp_LocalNodesCoords[4].x + b*temp_LocalNodesCoords[4].y + c*temp_LocalNodesCoords[4].z + d)/(pow(pow(a,2)+pow(b,2)+pow(c,2),0.5));
-            temp_volume = temp_area*height/3.0;
-            TotalPyramidVolume += temp_volume;
-
-            auto volume1 = TetrahedronVolume(temp_LocalNodesCoords[0],temp_LocalNodesCoords[2],temp_LocalNodesCoords[3],temp_LocalNodesCoords[4]);
-            auto volume2 = TetrahedronVolume(temp_LocalNodesCoords[0],temp_LocalNodesCoords[1],temp_LocalNodesCoords[2],temp_LocalNodesCoords[4]);
-            auto Centroid1 = TetrahedronCentroid(temp_LocalNodesCoords[0],temp_LocalNodesCoords[2],temp_LocalNodesCoords[3],temp_LocalNodesCoords[4]);
-            auto Centroid2 = TetrahedronCentroid(temp_LocalNodesCoords[0],temp_LocalNodesCoords[1],temp_LocalNodesCoords[2],temp_LocalNodesCoords[4]);
-            temp_centroid = (Centroid1*volume1 + Centroid2*volume2)/temp_volume;
+			auto Centroid1 = TetrahedronCentroid(temp_LocalNodesCoords[0], temp_LocalNodesCoords[2], temp_LocalNodesCoords[3], temp_LocalNodesCoords[4]);
+			auto Centroid2 = TetrahedronCentroid(temp_LocalNodesCoords[0], temp_LocalNodesCoords[1], temp_LocalNodesCoords[2], temp_LocalNodesCoords[4]);
+			temp_centroid = (Centroid1 * volume1 + Centroid2 * volume2) / temp_volume;
 
 		}
 
@@ -252,12 +238,10 @@ void Metrics::computeCellMetrics() {
 			temp_centroid = sumNodes / 4.0;
 
 
-			temp_volume = TetrahedronVolume(temp_LocalNodesCoords[0],temp_LocalNodesCoords[1],temp_LocalNodesCoords[2],temp_LocalNodesCoords[3]);
+			temp_volume = TetrahedronVolume(temp_LocalNodesCoords[0], temp_LocalNodesCoords[1], temp_LocalNodesCoords[2], temp_LocalNodesCoords[3]);
 
 
-            TotaltetVolume += temp_volume;
-
-
+			TotaltetVolume += temp_volume;
 		}
 
 		_cellCentroids.push_back(temp_centroid);
@@ -265,16 +249,10 @@ void Metrics::computeCellMetrics() {
 		_cellVolumes.push_back(temp_volume);
 	}
 
-	std::array<double,4> totalvolumesToSend = {TotaltetVolume,TotalhexVolume,TotalPyramidVolume,TotalWedgeVolume};
-    std::array<double,4> totalvolumesToRcv;
+	std::array<double, 4> totalvolumesToSend = {TotaltetVolume, TotalhexVolume, TotalPyramidVolume, TotalWedgeVolume};
+	std::array<double, 4> totalvolumesToRcv;
 
-	MPI_Reduce(&totalvolumesToSend[0],&totalvolumesToRcv[0],4,MPI_DOUBLE,MPI_SUM,0,MPI_COMM_WORLD);
-
-	printf("Sum Tetrahedrons : %.3f\n",totalvolumesToRcv[0]);
-    printf("Sum Hexahedrons : %.3f\n",totalvolumesToRcv[1]);
-    printf("Sum Pyramids : %.3f\n",totalvolumesToRcv[2]);
-    printf("Sum Wedges : %.3f\n",totalvolumesToRcv[3]);
-
+	MPI_Reduce(&totalvolumesToSend[0], &totalvolumesToRcv[0], 4, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
 }
 
 void Metrics::reorientFaceVectors(const Parallel::MPIHandler &e3d_mpi) {
@@ -315,40 +293,39 @@ void Metrics::reorientFaceVectors(const Parallel::MPIHandler &e3d_mpi) {
 		}
 
 
-		if(e3d_mpi.getRankID()==2 and iface == 21195){
-			int nelem;
-			int* ptrface2elem = _localMesh.GetFace2ElementID(21195);
-			for(int i=0; i<nelem;i++){
-				printf("Element connected to face 21195 : %d\n", ptrface2elem[i]);
-			}
-			printf("faceNormals : ")
-		}
+		//		if(e3d_mpi.getRankID()==2 and iface == 21195){
+		//			int nelem;
+		//			int* ptrface2elem = _localMesh.GetFace2ElementID(21195);
+		//			for(int i=0; i<2;i++){
+		//				printf("Element connected to face 21195 : %d\n", ptrface2elem[i]);
+		//			}
+		//			printf("faceNormals of face 21195 : x = %.4f , y = %.4f , z = %.4f \n", _faceUnitNormals[21195].x,_faceUnitNormals[21195].y,_faceUnitNormals[21195].z);
+		//		}
 	}
 }
 
-double Metrics::TetrahedronVolume(Vector3<double>& pts0,Vector3<double>& pts1,Vector3<double>& pts2,Vector3<double>& pts3){
-    //Volume
-    double U = (pts0 - pts1).length();
-    double V = (pts1 - pts2).length();
-    double W = (pts2 - pts0).length();
-    double u = (pts2 - pts3).length();
-    double v = (pts0 - pts3).length();
-    double w = (pts3 - pts1).length();
+double Metrics::TetrahedronVolume(Vector3<double> &pts0, Vector3<double> &pts1, Vector3<double> &pts2, Vector3<double> &pts3) {
+	//Volume
+	double U = (pts0 - pts1).length();
+	double V = (pts1 - pts2).length();
+	double W = (pts2 - pts0).length();
+	double u = (pts2 - pts3).length();
+	double v = (pts0 - pts3).length();
+	double w = (pts3 - pts1).length();
 
-    double uPow = pow(u, 2);
-    double vPow = pow(v, 2);
-    double wPow = pow(w, 2);
-    double UPow = pow(U, 2);
-    double VPow = pow(V, 2);
-    double WPow = pow(W, 2);
+	double uPow = pow(u, 2);
+	double vPow = pow(v, 2);
+	double wPow = pow(w, 2);
+	double UPow = pow(U, 2);
+	double VPow = pow(V, 2);
+	double WPow = pow(W, 2);
 
-    double a = 4 * (uPow * vPow * wPow) - uPow * pow((vPow + wPow - UPow), 2) - vPow * pow((wPow + uPow - VPow), 2) - wPow * pow((uPow + vPow - WPow), 2) + (vPow + wPow - UPow) * (wPow + uPow - VPow) * (uPow + vPow - WPow);
-    double vol = sqrt(a);
-    vol /= 12.0;
+	double a = 4 * (uPow * vPow * wPow) - uPow * pow((vPow + wPow - UPow), 2) - vPow * pow((wPow + uPow - VPow), 2) - wPow * pow((uPow + vPow - WPow), 2) + (vPow + wPow - UPow) * (wPow + uPow - VPow) * (uPow + vPow - WPow);
+	double vol = sqrt(a);
+	vol /= 12.0;
 	return vol;
 }
 
-Vector3<double> Metrics::TetrahedronCentroid(Vector3<double>& pts0,Vector3<double>& pts1,Vector3<double>& pts2,Vector3<double>& pts3){
-	return (pts0 + pts1 + pts2 + pts3)/4.0;
+Vector3<double> Metrics::TetrahedronCentroid(Vector3<double> &pts0, Vector3<double> &pts1, Vector3<double> &pts2, Vector3<double> &pts3) {
+	return (pts0 + pts1 + pts2 + pts3) / 4.0;
 }
-
