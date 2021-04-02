@@ -10,6 +10,12 @@
 #include <iomanip>
 #include <math.h>
 
+// #include "sgs/cal_Q.h"
+// #include "sgs/muscl.h"
+// #include "sgs/parameters.h"
+// #include "sgs/setup.h"
+// #include "sgs/utils.h"
+
 using namespace E3D;
 
 Solver::EulerSolver::EulerSolver(FlowField &localFlowField,
@@ -462,17 +468,11 @@ void Solver::EulerSolver::RungeKutta() {
 }
 
 void Solver::EulerSolver::EulerImplicit() {
-    #include "sgs/cal_Q.h"
-    #include "sgs/muscl.h"
-    #include "sgs/parameters.h"
-    #include "sgs/setup.h"
-    #include "sgs/utils.h"
-
 	updateDeltaTime();//specific method for euler implicit, should be good for time method2
 
-	for (int i = 0; i < nstep; i++) {
-		cal_Q();
-	}
+	// for (int i = 0; i < nstep; i++) {
+	// 	cal_Q();
+	// }
 }
 
 void Solver::EulerSolver::smoothResiduals() {
