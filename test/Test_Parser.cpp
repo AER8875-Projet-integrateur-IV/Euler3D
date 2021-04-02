@@ -191,7 +191,7 @@ TEST_CASE("MeshPartition and Metrics classes test", "[parser]") {
 
 
 	localmesh.solveConnectivity();
-	E3D::Metrics localMeshMetrics(localmesh, e3d_mpi);
+	E3D::Metrics localMeshMetrics(localmesh, e3d_mpi.getRankID());
 
 
 	const auto &MPIghostcell = localmeshClass.getMpiBoundaryElems();

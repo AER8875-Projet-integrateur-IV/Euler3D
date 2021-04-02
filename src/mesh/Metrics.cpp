@@ -7,10 +7,10 @@
 
 
 using namespace E3D;
-E3D::Metrics::Metrics(const Mesh<Parser::MeshPartition> &localMesh, const Parallel::MPIHandler &e3d_mpi)
+E3D::Metrics::Metrics(const Mesh<Parser::MeshPartition> &localMesh, int mpi_rank)
     : _localMesh(localMesh) {
 
-	if (e3d_mpi.getRankID() == 0) {
+	if (mpi_rank == 0) {
 		std::cout << "\n\n"
 		          << std::string(24, '#') << "  Geometrical Quantities  " << std::string(24, '#') << "\n\n";
 	}
@@ -43,11 +43,12 @@ E3D::Metrics::Metrics(const Mesh<Parser::MeshPartition> &localMesh, const Parall
 	MPI_Reduce(&PartitionVolume, &domainVolume, 1, MPI_DOUBLE_PRECISION, MPI_SUM, 0, MPI_COMM_WORLD);
 
 	MPI_Barrier(MPI_COMM_WORLD);
-	if (e3d_mpi.getRankID() == 0) {
+	if (mpi_rank == 0) {
 		printf("Total Domain Volume : %.3f \n", domainVolume);
 		printf("Computing Metrics took %.5f seconds .\n", endMetricsTimer - startMetricsTimer);
 	}
 }
+
 
 // Compute area of a triangle with given to vectors
 double computeTriangleArea(Vector3<double> A, Vector3<double> B) {
