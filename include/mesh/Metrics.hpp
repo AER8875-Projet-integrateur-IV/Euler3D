@@ -13,7 +13,7 @@ namespace E3D {
 		/**
 		 * Ctor takes Mesh class with a parser of type MeshPartition
 		 */
-		Metrics(const Mesh<Parser::MeshPartition> &, const Parallel::MPIHandler &e3d_mpi);
+		Metrics(const Mesh<Parser::MeshPartition> &, int mpi_rank);
 
 		inline const std::vector<Vector3<double>> &getFaceNormals() const { return _faceNormals; }
 
@@ -41,7 +41,7 @@ namespace E3D {
 		/**
          * @brief orient face vectors from cell with lower id to greater id
          */
-		void reorientFaceVectors(const Parallel::MPIHandler &e3d_mpi);
+		void reorientFaceVectors();
 
 		double TetrahedronVolume(Vector3<double> &, Vector3<double> &, Vector3<double> &, Vector3<double> &);
 

@@ -30,10 +30,8 @@ E3D::Metrics::Metrics(const Mesh<Parser::MeshPartition> &localMesh, int mpi_rank
 	computeFaceMetrics();
 
 	computeCellMetrics();
-	reorientFaceVectors(e3d_mpi);
 
-
-	//reorientFaceVectors();
+	reorientFaceVectors();
 	double endMetricsTimer = MPI_Wtime();
 
 
@@ -263,7 +261,7 @@ void Metrics::computeCellMetrics() {
 	MPI_Reduce(&totalvolumesToSend[0], &totalvolumesToRcv[0], 4, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
 }
 
-void Metrics::reorientFaceVectors(const Parallel::MPIHandler &e3d_mpi) {
+void Metrics::reorientFaceVectors() {
 
 	const int nFaces = _localMesh.GetnFace();
 
@@ -299,16 +297,6 @@ void Metrics::reorientFaceVectors(const Parallel::MPIHandler &e3d_mpi) {
 				_faceUnitNormals[iface] *= -1;
 			}
 		}
-
-
-		//		if(e3d_mpi.getRankID()==2 and iface == 21195){
-		//			int nelem;
-		//			int* ptrface2elem = _localMesh.GetFace2ElementID(21195);
-		//			for(int i=0; i<2;i++){
-		//				printf("Element connected to face 21195 : %d\n", ptrface2elem[i]);
-		//			}
-		//			printf("faceNormals of face 21195 : x = %.4f , y = %.4f , z = %.4f \n", _faceUnitNormals[21195].x,_faceUnitNormals[21195].y,_faceUnitNormals[21195].z);
-		//		}
 	}
 }
 
