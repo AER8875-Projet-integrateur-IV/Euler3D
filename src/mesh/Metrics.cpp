@@ -120,9 +120,16 @@ void Metrics::computeFaceMetrics() {
 
 			temp_area = computeTriangleArea(AB, AC) + computeTriangleArea(AC, AD);
 
+			double delXA = temp_LocalNodesCoords[3].x - temp_LocalNodesCoords[1].x;
+            double delXB = temp_LocalNodesCoords[2].x - temp_LocalNodesCoords[0].x;
+            double delYA = temp_LocalNodesCoords[3].y - temp_LocalNodesCoords[1].y;
+            double delYB = temp_LocalNodesCoords[2].y - temp_LocalNodesCoords[0].y;
+            double delZA = temp_LocalNodesCoords[3].z - temp_LocalNodesCoords[1].z;
+            double delZB = temp_LocalNodesCoords[2].z - temp_LocalNodesCoords[0].z;
+
 			//Compute face normal Vector
-			temp_Normal = Vector3<double>::crossProduct(AB, AC);// Normal of one of both triangles == Normal of the quad (if planar surface)
-			temp_unitVector = temp_Normal / temp_Normal.length();
+			temp_Normal = Vector3<double>(delZA*delYB - delYA*delZB,delXA*delZB - delZA*delXB, delYA*delXB - delXA*delYB)*0.5;// Normal of one of both triangles == Normal of the quad (if planar surface)
+			temp_unitVector = temp_Normal / temp_area;
 		}
 		_faceSurfaces.push_back(temp_area);
 		_faceCenters.push_back(temp_centroid);
@@ -217,23 +224,10 @@ void Metrics::computeCellMetrics() {
 		// Pyramid
 		else if (temp_localNodes.size() == 5) {
 
-			Vector3<double> AB = temp_LocalNodesCoords[1] - temp_LocalNodesCoords[0];
-			Vector3<double> AC = temp_LocalNodesCoords[2] - temp_LocalNodesCoords[0];
-			Vector3<double> AD = temp_LocalNodesCoords[3] - temp_LocalNodesCoords[0];
-
-			double temp_area = computeTriangleArea(AB, AC) + computeTriangleArea(AC, AD);//area of base
-			//Plane equation is ax+by+cz+d=0
-			double a = AB.y * AD.z - AB.z * AD.y;
-			double b = -(AB.x * AD.z - AB.z * AD.x);
-			double c = AB.x * AD.y - AB.y * AD.x;
-			double d = -a * temp_LocalNodesCoords[0].x - b * temp_LocalNodesCoords[0].y - c * temp_LocalNodesCoords[0].z;
-
-			double height = std::abs(a * temp_LocalNodesCoords[4].x + b * temp_LocalNodesCoords[4].y + c * temp_LocalNodesCoords[4].z + d) / (pow(pow(a, 2) + pow(b, 2) + pow(c, 2), 0.5));
-			temp_volume = temp_area * height / 3.0;
 			TotalPyramidVolume += temp_volume;
 
-			auto volume1 = TetrahedronVolume(temp_LocalNodesCoords[0], temp_LocalNodesCoords[2], temp_LocalNodesCoords[3], temp_LocalNodesCoords[4]);
-			auto volume2 = TetrahedronVolume(temp_LocalNodesCoords[0], temp_LocalNodesCoords[1], temp_LocalNodesCoords[2], temp_LocalNodesCoords[4]);
+            auto volume1 = TetrahedronVolume(temp_LocalNodesCoords[0], temp_LocalNodesCoords[2], temp_LocalNodesCoords[3], temp_LocalNodesCoords[4]);
+            auto volume2 = TetrahedronVolume(temp_LocalNodesCoords[0], temp_LocalNodesCoords[1], temp_LocalNodesCoords[2], temp_LocalNodesCoords[4]);
 
 			auto Centroid1 = TetrahedronCentroid(temp_LocalNodesCoords[0], temp_LocalNodesCoords[2], temp_LocalNodesCoords[3], temp_LocalNodesCoords[4]);
 			auto Centroid2 = TetrahedronCentroid(temp_LocalNodesCoords[0], temp_LocalNodesCoords[1], temp_LocalNodesCoords[2], temp_LocalNodesCoords[4]);
