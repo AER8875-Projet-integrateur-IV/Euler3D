@@ -121,14 +121,14 @@ void Metrics::computeFaceMetrics() {
 			temp_area = computeTriangleArea(AB, AC) + computeTriangleArea(AC, AD);
 
 			double delXA = temp_LocalNodesCoords[3].x - temp_LocalNodesCoords[1].x;
-			double delXB = temp_LocalNodesCoords[2].x - temp_LocalNodesCoords[0].x;
-			double delYA = temp_LocalNodesCoords[3].y - temp_LocalNodesCoords[1].y;
-			double delYB = temp_LocalNodesCoords[2].y - temp_LocalNodesCoords[0].y;
-			double delZA = temp_LocalNodesCoords[3].z - temp_LocalNodesCoords[1].z;
-			double delZB = temp_LocalNodesCoords[2].z - temp_LocalNodesCoords[0].z;
+            double delXB = temp_LocalNodesCoords[2].x - temp_LocalNodesCoords[0].x;
+            double delYA = temp_LocalNodesCoords[3].y - temp_LocalNodesCoords[1].y;
+            double delYB = temp_LocalNodesCoords[2].y - temp_LocalNodesCoords[0].y;
+            double delZA = temp_LocalNodesCoords[3].z - temp_LocalNodesCoords[1].z;
+            double delZB = temp_LocalNodesCoords[2].z - temp_LocalNodesCoords[0].z;
 
 			//Compute face normal Vector
-			temp_Normal = Vector3<double>(delZA * delYB - delYA * delZB, delXA * delZB - delZA * delXB, delYA * delXB - delXA * delYB) * 0.5;// Normal of one of both triangles == Normal of the quad (if planar surface)
+			temp_Normal = Vector3<double>(delZA*delYB - delYA*delZB,delXA*delZB - delZA*delXB, delYA*delXB - delXA*delYB)*0.5;// Normal of one of both triangles == Normal of the quad (if planar surface)
 			temp_unitVector = temp_Normal / temp_area;
 		}
 		_faceSurfaces.push_back(temp_area);
@@ -226,9 +226,9 @@ void Metrics::computeCellMetrics() {
 
 			TotalPyramidVolume += temp_volume;
 
-			auto volume1 = TetrahedronVolume(temp_LocalNodesCoords[0], temp_LocalNodesCoords[2], temp_LocalNodesCoords[3], temp_LocalNodesCoords[4]);
-			auto volume2 = TetrahedronVolume(temp_LocalNodesCoords[0], temp_LocalNodesCoords[1], temp_LocalNodesCoords[2], temp_LocalNodesCoords[4]);
-
+            auto volume1 = TetrahedronVolume(temp_LocalNodesCoords[0], temp_LocalNodesCoords[2], temp_LocalNodesCoords[3], temp_LocalNodesCoords[4]);
+            auto volume2 = TetrahedronVolume(temp_LocalNodesCoords[0], temp_LocalNodesCoords[1], temp_LocalNodesCoords[2], temp_LocalNodesCoords[4]);
+            temp_volume = volume1 + volume2;
 			auto Centroid1 = TetrahedronCentroid(temp_LocalNodesCoords[0], temp_LocalNodesCoords[2], temp_LocalNodesCoords[3], temp_LocalNodesCoords[4]);
 			auto Centroid2 = TetrahedronCentroid(temp_LocalNodesCoords[0], temp_LocalNodesCoords[1], temp_LocalNodesCoords[2], temp_LocalNodesCoords[4]);
 			temp_centroid = (Centroid1 * volume1 + Centroid2 * volume2) / temp_volume;
