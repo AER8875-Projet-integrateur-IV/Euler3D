@@ -49,8 +49,8 @@ E3D::Metrics::Metrics(const Mesh<Parser::MeshPartition> &localMesh, int mpi_rank
 
 
 // Compute area of a triangle with given to vectors
-double computeTriangleArea(Vector3<double>& A, Vector3<double>& B) {
-    return (Vector3<double>::crossProduct(A, B)*0.5).length();
+double computeTriangleArea(Vector3<double> &A, Vector3<double> &B) {
+	return (Vector3<double>::crossProduct(A, B) * 0.5).length();
 }
 
 
@@ -98,7 +98,7 @@ void Metrics::computeFaceMetrics() {
 
 			// compute face normal vector
 
-			temp_Normal= Vector3<double>::crossProduct(AB, AC)*0.5;
+			temp_Normal = Vector3<double>::crossProduct(AB, AC) * 0.5;
 
 			temp_unitVector = temp_Normal / temp_Normal.length();
 
@@ -107,18 +107,18 @@ void Metrics::computeFaceMetrics() {
 		// if Quad
 		else if (temp_nNodesSurrFace == 4) {
 
-            Vector3<double> AB = temp_LocalNodesCoords[1] - temp_LocalNodesCoords[0];
-            Vector3<double> AC = temp_LocalNodesCoords[2] - temp_LocalNodesCoords[0];
-            Vector3<double> AD = temp_LocalNodesCoords[3] - temp_LocalNodesCoords[0];
-			double omega123 = computeTriangleArea(AB,AC);
-            double omega134 = computeTriangleArea(AC,AD);
-            Vector3<double> Centroid123 = (temp_LocalNodesCoords[0] + temp_LocalNodesCoords[1] + temp_LocalNodesCoords[2]) / 3.0;
-            Vector3<double> Centroid134 = (temp_LocalNodesCoords[0] + temp_LocalNodesCoords[2] + temp_LocalNodesCoords[3]) / 3.0;
+			Vector3<double> AB = temp_LocalNodesCoords[1] - temp_LocalNodesCoords[0];
+			Vector3<double> AC = temp_LocalNodesCoords[2] - temp_LocalNodesCoords[0];
+			Vector3<double> AD = temp_LocalNodesCoords[3] - temp_LocalNodesCoords[0];
+			double omega123 = computeTriangleArea(AB, AC);
+			double omega134 = computeTriangleArea(AC, AD);
+			Vector3<double> Centroid123 = (temp_LocalNodesCoords[0] + temp_LocalNodesCoords[1] + temp_LocalNodesCoords[2]) / 3.0;
+			Vector3<double> Centroid134 = (temp_LocalNodesCoords[0] + temp_LocalNodesCoords[2] + temp_LocalNodesCoords[3]) / 3.0;
 			// Compute face center
-            temp_centroid = (Centroid123*omega123 + Centroid134*omega134)/(omega123+omega134);
-            // Compute face Area
+			temp_centroid = (Centroid123 * omega123 + Centroid134 * omega134) / (omega123 + omega134);
+			// Compute face Area
 
-            temp_area  = omega134 + omega123;
+			temp_area = omega134 + omega123;
 			double delXA = temp_LocalNodesCoords[3].x - temp_LocalNodesCoords[1].x;
 			double delXB = temp_LocalNodesCoords[2].x - temp_LocalNodesCoords[0].x;
 			double delYA = temp_LocalNodesCoords[3].y - temp_LocalNodesCoords[1].y;
@@ -282,17 +282,17 @@ void Metrics::reorientFaceVectors() {
 
 			E3D::Vector3<double> Coord2 = _cellCentroids[elem1];
 			E3D::Vector3<double> From0to2 = Coord2 - Coord0;
-			double CosthetaCellCenterFace2 = Vector3<double>::dot(From0to2, _faceNormals[iface]) ;
+			double CosthetaCellCenterFace2 = Vector3<double>::dot(From0to2, _faceNormals[iface]);
 			if (CosthetaCellCenterFace > 0 && CosthetaCellCenterFace2 < 0) {
 				_faceNormals[iface] *= -1;
 				_faceUnitNormals[iface] *= -1;
-//                printf("Face reoriented !!!\n");
+				//                printf("Face reoriented !!!\n");
 			}
 		}
 		// If connected to ghost cell
 		else {
 			if (CosthetaCellCenterFace > 0) {
-//                printf("Face reoriented BC!!!\n");
+				//                printf("Face reoriented BC!!!\n");
 				_faceNormals[iface] *= -1;
 				_faceUnitNormals[iface] *= -1;
 			}
