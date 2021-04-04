@@ -496,7 +496,7 @@ void Solver::EulerSolver::smoothResiduals() {
 					sumSurrResidual += (last_residual[SurrElems[i]] * epsilon);
 				}
 			}
-			_residuals[ielem] = (original_residual[ielem] + sumSurrResidual) / (1 + nSurrElems*epsilon);
+			_residuals[ielem] = (original_residual[ielem] + sumSurrResidual) / (1 + nSurrElems * epsilon);
 		}
 		std::transform(_residuals.begin(), _residuals.end(), last_residual.begin(), diff.begin(), std::minus<ResidualVar>());
 
