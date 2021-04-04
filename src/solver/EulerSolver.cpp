@@ -99,7 +99,7 @@ void Solver::EulerSolver::Run() {
 			if (_e3d_mpi.getRankID() == 0) {
 				double iterationEndTimer = MPI_Wtime();
 				double iterationwallTime = iterationEndTimer - iterationBeginTimer;
-				PrintInfo(iterationwallTime, _sumerrors);
+				PrintInfo(iterationwallTime, _maximumDomainRms);
 			}
 			break;
 		}
@@ -245,13 +245,12 @@ void Solver::EulerSolver::updateBC() {
 	_e3d_mpi.updateFlowField(_localFlowField);
 }
 
-void Solver::EulerSolver::PrintInfo(double iterationwallTime, double sumError) {
+void Solver::EulerSolver::PrintInfo(double iterationwallTime, double rms) {
 	_CL = _forceCoefficients[_coeffOrientation[0].first] * _coeffOrientation[0].second;
 	_CD = _forceCoefficients[_coeffOrientation[1].first] * _coeffOrientation[1].second;
 	_CM = _momentCoefficients[_coeffOrientation[2].first] * _coeffOrientation[2].second;
-	_residualFile.Update(sumError, _forceCoefficients, _momentCoefficients);
-	double _maximumDomainRms = std::sqrt(sumError / _localFlowField.getTotalDomainCounts());
-	E3D::Solver::PrintSolverIteration(_CL, _CD, _CM, _maximumDomainRms, iterationwallTime, _nbInteration);
+	_residualFile.Update(rms, _forceCoefficients, _momentCoefficients);
+	E3D::Solver::PrintSolverIteration(_CL, _CD, _CM, rms, iterationwallTime, _nbInteration);
 }
 
 bool Solver::EulerSolver::ConvergenceCriteria(double CL_old,
