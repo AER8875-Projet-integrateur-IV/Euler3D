@@ -49,7 +49,7 @@ E3D::Metrics::Metrics(const Mesh<Parser::MeshPartition> &localMesh, int mpi_rank
 
 
 // Compute area of a triangle with given to vectors
-double computeTriangleArea(Vector3<double> A, Vector3<double> B) {
+double computeTriangleArea(Vector3<double>& A, Vector3<double>& B) {
     return (Vector3<double>::crossProduct(A, B)*0.5).length();
 }
 
