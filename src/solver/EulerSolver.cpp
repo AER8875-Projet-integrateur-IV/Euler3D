@@ -169,21 +169,20 @@ void Solver::EulerSolver::WriteSummary(long solverTimer, long totalTimer) {
 		double TimeCore_p_IterNElem = static_cast<double>(solverTimer * _e3d_mpi.getPoolSize()) /
 		                              static_cast<double>(_nbInteration * _localMesh.GetNElemGlobalMesh());
 		// Write summary in TOML format
-		auto tbl = toml::table{{
-		        {"Mesh", toml::table{{{"Wall_Face_Vector_Sum", toml::array{sumWallVectors.x, sumWallVectors.y, sumWallVectors.z}},
-		                              {"NElem", _localMesh.GetNElemGlobalMesh()}}}},
-		        {"Coefficients", toml::table{{
-		                                 {"Force_Coeff", toml::array{_forceCoefficients.x, _forceCoefficients.y, _forceCoefficients.z}},
-		                                 {"Moment_Coeff", toml::array{_momentCoefficients.x, _momentCoefficients.y, _momentCoefficients.z}},
-		                                 {"CL", _CL},
-		                                 {"CD", _CD},
-		                                 {"CM", _CM},
-		                         }}},
-		        {"TotalSolverTime_ms", totalTimer},
-		        {"SolverLoopTime_ms", solverTimer},
-		        {"Iterations", _nbInteration},
-		        {"TimeCore_p_IterNElem_ms", TimeCore_p_IterNElem},
-		}};
+		auto tbl = toml::table{{{"Mesh", toml::table{{{"Wall_Face_Vector_Sum", toml::array{sumWallVectors.x, sumWallVectors.y, sumWallVectors.z}},
+		                                              {"NElem", _localMesh.GetNElemGlobalMesh()}}}},
+		                        {"Coefficients", toml::table{{
+		                                                 {"Force_Coeff", toml::array{_forceCoefficients.x, _forceCoefficients.y, _forceCoefficients.z}},
+		                                                 {"Moment_Coeff", toml::array{_momentCoefficients.x, _momentCoefficients.y, _momentCoefficients.z}},
+		                                                 {"CL", _CL},
+		                                                 {"CD", _CD},
+		                                                 {"CM", _CM},
+		                                         }}},
+		                        {"TotalSolverTime_ms", totalTimer},
+		                        {"SolverLoopTime_ms", solverTimer},
+		                        {"Iterations", _nbInteration},
+		                        {"TimeCore_p_IterNElem_ms", TimeCore_p_IterNElem},
+		                        {"Ncores", _e3d_mpi.getPoolSize()}}};
 		std::filesystem::path path = _outputDir / "summary.txt";
 		std::ofstream file(path);
 		file << tbl << std::endl;
@@ -249,7 +248,7 @@ void Solver::EulerSolver::PrintInfo(double iterationwallTime, double rms) {
 	_CL = _forceCoefficients[_coeffOrientation[0].first] * _coeffOrientation[0].second;
 	_CD = _forceCoefficients[_coeffOrientation[1].first] * _coeffOrientation[1].second;
 	_CM = _momentCoefficients[_coeffOrientation[2].first] * _coeffOrientation[2].second;
-	_residualFile.Update(rms, _forceCoefficients, _momentCoefficients);
+	_residualFile.Update(rms, _forceCoefficients, _momentCoefficients, _nbInteration);
 	E3D::Solver::PrintSolverIteration(_CL, _CD, _CM, rms, iterationwallTime, _nbInteration);
 }
 
