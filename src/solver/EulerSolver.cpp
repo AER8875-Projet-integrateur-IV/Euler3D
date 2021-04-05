@@ -212,10 +212,10 @@ void Solver::EulerSolver::updateBC() {
 			Solver::BC::FarfieldSupersonicOutflow(_localFlowField, GhostIdx, InteriorGhostIdx);
 		} else if (M < 1.0 && V > 0.0) {
 			Solver::BC::FarfieldSubsonicOutflow(_localFlowField, _localMetrics, GhostIdx, InteriorGhostIdx, FaceGhostIdx);
-		} else if (M >= 1.0 && V < 0.0) {
+		} else if (M >= 1.0 && V <= 0.0) {
 			Solver::BC::FarfieldSupersonicInflow(_localFlowField, GhostIdx);
 
-		} else if (M < 1.0 && V < 0.0) {
+		} else if (M < 1.0 && V <= 0.0) {
 			Solver::BC::FarfieldSubsonicInflow(_localFlowField, _localMetrics, GhostIdx, InteriorGhostIdx, FaceGhostIdx);
 		}
 	}
