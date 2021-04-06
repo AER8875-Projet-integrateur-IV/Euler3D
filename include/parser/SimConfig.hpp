@@ -132,6 +132,8 @@ namespace E3D::Parser {
 		inline E3D::Vector3<double> getMeshRefPoint() const { return _meshRefPoint; }
 		inline int getSamplingPeriod() const { return _samplingPeriod; }
 		inline const std::filesystem::path &GetoutputDir() const { return _outputDir; }
+		inline double getCref() const { return _Cref; }
+		inline double getSref() const { return _Sref; }
 
 	private:
 		std::ifstream _configFileStream;
@@ -144,6 +146,8 @@ namespace E3D::Parser {
 		std::string _postProcessorLog;
 		std::filesystem::path _outputDir;
 
+		double _Sref;
+		double _Cref;
 		double _aoa;
 		double _mach;
 		double _velocity;

@@ -96,6 +96,7 @@ namespace E3D::Parser {
      */
 
 		Node(std::vector<double> xyz_coord) : _x(xyz_coord[0]), _y(xyz_coord[1]), _z(xyz_coord[2]){};
+		Node(double x, double y, double z) : _x(x), _y(y), _z(z){};
 		/**
          * @brief Construct a new empty Node object
          * 

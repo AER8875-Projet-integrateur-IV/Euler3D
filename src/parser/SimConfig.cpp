@@ -94,6 +94,10 @@ void SimConfig::parseConfigFile() {
 					ss1.seekg(18) >> _meshRefPoint.y;
 				} else if (line.find("MESH_REF_POINT_Z=") != std::string::npos) {
 					ss1.seekg(18) >> _meshRefPoint.z;
+				} else if (line.find("Sref=") != std::string::npos) {
+					ss1.seekg(6) >> _Sref;
+				} else if (line.find("Cref=") != std::string::npos) {
+					ss1.seekg(6) >> _Cref;
 				} else if (line.find("SAMPLING=") != std::string::npos) {
 					ss1.seekg(10) >> _samplingPeriod;
 				} else if (line.find("PRE_LOG=") != std::string::npos) {

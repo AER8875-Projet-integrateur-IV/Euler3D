@@ -5,10 +5,18 @@
 #include <cmath>
 #include <numeric>
 
-
 using namespace E3D;
-E3D::Metrics::Metrics(const Mesh<Parser::MeshPartition> &localMesh, int mpi_rank)
+E3D::Metrics::Metrics(const Mesh<Parser::MeshPartition> &localMesh, int mpi_rank, const E3D::Parser::SimConfig &config)
     : _localMesh(localMesh) {
+	// addim the spatial coordinates
+	double cref = config.getCref();
+	_adimNodes.reserve(localMesh.GetNodeVector().size());
+	for (const auto &node : localMesh.GetNodeVector()) {
+		double x = node.getX() / cref;
+		double y = node.getY() / cref;
+		double z = node.getZ() / cref;
+		_adimNodes.emplace_back(E3D::Parser::Node(x, y, z));
+	}
 
 	if (mpi_rank == 0) {
 		std::cout << "\n\n"
@@ -80,7 +88,7 @@ void Metrics::computeFaceMetrics() {
 		// populate LocalNodesCoords variable
 		for (int localNodeID = 0; localNodeID < temp_nNodesSurrFace; localNodeID++) {
 
-			E3D::Parser::Node temp_coords = _localMesh.GetNodeCoord(p_NodeID[localNodeID]);
+			E3D::Parser::Node temp_coords = _adimNodes[p_NodeID[localNodeID]];
 			temp_LocalNodesCoords.emplace_back(temp_coords.getX(), temp_coords.getY(), temp_coords.getZ());
 		}
 
@@ -167,7 +175,7 @@ void Metrics::computeCellMetrics() {
 		// populate LocalNodesCoords variable
 		for (const auto &nodeID : temp_localNodes) {
 
-			E3D::Parser::Node temp_coords = _localMesh.GetNodeCoord(nodeID);
+			E3D::Parser::Node temp_coords = _adimNodes[nodeID];
 			temp_LocalNodesCoords.emplace_back(temp_coords.getX(), temp_coords.getY(), temp_coords.getZ());
 		}
 
