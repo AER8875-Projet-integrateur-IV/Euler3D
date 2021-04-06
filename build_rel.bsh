@@ -1,7 +1,0 @@
-#! /bin/bash 
-
-cd build/
-
-cmake -D CMAKE_PREFIX_PATH=/usr/lib/x86_64-linux-gnu -DCMAKE_EXPORT_COMPILE_COMMANDS=1 -DCMAKE_BUILD_TYPE=Release -DPACKAGE_TESTS=ON ..
-
-make -j 6
