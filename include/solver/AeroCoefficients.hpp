@@ -34,6 +34,8 @@ namespace E3D::Solver {
 		// Factor in the cp equation = 1/(0.5*rho_inf*square(v_inf))
 		double _cpFactor;
 		double _pInf;
+		double _Sref;
+		double _Cref;
 
 	public:
 		AeroCoefficients(double pInf,
@@ -41,7 +43,9 @@ namespace E3D::Solver {
 		                 const E3D::Vector3<double> &uInf,
 		                 const E3D::Mesh<E3D::Parser::MeshPartition> &mesh,
 		                 const E3D::Metrics &metrics,
-		                 const E3D::Vector3<double> &refPoint);
+		                 const E3D::Vector3<double> &refPoint,
+		                 double Sref,
+		                 double Cref);
 		AeroCoefficients() = default;
 		void Update(const std::vector<double> &pressure);
 		inline const E3D::Vector3<double> &GetForceCoeff() const { return _ForceCoeff; };

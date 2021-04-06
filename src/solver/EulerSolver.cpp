@@ -43,7 +43,9 @@ Solver::EulerSolver::EulerSolver(FlowField &localFlowField,
 	                                       uInf,
 	                                       localMesh,
 	                                       localMetrics,
-	                                       config.getMeshRefPoint());
+	                                       config.getMeshRefPoint(),
+	                                       config.getSref(),
+	                                       config.getCref());
 
 	// define time integration method
 	if (_config.getTemporalScheme() == Parser::SimConfig::TemporalScheme::RK5) {

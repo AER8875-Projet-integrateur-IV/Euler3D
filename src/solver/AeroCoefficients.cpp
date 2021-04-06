@@ -7,7 +7,9 @@ AeroCoefficients::AeroCoefficients(double pInf,
                                    const E3D::Vector3<double> &uInf,
                                    const E3D::Mesh<E3D::Parser::MeshPartition> &mesh,
                                    const E3D::Metrics &metrics,
-                                   const E3D::Vector3<double> &refPoint) {
+                                   const E3D::Vector3<double> &refPoint,
+                                   double Sref,
+                                   double Cref) : _Sref(Sref), _Cref(Cref) {
 
 	_ReferencePoint = refPoint;
 	_BorderCells = mesh.GetWallAdjacentGhostCellIDs();
@@ -39,11 +41,12 @@ void AeroCoefficients::Update(const std::vector<double> &pressure) {
 	for (int i = 0; i < _nElem; i++) {
 		int cellID = _BorderCells[i];
 		_cp[i] = _cpFactor * (pressure[cellID] - _pInf);
-		E3D::Vector3<double> coeff = _FaceVectors[i] * _cp[i];
+		E3D::Vector3<double> coeff = _FaceVectors[i] * _cp[i] * _Cref / _Sref;
 		_ForceCoeff += coeff;
 		_CentrePressure += coeff * _FaceCentroids[i];
 	}
 	_CentrePressure /= _ForceCoeff;
-	E3D::Vector3 lever = _ReferencePoint - _CentrePressure;
+	E3D::Vector3 lever = (_ReferencePoint - _CentrePressure);
 	_MomentCoeff = E3D::Vector3<double>::crossProduct(_ForceCoeff, lever);
+	_MomentCoeff /= _Cref;
 }

@@ -93,6 +93,11 @@ namespace E3D {
 		Vector3 operator*(T s) {
 			return Vector3(x * s, y * s, z * s);
 		}
+		void operator/=(T s) {
+			this->x /= s;
+			this->y /= s;
+			this->z /= s;
+		}
 		Vector3 operator*(Vector3<T> s) {
 			return Vector3(x * s.x, y * s.y, z * s.z);
 		}
