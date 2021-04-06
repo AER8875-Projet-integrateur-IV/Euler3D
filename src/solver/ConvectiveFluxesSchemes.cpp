@@ -12,62 +12,62 @@ E3D::Solver::ResidualVar E3D::Solver::Roe(E3D::Solver::FlowField &_localFlowFiel
                                           const E3D::Metrics &_localMetrics,
                                           const int iface) {
 
-    int *ptr = _localMesh.GetFace2ElementID(iface);
+	int *ptr = _localMesh.GetFace2ElementID(iface);
 
-    Vector3<double> faceCenter = _localMetrics.getFaceCenters()[iface];
-    int leftElementId = ptr[0];
-    int rightElementId = ptr[1];
+	Vector3<double> faceCenter = _localMetrics.getFaceCenters()[iface];
+	int leftElementId = ptr[0];
+	int rightElementId = ptr[1];
 
-    bool borderElem;
-    rightElementId < _localMesh.GetnElemTot() ? borderElem = false : borderElem = true;
-    auto PrimitiveVarGrads = GreenGaussGradient(_localFlowField, _localMesh, _localMetrics, iface, borderElem);
-    //auto limiters = VenkatakrishnanLimiter(_localFlowField, _localMesh, _localMetrics, iface, PrimitiveVarGrads,borderElem);
-    std::vector<double> limiters(12);
-    std::fill(limiters.begin(), limiters.end(), 1.0);
-
-
-    Vector3<double> r_l = faceCenter - _localMetrics.getCellCentroids()[leftElementId];
-
-    double leftRho = _localFlowField.Getrho()[leftElementId] + Vector3<double>::dot(PrimitiveVarGrads[0], r_l) * limiters[0];
-    double leftU = _localFlowField.GetU_Velocity()[leftElementId] + Vector3<double>::dot(PrimitiveVarGrads[1], r_l) * limiters[1];
-    double leftV = _localFlowField.GetV_Velocity()[leftElementId] + Vector3<double>::dot(PrimitiveVarGrads[2], r_l) * limiters[2];
-    double leftW = _localFlowField.GetW_Velocity()[leftElementId] + Vector3<double>::dot(PrimitiveVarGrads[3], r_l) * limiters[3];
-    double leftH = _localFlowField.GetH()[leftElementId] + Vector3<double>::dot(PrimitiveVarGrads[4], r_l) * limiters[4];
-    double leftP = _localFlowField.GetP()[leftElementId] + Vector3<double>::dot(PrimitiveVarGrads[5], r_l) * limiters[5];
-
-    double rightRho;
-    double rightU;
-    double rightV;
-    double rightW;
-    double rightH;
-    double rightP;
-
-    Vector3<double> r_r = faceCenter - _localMetrics.getCellCentroids()[rightElementId];
-    if (rightElementId < _localMesh.GetnElemTot()) {
-
-        rightRho = _localFlowField.Getrho()[rightElementId] + Vector3<double>::dot(PrimitiveVarGrads[6], r_r) * limiters[6];
-        rightU = _localFlowField.GetU_Velocity()[rightElementId] + Vector3<double>::dot(PrimitiveVarGrads[7], r_r) * limiters[7];
-        rightV = _localFlowField.GetV_Velocity()[rightElementId] + Vector3<double>::dot(PrimitiveVarGrads[8], r_r) * limiters[8];
-        rightW = _localFlowField.GetW_Velocity()[rightElementId] + Vector3<double>::dot(PrimitiveVarGrads[9], r_r) * limiters[9];
-        rightH = _localFlowField.GetH()[rightElementId] + Vector3<double>::dot(PrimitiveVarGrads[10], r_r) * limiters[10];
-        rightP = _localFlowField.GetP()[rightElementId] + Vector3<double>::dot(PrimitiveVarGrads[11], r_r) * limiters[11];
-    } else {
-        rightRho = _localFlowField.Getrho()[rightElementId];
-        rightU = _localFlowField.GetU_Velocity()[rightElementId];
-        rightV = _localFlowField.GetV_Velocity()[rightElementId];
-        rightW = _localFlowField.GetW_Velocity()[rightElementId];
-        rightH = _localFlowField.GetH()[rightElementId];
-        rightP = _localFlowField.GetP()[rightElementId];
-    }
-
-    double gamma = _localFlowField.getgamma_ref();
+	bool borderElem;
+	rightElementId < _localMesh.GetnElemTot() ? borderElem = false : borderElem = true;
+	auto PrimitiveVarGrads = GreenGaussGradient(_localFlowField, _localMesh, _localMetrics, iface, borderElem);
+	//auto limiters = VenkatakrishnanLimiter(_localFlowField, _localMesh, _localMetrics, iface, PrimitiveVarGrads,borderElem);
+	std::vector<double> limiters(12);
+	std::fill(limiters.begin(), limiters.end(), 1.0);
 
 
-    double sqrtLeftRho = sqrt(leftRho);
-    double sqrtRightRho = sqrt(rightRho);
+	Vector3<double> r_l = faceCenter - _localMetrics.getCellCentroids()[leftElementId];
 
-    //calculate variables for flowfield
-    double rhoTilde = sqrt(leftRho * rightRho);
+	double leftRho = _localFlowField.Getrho()[leftElementId] + Vector3<double>::dot(PrimitiveVarGrads[0], r_l) * limiters[0];
+	double leftU = _localFlowField.GetU_Velocity()[leftElementId] + Vector3<double>::dot(PrimitiveVarGrads[1], r_l) * limiters[1];
+	double leftV = _localFlowField.GetV_Velocity()[leftElementId] + Vector3<double>::dot(PrimitiveVarGrads[2], r_l) * limiters[2];
+	double leftW = _localFlowField.GetW_Velocity()[leftElementId] + Vector3<double>::dot(PrimitiveVarGrads[3], r_l) * limiters[3];
+	double leftH = _localFlowField.GetH()[leftElementId] + Vector3<double>::dot(PrimitiveVarGrads[4], r_l) * limiters[4];
+	double leftP = _localFlowField.GetP()[leftElementId] + Vector3<double>::dot(PrimitiveVarGrads[5], r_l) * limiters[5];
+
+	double rightRho;
+	double rightU;
+	double rightV;
+	double rightW;
+	double rightH;
+	double rightP;
+
+	Vector3<double> r_r = faceCenter - _localMetrics.getCellCentroids()[rightElementId];
+	if (rightElementId < _localMesh.GetnElemTot()) {
+
+		rightRho = _localFlowField.Getrho()[rightElementId] + Vector3<double>::dot(PrimitiveVarGrads[6], r_r) * limiters[6];
+		rightU = _localFlowField.GetU_Velocity()[rightElementId] + Vector3<double>::dot(PrimitiveVarGrads[7], r_r) * limiters[7];
+		rightV = _localFlowField.GetV_Velocity()[rightElementId] + Vector3<double>::dot(PrimitiveVarGrads[8], r_r) * limiters[8];
+		rightW = _localFlowField.GetW_Velocity()[rightElementId] + Vector3<double>::dot(PrimitiveVarGrads[9], r_r) * limiters[9];
+		rightH = _localFlowField.GetH()[rightElementId] + Vector3<double>::dot(PrimitiveVarGrads[10], r_r) * limiters[10];
+		rightP = _localFlowField.GetP()[rightElementId] + Vector3<double>::dot(PrimitiveVarGrads[11], r_r) * limiters[11];
+	} else {
+		rightRho = _localFlowField.Getrho()[rightElementId];
+		rightU = _localFlowField.GetU_Velocity()[rightElementId];
+		rightV = _localFlowField.GetV_Velocity()[rightElementId];
+		rightW = _localFlowField.GetW_Velocity()[rightElementId];
+		rightH = _localFlowField.GetH()[rightElementId];
+		rightP = _localFlowField.GetP()[rightElementId];
+	}
+
+	double gamma = _localFlowField.getgamma_ref();
+
+
+	double sqrtLeftRho = sqrt(leftRho);
+	double sqrtRightRho = sqrt(rightRho);
+
+	//calculate variables for flowfield
+	double rhoTilde = sqrt(leftRho * rightRho);
 
 
 	double uTilde = (leftU * sqrtLeftRho + rightU * sqrtRightRho) / (sqrtLeftRho + sqrtRightRho);
@@ -217,72 +217,72 @@ std::vector<E3D::Vector3<double>> E3D::Solver::GreenGaussGradient(E3D::Solver::F
                                                                   const int iface,
                                                                   bool borderElem) {
 
-    int *ptrFace2Elems = Mesh.GetFace2ElementID(iface);
+	int *ptrFace2Elems = Mesh.GetFace2ElementID(iface);
 
-    // Contains gradient of variables in the following order : rho,u,v,w,H,p .
-    // First half is for the left side (6 values), and the second half for the right side (6 values)
-    std::vector<E3D::Vector3<double>> GradPrimitiveVariables(12);
-    int globalCounter = 0;
-    // Computing Gradient with Green Gauss Method
-    for (int i = 0; i < 2; i++) {
-        int iElem = ptrFace2Elems[i];
+	// Contains gradient of variables in the following order : rho,u,v,w,H,p .
+	// First half is for the left side (6 values), and the second half for the right side (6 values)
+	std::vector<E3D::Vector3<double>> GradPrimitiveVariables(12);
+	int globalCounter = 0;
+	// Computing Gradient with Green Gauss Method
+	for (int i = 0; i < 2; i++) {
+		int iElem = ptrFace2Elems[i];
 
-        // Find Central element primitive Variables
-        double cellVolume = Metrics.getCellVolumes()[iElem];
-        std::array<double, 6> ThisElemPrimVar{
-                Flowfield.Getrho()[iElem],
-                Flowfield.GetU_Velocity()[iElem],
-                Flowfield.GetV_Velocity()[iElem],
-                Flowfield.GetW_Velocity()[iElem],
-                Flowfield.GetH()[iElem],
-                Flowfield.GetP()[iElem],
-        };
+		// Find Central element primitive Variables
+		double cellVolume = Metrics.getCellVolumes()[iElem];
+		std::array<double, 6> ThisElemPrimVar{
+		        Flowfield.Getrho()[iElem],
+		        Flowfield.GetU_Velocity()[iElem],
+		        Flowfield.GetV_Velocity()[iElem],
+		        Flowfield.GetW_Velocity()[iElem],
+		        Flowfield.GetH()[iElem],
+		        Flowfield.GetP()[iElem],
+		};
 
-        int nbSurrElems;
-        int *ptrElemToFace = Mesh.GetElement2FaceID(iElem, nbSurrElems);
+		int nbSurrElems;
+		int *ptrElemToFace = Mesh.GetElement2FaceID(iElem, nbSurrElems);
 
-        std::array<Vector3<double>, 6> Grads{Vector3<double>(0, 0, 0),
-                                             Vector3<double>(0, 0, 0),
-                                             Vector3<double>(0, 0, 0),
-                                             Vector3<double>(0, 0, 0),
-                                             Vector3<double>(0, 0, 0),
-                                             Vector3<double>(0, 0, 0)};
-
-
-        for (int j = 0; j < nbSurrElems; j++) {
-            int face = ptrElemToFace[j];
-            int *ptrFace2ElemsGradient = Mesh.GetFace2ElementID(face);
-            int AdjacentElem;
-            iElem == ptrFace2ElemsGradient[0] ? AdjacentElem = ptrFace2ElemsGradient[1] : AdjacentElem = ptrFace2ElemsGradient[0];
-
-            Vector3<double> UnitNormal = Metrics.getFaceNormalsUnit()[face];
-            if (AdjacentElem > iElem) {
-                UnitNormal *= -1;
-            }
-            double faceSurface = Metrics.getFaceSurfaces()[face];
-
-            std::array<double, 6> AdjElemPrimVar{
-                    Flowfield.Getrho()[AdjacentElem],
-                    Flowfield.GetU_Velocity()[AdjacentElem],
-                    Flowfield.GetV_Velocity()[AdjacentElem],
-                    Flowfield.GetW_Velocity()[AdjacentElem],
-                    Flowfield.GetH()[AdjacentElem],
-                    Flowfield.GetP()[AdjacentElem],
-            };
+		std::array<Vector3<double>, 6> Grads{Vector3<double>(0, 0, 0),
+		                                     Vector3<double>(0, 0, 0),
+		                                     Vector3<double>(0, 0, 0),
+		                                     Vector3<double>(0, 0, 0),
+		                                     Vector3<double>(0, 0, 0),
+		                                     Vector3<double>(0, 0, 0)};
 
 
-            for (int VarIdx = 0; VarIdx < 6; VarIdx++) {
-                Grads[VarIdx] += UnitNormal * (ThisElemPrimVar[VarIdx] + AdjElemPrimVar[VarIdx]) * faceSurface * 0.5;
-            }
-        }
+		for (int j = 0; j < nbSurrElems; j++) {
+			int face = ptrElemToFace[j];
+			int *ptrFace2ElemsGradient = Mesh.GetFace2ElementID(face);
+			int AdjacentElem;
+			iElem == ptrFace2ElemsGradient[0] ? AdjacentElem = ptrFace2ElemsGradient[1] : AdjacentElem = ptrFace2ElemsGradient[0];
 
-        for (int VarIdx = 0; VarIdx < 6; VarIdx++) {
-            GradPrimitiveVariables[globalCounter] = Grads[VarIdx] / cellVolume;
-            globalCounter++;
-        }
-        if (borderElem) {
-            break;
-        }
-    }
-    return GradPrimitiveVariables;
+			Vector3<double> UnitNormal = Metrics.getFaceNormalsUnit()[face];
+			if (AdjacentElem > iElem) {
+				UnitNormal *= -1;
+			}
+			double faceSurface = Metrics.getFaceSurfaces()[face];
+
+			std::array<double, 6> AdjElemPrimVar{
+			        Flowfield.Getrho()[AdjacentElem],
+			        Flowfield.GetU_Velocity()[AdjacentElem],
+			        Flowfield.GetV_Velocity()[AdjacentElem],
+			        Flowfield.GetW_Velocity()[AdjacentElem],
+			        Flowfield.GetH()[AdjacentElem],
+			        Flowfield.GetP()[AdjacentElem],
+			};
+
+
+			for (int VarIdx = 0; VarIdx < 6; VarIdx++) {
+				Grads[VarIdx] += UnitNormal * (ThisElemPrimVar[VarIdx] + AdjElemPrimVar[VarIdx]) * faceSurface * 0.5;
+			}
+		}
+
+		for (int VarIdx = 0; VarIdx < 6; VarIdx++) {
+			GradPrimitiveVariables[globalCounter] = Grads[VarIdx] / cellVolume;
+			globalCounter++;
+		}
+		if (borderElem) {
+			break;
+		}
+	}
+	return GradPrimitiveVariables;
 }

@@ -94,18 +94,18 @@ void Solver::EulerSolver::Run() {
 
 		(this->*_timeIntegrator)();
 
-        double error = computeRMS();
-        double _sumerrors = 0.0;
-        MPI_Allreduce(&error, &_sumerrors, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
-        double _maximumDomainRms = std::sqrt(_sumerrors / _localFlowField.getTotalDomainCounts());
-        if (_maximumDomainRms < _config.getMinResidual()) {
-            if (_e3d_mpi.getRankID() == 0) {
-                double iterationEndTimer = MPI_Wtime();
-                double iterationwallTime = iterationEndTimer - iterationBeginTimer;
-                PrintInfo(iterationwallTime, _maximumDomainRms);
-            }
-            break;
-        }
+		double error = computeRMS();
+		double _sumerrors = 0.0;
+		MPI_Allreduce(&error, &_sumerrors, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+		double _maximumDomainRms = std::sqrt(_sumerrors / _localFlowField.getTotalDomainCounts());
+		if (_maximumDomainRms < _config.getMinResidual()) {
+			if (_e3d_mpi.getRankID() == 0) {
+				double iterationEndTimer = MPI_Wtime();
+				double iterationwallTime = iterationEndTimer - iterationBeginTimer;
+				PrintInfo(iterationwallTime, _maximumDomainRms);
+			}
+			break;
+		}
 
 		_nbInteration += 1;
 
@@ -137,7 +137,6 @@ void Solver::EulerSolver::Run() {
 			                               globalcoeffs[2]);
 
 			//TODO Exchange max RMS between partition;
-
 
 
 			if (criteria) {
