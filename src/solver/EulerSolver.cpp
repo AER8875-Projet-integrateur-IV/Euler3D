@@ -80,6 +80,7 @@ void Solver::EulerSolver::Run() {
 	int convergenceCounter = 0;
 	bool criteria = false;
 	while (_nbInteration < _config.getMaxNumberIterations()) {
+
 		resetResiduals();
 		double iterationBeginTimer = MPI_Wtime();
 
@@ -91,27 +92,18 @@ void Solver::EulerSolver::Run() {
 			smoothResiduals();
 		}
 
-
-		//TODO Exchange max RMS between partition;
-		double error = computeRMS();
-		double _sumerrors = 0;
-		MPI_Allreduce(&error, &_sumerrors, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
-		double _maximumDomainRms = std::sqrt(_sumerrors / _localFlowField.getTotalDomainCounts());
-		if (_maximumDomainRms < _config.getMinResidual()) {
-			if (_e3d_mpi.getRankID() == 0) {
-				double iterationEndTimer = MPI_Wtime();
-				double iterationwallTime = iterationEndTimer - iterationBeginTimer;
-				PrintInfo(iterationwallTime, _maximumDomainRms);
-			}
-			break;
-		}
-
 		(this->*_timeIntegrator)();
 
 		_nbInteration += 1;
 
 
 		if (_nbInteration % _samplePeriod == 0) {//_samplePeriod
+            double error = computeRMS();
+            double _sumerrors = 0.0;
+            MPI_Allreduce(&error, &_sumerrors, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+            double _maximumDomainRms = std::sqrt(_sumerrors / _localFlowField.getTotalDomainCounts());
+
+
 			// Broadcast coeffs from partition 0 to other partitions
 			std::vector<double> Oldglobalcoeffs{_CL, _CD, _CM};
 			BroadCastCoeffs(Oldglobalcoeffs);
@@ -122,7 +114,7 @@ void Solver::EulerSolver::Run() {
 			if (_e3d_mpi.getRankID() == 0) {
 				double iterationEndTimer = MPI_Wtime();
 				double iterationwallTime = iterationEndTimer - iterationBeginTimer;
-				PrintInfo(iterationwallTime, _sumerrors);
+				PrintInfo(iterationwallTime, _maximumDomainRms);
 			}
 
 			// Broadcast coeffs from partition 0 to other partitions
@@ -135,6 +127,18 @@ void Solver::EulerSolver::Run() {
 			                               globalcoeffs[0],
 			                               globalcoeffs[1],
 			                               globalcoeffs[2]);
+
+            //TODO Exchange max RMS between partition;
+
+            if (_maximumDomainRms < _config.getMinResidual()) {
+                if (_e3d_mpi.getRankID() == 0) {
+                    double iterationEndTimer = MPI_Wtime();
+                    double iterationwallTime = iterationEndTimer - iterationBeginTimer;
+                    PrintInfo(iterationwallTime, _maximumDomainRms);
+                }
+                break;
+            }
+
 			if (criteria) {
 				convergenceCounter++;
 			} else {
