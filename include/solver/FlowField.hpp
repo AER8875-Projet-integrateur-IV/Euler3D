@@ -20,7 +20,9 @@ namespace E3D::Solver {
 		            const std::vector<int> &adjacentToMPIids);
 
 		void updateWRungeKutta(const std::vector<E3D::Solver::ConservativeVar> &,
-		                       const std::vector<E3D::Solver::ConservativeVar> &);
+		                       const std::vector<E3D::Solver::ConservativeVar> &,
+		                       const std::vector<int> &MPIids,
+		                       const std::vector<int> &adjacentToMPIids);
 
 		// Return rho (density) of problem
 
