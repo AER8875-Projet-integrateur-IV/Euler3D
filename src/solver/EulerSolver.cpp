@@ -98,10 +98,10 @@ void Solver::EulerSolver::Run() {
 
 
 		if (_nbInteration % _samplePeriod == 0) {//_samplePeriod
-            double error = computeRMS();
-            double _sumerrors = 0.0;
-            MPI_Allreduce(&error, &_sumerrors, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
-            double _maximumDomainRms = std::sqrt(_sumerrors / _localFlowField.getTotalDomainCounts());
+			double error = computeRMS();
+			double _sumerrors = 0.0;
+			MPI_Allreduce(&error, &_sumerrors, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+			double _maximumDomainRms = std::sqrt(_sumerrors / _localFlowField.getTotalDomainCounts());
 
 
 			// Broadcast coeffs from partition 0 to other partitions
@@ -128,16 +128,16 @@ void Solver::EulerSolver::Run() {
 			                               globalcoeffs[1],
 			                               globalcoeffs[2]);
 
-            //TODO Exchange max RMS between partition;
+			//TODO Exchange max RMS between partition;
 
-            if (_maximumDomainRms < _config.getMinResidual()) {
-                if (_e3d_mpi.getRankID() == 0) {
-                    double iterationEndTimer = MPI_Wtime();
-                    double iterationwallTime = iterationEndTimer - iterationBeginTimer;
-                    PrintInfo(iterationwallTime, _maximumDomainRms);
-                }
-                break;
-            }
+			if (_maximumDomainRms < _config.getMinResidual()) {
+				if (_e3d_mpi.getRankID() == 0) {
+					double iterationEndTimer = MPI_Wtime();
+					double iterationwallTime = iterationEndTimer - iterationBeginTimer;
+					PrintInfo(iterationwallTime, _maximumDomainRms);
+				}
+				break;
+			}
 
 			if (criteria) {
 				convergenceCounter++;
