@@ -102,6 +102,7 @@ namespace E3D::Solver {
 		void RungeKutta();
 		void smoothResiduals();
 		void EulerExplicit();
+		void EulerImplicit();
 
 		// function to use for time integration
 		void (EulerSolver::*_timeIntegrator)();

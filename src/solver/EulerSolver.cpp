@@ -10,6 +10,12 @@
 #include <iomanip>
 #include <math.h>
 
+// #include "sgs/cal_Q.h"
+// #include "sgs/muscl.h"
+// #include "sgs/parameters.h"
+// #include "sgs/setup.h"
+// #include "sgs/utils.h"
+
 using namespace E3D;
 
 Solver::EulerSolver::EulerSolver(FlowField &localFlowField,
@@ -37,11 +43,15 @@ Solver::EulerSolver::EulerSolver(FlowField &localFlowField,
 	                                       uInf,
 	                                       localMesh,
 	                                       localMetrics,
-	                                       config.getMeshRefPoint());
+	                                       config.getMeshRefPoint(),
+	                                       config.getSref(),
+	                                       config.getCref());
 
 	// define time integration method
 	if (_config.getTemporalScheme() == Parser::SimConfig::TemporalScheme::RK5) {
 		_timeIntegrator = &Solver::EulerSolver::RungeKutta;
+	} else if (_config.getTemporalScheme() == Parser::SimConfig::TemporalScheme::IMPLICIT_EULER) {
+		_timeIntegrator = &Solver::EulerSolver::EulerImplicit;
 	} else {
 		_timeIntegrator = &Solver::EulerSolver::EulerExplicit;
 	}
@@ -70,6 +80,7 @@ void Solver::EulerSolver::Run() {
 	int convergenceCounter = 0;
 	bool criteria = false;
 	while (_nbInteration < _config.getMaxNumberIterations()) {
+
 		resetResiduals();
 		double iterationBeginTimer = MPI_Wtime();
 
@@ -81,27 +92,18 @@ void Solver::EulerSolver::Run() {
 			smoothResiduals();
 		}
 
-
-		//TODO Exchange max RMS between partition;
-		double error = computeRMS();
-		double _sumerrors = 0;
-		MPI_Allreduce(&error, &_sumerrors, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
-		double _maximumDomainRms = std::sqrt(_sumerrors / _localFlowField.getTotalDomainCounts());
-		if (_maximumDomainRms < _config.getMinResidual()) {
-			if (_e3d_mpi.getRankID() == 0) {
-				double iterationEndTimer = MPI_Wtime();
-				double iterationwallTime = iterationEndTimer - iterationBeginTimer;
-				PrintInfo(iterationwallTime, _sumerrors);
-			}
-			break;
-		}
-
 		(this->*_timeIntegrator)();
 
 		_nbInteration += 1;
 
 
 		if (_nbInteration % _samplePeriod == 0) {//_samplePeriod
+			double error = computeRMS();
+			double _sumerrors = 0.0;
+			MPI_Allreduce(&error, &_sumerrors, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+			double _maximumDomainRms = std::sqrt(_sumerrors / _localFlowField.getTotalDomainCounts());
+
+
 			// Broadcast coeffs from partition 0 to other partitions
 			std::vector<double> Oldglobalcoeffs{_CL, _CD, _CM};
 			BroadCastCoeffs(Oldglobalcoeffs);
@@ -112,7 +114,7 @@ void Solver::EulerSolver::Run() {
 			if (_e3d_mpi.getRankID() == 0) {
 				double iterationEndTimer = MPI_Wtime();
 				double iterationwallTime = iterationEndTimer - iterationBeginTimer;
-				PrintInfo(iterationwallTime, _sumerrors);
+				PrintInfo(iterationwallTime, _maximumDomainRms);
 			}
 
 			// Broadcast coeffs from partition 0 to other partitions
@@ -125,6 +127,18 @@ void Solver::EulerSolver::Run() {
 			                               globalcoeffs[0],
 			                               globalcoeffs[1],
 			                               globalcoeffs[2]);
+
+			//TODO Exchange max RMS between partition;
+
+			if (_maximumDomainRms < _config.getMinResidual()) {
+				if (_e3d_mpi.getRankID() == 0) {
+					double iterationEndTimer = MPI_Wtime();
+					double iterationwallTime = iterationEndTimer - iterationBeginTimer;
+					PrintInfo(iterationwallTime, _maximumDomainRms);
+				}
+				break;
+			}
+
 			if (criteria) {
 				convergenceCounter++;
 			} else {
@@ -161,21 +175,20 @@ void Solver::EulerSolver::WriteSummary(long solverTimer, long totalTimer) {
 		double TimeCore_p_IterNElem = static_cast<double>(solverTimer * _e3d_mpi.getPoolSize()) /
 		                              static_cast<double>(_nbInteration * _localMesh.GetNElemGlobalMesh());
 		// Write summary in TOML format
-		auto tbl = toml::table{{
-		        {"Mesh", toml::table{{{"Wall_Face_Vector_Sum", toml::array{sumWallVectors.x, sumWallVectors.y, sumWallVectors.z}},
-		                              {"NElem", _localMesh.GetNElemGlobalMesh()}}}},
-		        {"Coefficients", toml::table{{
-		                                 {"Force_Coeff", toml::array{_forceCoefficients.x, _forceCoefficients.y, _forceCoefficients.z}},
-		                                 {"Moment_Coeff", toml::array{_momentCoefficients.x, _momentCoefficients.y, _momentCoefficients.z}},
-		                                 {"CL", _CL},
-		                                 {"CD", _CD},
-		                                 {"CM", _CM},
-		                         }}},
-		        {"TotalSolverTime_ms", totalTimer},
-		        {"SolverLoopTime_ms", solverTimer},
-		        {"Iterations", _nbInteration},
-		        {"TimeCore_p_IterNElem_ms", TimeCore_p_IterNElem},
-		}};
+		auto tbl = toml::table{{{"Mesh", toml::table{{{"Wall_Face_Vector_Sum", toml::array{sumWallVectors.x, sumWallVectors.y, sumWallVectors.z}},
+		                                              {"NElem", _localMesh.GetNElemGlobalMesh()}}}},
+		                        {"Coefficients", toml::table{{
+		                                                 {"Force_Coeff", toml::array{_forceCoefficients.x, _forceCoefficients.y, _forceCoefficients.z}},
+		                                                 {"Moment_Coeff", toml::array{_momentCoefficients.x, _momentCoefficients.y, _momentCoefficients.z}},
+		                                                 {"CL", _CL},
+		                                                 {"CD", _CD},
+		                                                 {"CM", _CM},
+		                                         }}},
+		                        {"TotalSolverTime_ms", totalTimer},
+		                        {"SolverLoopTime_ms", solverTimer},
+		                        {"Iterations", _nbInteration},
+		                        {"TimeCore_p_IterNElem_ms", TimeCore_p_IterNElem},
+		                        {"Ncores", _e3d_mpi.getPoolSize()}}};
 		std::filesystem::path path = _outputDir / "summary.txt";
 		std::ofstream file(path);
 		file << tbl << std::endl;
@@ -229,21 +242,20 @@ void Solver::EulerSolver::updateBC() {
 
 		int GhostIdx = _SymmetryGhostCellIDs[GhostID];
 		int InteriorGhostIdx = _localMesh.GetSymmetryAdjacentGhostCellIDs()[GhostID];
-
-		Solver::BC::Symmetry(_localFlowField, GhostIdx, InteriorGhostIdx);
+		int FaceGhostIdx = _localMesh.GetSymmetryAdjacentFaceIDs()[GhostID];
+		Solver::BC::Symmetry(_localFlowField, _localMetrics, GhostIdx, InteriorGhostIdx, FaceGhostIdx);
 	}
 	// Update MPI
 
 	_e3d_mpi.updateFlowField(_localFlowField);
 }
 
-void Solver::EulerSolver::PrintInfo(double iterationwallTime, double sumError) {
+void Solver::EulerSolver::PrintInfo(double iterationwallTime, double rms) {
 	_CL = _forceCoefficients[_coeffOrientation[0].first] * _coeffOrientation[0].second;
 	_CD = _forceCoefficients[_coeffOrientation[1].first] * _coeffOrientation[1].second;
 	_CM = _momentCoefficients[_coeffOrientation[2].first] * _coeffOrientation[2].second;
-	_residualFile.Update(sumError, _forceCoefficients, _momentCoefficients);
-	double _maximumDomainRms = std::sqrt(sumError / _localFlowField.getTotalDomainCounts());
-	E3D::Solver::PrintSolverIteration(_CL, _CD, _CM, _maximumDomainRms, iterationwallTime, _nbInteration);
+	_residualFile.Update(rms, _forceCoefficients, _momentCoefficients, _nbInteration);
+	E3D::Solver::PrintSolverIteration(_CL, _CD, _CM, rms, iterationwallTime, _nbInteration);
 }
 
 bool Solver::EulerSolver::ConvergenceCriteria(double CL_old,
@@ -364,7 +376,7 @@ void Solver::EulerSolver::TimeIntegration() {
 
 void Solver::EulerSolver::updateW() {
 
-	_localFlowField.Update(_deltaW);
+	_localFlowField.Update(_deltaW, MPIghostCellElems, _localMesh.getMPIadjacentToGhostCellIDs());
 }
 
 double Solver::EulerSolver::computeRMS() {
@@ -457,6 +469,14 @@ void Solver::EulerSolver::RungeKutta() {
 		}
 		_localFlowField.updateWRungeKutta(RHS_W, W0);
 	}
+}
+
+void Solver::EulerSolver::EulerImplicit() {
+	updateDeltaTime();//specific method for euler implicit, should be good for time method2
+
+	// for (int i = 0; i < nstep; i++) {
+	// 	cal_Q();
+	// }
 }
 
 void Solver::EulerSolver::smoothResiduals() {

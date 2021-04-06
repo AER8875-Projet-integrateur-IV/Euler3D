@@ -100,7 +100,8 @@ void FlowField::Initialize(const int totalElemCount, const int ForceElemsCount) 
 	_Fz.resize(ForceElemsCount, 0);
 }
 
-void FlowField::Update(const std::vector<E3D::Solver::ConservativeVar> &delW_vector) {
+void FlowField::Update(const std::vector<E3D::Solver::ConservativeVar> &delW_vector, const std::vector<int> &MPIids,
+                       const std::vector<int> &adjacentToMPIids) {
 	// Update interior Cells
 	for (size_t ielem = 0; ielem < delW_vector.size(); ielem++) {
 
@@ -121,6 +122,18 @@ void FlowField::Update(const std::vector<E3D::Solver::ConservativeVar> &delW_vec
 		_H[ielem] = _E[ielem] + (_p[ielem] / _rho[ielem]);
 
 		_M[ielem] = sqrt(gamma_ref * (_p[ielem] / _rho[ielem])) / sqrt((std::pow(_u[ielem], 2) + std::pow(_v[ielem], 2) + std::pow(_w[ielem], 2)));
+	}
+	//Update Ghost Cells
+	for (size_t ielem = 0; ielem < MPIids.size(); ielem++) {
+		_rho[MPIids[ielem]] = _rho[adjacentToMPIids[ielem]];
+
+		_u[MPIids[ielem]] = _u[adjacentToMPIids[ielem]];
+		_v[MPIids[ielem]] = _v[adjacentToMPIids[ielem]];
+		_w[MPIids[ielem]] = _w[adjacentToMPIids[ielem]];
+		_E[MPIids[ielem]] = _E[adjacentToMPIids[ielem]];
+		_p[MPIids[ielem]] = _p[adjacentToMPIids[ielem]];
+		_H[MPIids[ielem]] = _H[adjacentToMPIids[ielem]];
+		_M[MPIids[ielem]] = _M[adjacentToMPIids[ielem]];
 	}
 }
 

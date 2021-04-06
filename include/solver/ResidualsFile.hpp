@@ -16,7 +16,8 @@ private:
 public:
 	ResidualsFile(const std::filesystem::path &path, int columnWidth = 30, int precision = 10) : _columnWidth(columnWidth), _precision(precision) {
 		_file.open(path);
-		_file << std::setw(_columnWidth) << "Max residual"
+		_file << std::setw(_columnWidth) << "iter"
+		      << std::setw(_columnWidth) << "Max residual"
 		      << std::setw(_columnWidth) << "Cx"
 		      << std::setw(_columnWidth) << "Cy"
 		      << std::setw(_columnWidth) << "Cz"
@@ -34,8 +35,9 @@ public:
 		_file.close();
 	}
 
-	void Update(double error, const E3D::Vector3<double> &forceCoeff, const E3D::Vector3<double> &momentCoeff) {
-		_file << std::scientific << std::setprecision(_precision) << std::setw(_columnWidth) << error
+	void Update(double error, const E3D::Vector3<double> &forceCoeff, const E3D::Vector3<double> &momentCoeff, const int iter) {
+		_file << std::setw(_columnWidth) << iter
+		      << std::scientific << std::setprecision(_precision) << std::setw(_columnWidth) << error
 		      << std::scientific << std::setprecision(_precision) << std::setw(_columnWidth) << forceCoeff.x
 		      << std::scientific << std::setprecision(_precision) << std::setw(_columnWidth) << forceCoeff.y
 		      << std::scientific << std::setprecision(_precision) << std::setw(_columnWidth) << forceCoeff.z

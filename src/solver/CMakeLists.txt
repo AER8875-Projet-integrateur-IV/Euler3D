@@ -1,3 +1,4 @@
+#add_subdirectory(sgs)
 add_library(Solver FlowField.cpp
         EulerSolver.cpp
         PhysicalBC.cpp

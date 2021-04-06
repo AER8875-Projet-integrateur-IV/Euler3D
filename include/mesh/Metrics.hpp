@@ -4,6 +4,7 @@
 #pragma once
 #include "mesh/Mesh.hpp"
 #include "parallelization/MPIHandler.hpp"
+#include "parser/SimConfig.hpp"
 #include "utils/Vector3.h"
 #include <parser/MeshPartition.hpp>
 
@@ -13,7 +14,7 @@ namespace E3D {
 		/**
 		 * Ctor takes Mesh class with a parser of type MeshPartition
 		 */
-		Metrics(const Mesh<Parser::MeshPartition> &, const Parallel::MPIHandler &e3d_mpi);
+		Metrics(const Mesh<Parser::MeshPartition> &, int mpi_rank, const E3D::Parser::SimConfig &config);
 
 		inline const std::vector<Vector3<double>> &getFaceNormals() const { return _faceNormals; }
 
@@ -43,6 +44,10 @@ namespace E3D {
          */
 		void reorientFaceVectors();
 
+		double TetrahedronVolume(Vector3<double> &, Vector3<double> &, Vector3<double> &, Vector3<double> &);
+
+		Vector3<double> TetrahedronCentroid(Vector3<double> &pts0, Vector3<double> &pts1, Vector3<double> &pts2, Vector3<double> &pts3);
+
 
 		const Mesh<Parser::MeshPartition> &_localMesh;
 		std::vector<Vector3<double>> _faceNormals;
@@ -51,5 +56,6 @@ namespace E3D {
 		std::vector<Vector3<double>> _faceUnitNormals;
 		std::vector<double> _faceSurfaces;
 		std::vector<double> _cellVolumes;
+		std::vector<E3D::Parser::Node> _adimNodes;
 	};
 }// namespace E3D
