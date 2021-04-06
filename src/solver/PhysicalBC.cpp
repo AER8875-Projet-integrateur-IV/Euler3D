@@ -3,7 +3,7 @@
 //
 
 #include "solver/PhysicalBC.h"
-
+#include "solver/ConvectiveFluxesSchemes.h"
 
 using namespace E3D::Solver;
 
@@ -27,8 +27,8 @@ void BC::FarfieldSupersonicOutflow(E3D::Solver::FlowField &flowfield,
                                    const int GhostcellID,
                                    const int InteriorCellID) {
 
-	flowfield.setRho(GhostcellID, flowfield.Getrho()[InteriorCellID]);
 
+	flowfield.setRho(GhostcellID, flowfield.Getrho()[InteriorCellID]);
 	flowfield.setU(GhostcellID, flowfield.GetU_Velocity()[InteriorCellID]);
 	flowfield.setV(GhostcellID, flowfield.GetV_Velocity()[InteriorCellID]);
 	flowfield.setW(GhostcellID, flowfield.GetW_Velocity()[InteriorCellID]);

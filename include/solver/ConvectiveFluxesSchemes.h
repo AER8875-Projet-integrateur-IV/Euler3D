@@ -34,5 +34,10 @@ namespace E3D::Solver {
 	                            const int GhostID,
 	                            const int faceID, double V);
 
+	std::vector<E3D::Vector3<double>> GreenGaussGradient(E3D::Solver::FlowField &Flowfield,
+	                                                     const E3D::Mesh<E3D::Parser::MeshPartition> &Mesh,
+	                                                     const E3D::Metrics &Metrics,
+	                                                     const int iface,
+	                                                     bool borderElem);
 
 }// namespace E3D::Solver
