@@ -236,8 +236,8 @@ void Solver::EulerSolver::updateBC() {
 
 		int GhostIdx = _SymmetryGhostCellIDs[GhostID];
 		int InteriorGhostIdx = _localMesh.GetSymmetryAdjacentGhostCellIDs()[GhostID];
-
-		Solver::BC::Symmetry(_localFlowField, GhostIdx, InteriorGhostIdx);
+        int FaceGhostIdx = _localMesh.GetSymmetryAdjacentFaceIDs()[GhostID];
+		Solver::BC::Symmetry(_localFlowField, _localMetrics,GhostIdx, InteriorGhostIdx,FaceGhostIdx);
 	}
 	// Update MPI
 
