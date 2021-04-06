@@ -101,7 +101,6 @@ TEST_CASE("SU2MeshParser class test", "[parser]") {
 		REQUIRE(parser.GetTags() == tags);
 		REQUIRE(parser.GetBoundaryElems().size() == 4);
 
-
 		// Testing Interior VTKID vector
 		REQUIRE(parser.GetInteriorElementVtkID().front() == 12);
 		REQUIRE(parser.GetInteriorElementVtkID()[50] == 12);
@@ -180,7 +179,8 @@ TEST_CASE("SimConfig class test", "[parser]") {
 
 TEST_CASE("MeshPartition and Metrics classes test", "[parser]") {
 	char *a = "aaa";
-	E3D::Parallel::MPIHandler e3d_mpi(1, &a);
+	int argc = 1;
+	E3D::Parallel::MPIHandler e3d_mpi(argc, &a);
 	std::string configFile = "../../test/ConfigFiles/ConfigFIle_test_meshPartition.e3d";
 	E3D::Parser::SimConfig config(configFile, e3d_mpi.getRankID(), e3d_mpi.getPoolSize());
 
@@ -205,28 +205,27 @@ TEST_CASE("MeshPartition and Metrics classes test", "[parser]") {
 	REQUIRE(MPIghostcell.back().second.size() == 2);
 	REQUIRE(MPIghostcell.back().second[1].getfaceNodeIDs().back() == 10);
 
-	SECTION("Metrics test") {
-		auto &computedCellVolumes = localMeshMetrics.getCellVolumes();
-		auto &computedCellCentroids = localMeshMetrics.getCellCentroids();
-		auto &computefaceCenter = localMeshMetrics.getFaceCenters();
-		auto &computefaceSurface = localMeshMetrics.getFaceSurfaces();
-		auto &computefaceNormals = localMeshMetrics.getFaceNormals();
 
-		// test cell volumes
-		REQUIRE(computedCellVolumes[0] == Approx(0.125));
-		REQUIRE(computedCellVolumes[1] == Approx(0.125));
+	auto &computedCellVolumes = localMeshMetrics.getCellVolumes();
+	auto &computedCellCentroids = localMeshMetrics.getCellCentroids();
+	auto &computefaceCenter = localMeshMetrics.getFaceCenters();
+	auto &computefaceSurface = localMeshMetrics.getFaceSurfaces();
+	auto &computefaceNormals = localMeshMetrics.getFaceNormals();
 
-		// test cell centroids
-		REQUIRE(computedCellCentroids[0] == E3D::Vector3<double>(0.25, 0.25, 0.25));
-		REQUIRE(computedCellCentroids[1] == E3D::Vector3<double>(0.25, 0.25, 0.75));
+	// test cell volumes
+	REQUIRE(computedCellVolumes[0] == Approx(0.125));
+	REQUIRE(computedCellVolumes[1] == Approx(0.125));
 
-		// test cell Surface
-		REQUIRE(computefaceSurface.front() == Approx(0.25));
-		REQUIRE(computefaceSurface.back() == Approx(0.25));
+	// test cell centroids
+	REQUIRE(computedCellCentroids[0] == E3D::Vector3<double>(0.25, 0.25, 0.25));
+	REQUIRE(computedCellCentroids[1] == E3D::Vector3<double>(0.25, 0.25, 0.75));
 
-		REQUIRE(localmeshClass.getAdjacentPartitionsCount() == 2);
-		REQUIRE(localmeshClass.getAdjacentPartitionsID()[0] == 1);
-		REQUIRE(localmeshClass.getAdjacentPartitionsID()[1] == 2);
-		REQUIRE(localmeshClass.getMpiBoundaryElemsCount() == 4);
-	}
+	// test cell Surface
+	REQUIRE(computefaceSurface.front() == Approx(0.25));
+	REQUIRE(computefaceSurface.back() == Approx(0.25));
+
+	REQUIRE(localmeshClass.getAdjacentPartitionsCount() == 2);
+	REQUIRE(localmeshClass.getAdjacentPartitionsID()[0] == 1);
+	REQUIRE(localmeshClass.getAdjacentPartitionsID()[1] == 2);
+	REQUIRE(localmeshClass.getMpiBoundaryElemsCount() == 4);
 }
