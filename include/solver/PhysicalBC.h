@@ -72,7 +72,7 @@ namespace E3D::Solver::BC {
     * @param FaceID face between ghost cell and interior element
     */
 	void Symmetry(E3D::Solver::FlowField &flowfield,
-                  const E3D::Metrics &localMetrics,
+	              const E3D::Metrics &localMetrics,
 	              const int GhostcellID,
 	              const int InteriorCellID,
 	              const int FaceID);
