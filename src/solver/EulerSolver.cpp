@@ -93,24 +93,23 @@ void Solver::EulerSolver::Run() {
 		}
 
 		(this->*_timeIntegrator)();
-        double error = computeRMS();
-        double _sumerrors = 0.0;
-        MPI_Allreduce(&error, &_sumerrors, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
-        double _maximumDomainRms = std::sqrt(_sumerrors / _localFlowField.getTotalDomainCounts());
-        if (_maximumDomainRms < _config.getMinResidual()) {
-            if (_e3d_mpi.getRankID() == 0) {
-                double iterationEndTimer = MPI_Wtime();
-                double iterationwallTime = iterationEndTimer - iterationBeginTimer;
-                PrintInfo(iterationwallTime, _maximumDomainRms);
-            }
-            break;
-        }
+		double error = computeRMS();
+		double _sumerrors = 0.0;
+		MPI_Allreduce(&error, &_sumerrors, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+		double _maximumDomainRms = std::sqrt(_sumerrors / _localFlowField.getTotalDomainCounts());
+		if (_maximumDomainRms < _config.getMinResidual()) {
+			if (_e3d_mpi.getRankID() == 0) {
+				double iterationEndTimer = MPI_Wtime();
+				double iterationwallTime = iterationEndTimer - iterationBeginTimer;
+				PrintInfo(iterationwallTime, _maximumDomainRms);
+			}
+			break;
+		}
 
 		_nbInteration += 1;
 
 
 		if (_nbInteration % _samplePeriod == 0) {//_samplePeriod
-
 
 
 			// Broadcast coeffs from partition 0 to other partitions
@@ -138,7 +137,6 @@ void Solver::EulerSolver::Run() {
 			                               globalcoeffs[2]);
 
 			//TODO Exchange max RMS between partition;
-
 
 
 			if (criteria) {
@@ -449,7 +447,7 @@ void Solver::EulerSolver::RungeKutta() {
 		RHS_W[i].rhoW = 0.0533 * dt * _residuals[i].m_rho_wV_residual / volume;
 		RHS_W[i].rhoE = 0.0533 * dt * _residuals[i].m_rho_HV_residual / volume;
 	}
-	_localFlowField.updateWRungeKutta(RHS_W, W0,MPIghostCellElems, _localMesh.getMPIadjacentToGhostCellIDs());
+	_localFlowField.updateWRungeKutta(RHS_W, W0, MPIghostCellElems, _localMesh.getMPIadjacentToGhostCellIDs());
 
 	for (auto &alpha : RKcoefficients) {
 		resetResiduals();
