@@ -478,11 +478,12 @@ void Solver::EulerSolver::EulerImplicit() {
 	// 	cal_Q();
 	// }
 }
-
+// TODO ADD MPI COMMS
+// TODO 2 iterations instead of while loop
 void Solver::EulerSolver::smoothResiduals() {
 
 
-	const double epsilon = 0.5;
+	const double epsilon = 0.25;
 	auto original_residual = _residuals;
 	std::vector<ResidualVar> last_residual(_localMesh.GetnElemTot());
 	std::vector<ResidualVar> diff(_localMesh.GetnElemTot());
@@ -513,5 +514,5 @@ void Solver::EulerSolver::smoothResiduals() {
 
 		diff.clear();
 		last_residual.clear();
-	} while (error > 1e-14);
+	} while (error > 1e-16);
 }
